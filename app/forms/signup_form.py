@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired, Email, ValidationError
+from wtforms import StringField, IntegerField
+from wtforms.validators import DataRequired, Length, Email, ValidationError, NumberRange
 from app.models import User
 
 
@@ -21,7 +21,14 @@ def username_exists(form, field):
 
 
 class SignUpForm(FlaskForm):
-    username = StringField(
-        'username', validators=[DataRequired(), username_exists])
-    email = StringField('email', validators=[DataRequired(), user_exists])
+    first_name = StringField('first_name', validators=[DataRequired(), Length(max=255)])
+    last_name = StringField('last_name', validators=[DataRequired(), Length(max=255)])
+    username = StringField('username', validators=[DataRequired(), username_exists, Length(max=40)])
+    email = StringField('email', validators=[DataRequired(), Email(), user_exists, Length(max=255)])
     password = StringField('password', validators=[DataRequired()])
+    street_address = StringField('street_address', validators=[DataRequired(), Length(max=255)])
+    city = StringField('city', validators=[DataRequired(), Length(max=255)])
+    state = StringField('state', validators=[DataRequired(), Length(max=50)])
+    postal_code = IntegerField('postal_code', validators=[DataRequired(), NumberRange(min=10000, max=99999)])
+    country = StringField('country', validators=[DataRequired(), Length(max=50)])
+    phone = StringField('phone', validators=[DataRequired(), Length(max=20)])
