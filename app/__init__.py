@@ -28,6 +28,11 @@ app.cli.add_command(seed_commands)
 app.config.from_object(Config)
 app.register_blueprint(user_routes, url_prefix='/api/users')
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
+app.register_blueprint(restaurant_routes, url_prefix="/api/restaurants")
+
+# app.register_blueprint(review_restaurants_routes, url_prefix="/api/restaurants/reviews")
+# app.register_blueprint(menu_items, url_prefix='/api/menu_items/<int:menu_item_id>')
+app.register_blueprint(menu_items, url_prefix='/api/menu_items')
 db.init_app(app)
 Migrate(app, db)
 
