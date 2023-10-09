@@ -15,12 +15,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(40), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     hashed_password = db.Column(db.String(255), nullable=False)
-    street_address = db.Column(db.String(255), nullable=False)
-    city = db.Column(db.String(255), nullable=False)
-    state = db.Column(db.String(50), nullable=False)
-    postal_code = db.Column(db.Integer, nullable=False)
-    country = db.Column(db.String(50), nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
 
     # Relationships
     restaurants = db.relationship("Restaurant", backref='owner')
@@ -45,12 +39,6 @@ class User(db.Model, UserMixin):
             'last_name': self.last_name,
             'username': self.username,
             'email': self.email,
-            'street_address': self.street_address,
-            'city': self.city,
-            'state': self.state,
-            'postal_code': self.postal_code,
-            'country': self.country,
-            'phone': self.phone
         }
 
 
