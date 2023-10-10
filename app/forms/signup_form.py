@@ -26,9 +26,4 @@ class SignUpForm(FlaskForm):
     username = StringField('username', validators=[DataRequired(), username_exists, Length(max=40)])
     email = StringField('email', validators=[DataRequired(), Email(), user_exists, Length(max=255)])
     password = StringField('password', validators=[DataRequired()])
-    street_address = StringField('street_address', validators=[DataRequired(), Length(max=255)])
-    city = StringField('city', validators=[DataRequired(), Length(max=255)])
-    state = StringField('state', validators=[DataRequired(), Length(max=50)])
-    postal_code = IntegerField('postal_code', validators=[DataRequired(), NumberRange(min=10000, max=99999)])
-    country = StringField('country', validators=[DataRequired(), Length(max=50)])
-    phone = StringField('phone', validators=[DataRequired(), Length(max=20)])
+   
