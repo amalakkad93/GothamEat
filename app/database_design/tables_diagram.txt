@@ -1,0 +1,115 @@
+// User Table - Contains information about each registered user
+Table User {
+  id int [pk, increment]
+  first_name varchar
+  last_name varchar
+  username varchar [unique]
+  email varchar [unique]
+  hashed_password varchar
+  street_address varchar
+  city varchar
+  state varchar
+  postal_code int
+  country varchar
+  phone varchar
+}
+// Favorites - Users can mark restaurants as favorites
+Table Favorites {
+  id int [pk, increment]
+  user_id int [ref: > User.id]
+  restaurant_id int [ref: > Restaurant.id]
+  created_at datetime
+  updated_at datetime
+}
+// Restaurants - Each restaurant has an owner, which is a user
+Table Restaurant {
+  id int [pk, increment]
+  owner_id int
+  banner_image_path varchar
+  street_address varchar
+  city varchar
+  state varchar
+  postal_code varchar
+  country varchar
+  name varchar
+  description text
+  opening_time time
+  closing_time time
+}
+// Menu Items - Every menu item belongs to a restaurant
+Table MenuItem {
+  id int [pk, increment]
+  restaurant_id int
+  name varchar
+  description text
+  type varchar
+  price float
+}
+// Images of Menu Items
+Table MenuItemImg {
+  id int [pk, increment]
+  menu_item_id int
+  image_path varchar
+}
+// Shopping Carts - Every user has a shopping cart
+Table ShoppingCart {
+  id int [pk, increment]
+  user_id int
+}
+// Items in the Shopping Cart
+Table ShoppingCartItem {
+  id int [pk, increment]
+  menu_item_id int
+  shopping_cart_id int
+  quantity int
+}
+// Orders - Each order is made by a user and contains multiple items
+Table Order {
+  id int [pk, increment]
+  user_id int
+  total_price float
+  status varchar
+  created_at datetime
+  updated_at datetime
+}
+// Order Items - Each order item is part of an order and relates to a menu item
+Table OrderItem {
+  id int [pk, increment]
+  menu_item_id int
+  order_id int
+  quantity int
+}
+// Reviews - Users leave reviews for restaurants
+Table Review {
+  id int [pk, increment]
+  user_id int
+  restaurant_id int
+  review text
+  stars float
+}
+// Payment - Record of payments associated with each order
+Table Payment {
+  id int [pk, increment]
+  order_id int
+  method varchar // E.g., 'Credit Card', 'PayPal'
+  status varchar // E.g., 'Completed', 'Pending', 'Failed'
+  created_at datetime
+  updated_at datetime
+}
+
+
+Ref: Restaurant.owner_id > User.id
+// Ref: Favorites.user_id > User.id
+// Ref: Favorites.restaurant_id > Restaurant.id
+Ref: Review.user_id > User.id
+Ref: Review.restaurant_id > Restaurant.id
+Ref: MenuItem.restaurant_id > Restaurant.id
+Ref: MenuItemImg.menu_item_id > MenuItem.id
+Ref: ShoppingCart.user_id > User.id
+Ref: ShoppingCartItem.menu_item_id > MenuItem.id
+Ref: ShoppingCartItem.shopping_cart_id > ShoppingCart.id
+Ref: Order.user_id > User.id
+Ref: OrderItem.menu_item_id > MenuItem.id
+Ref: OrderItem.order_id > Order.id
+Ref: Payment.order_id > Order.id
+

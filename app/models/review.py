@@ -18,7 +18,7 @@ class Review(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
     restaurant_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('restaurants.id')))
     review = db.Column(db.Text)
-    stars = db.Column(db.Float)
+    stars = db.Column(db.Integer)
 
     def to_dict(self):
         return {
