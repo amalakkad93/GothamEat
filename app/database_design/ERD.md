@@ -1,5 +1,8 @@
 # Entity Relationship Diagram (ERD) Explanations
 
+The following sections explain the structure and relationships between entities within the system. Each table represents an entity and is connected to others via primary (PK) and foreign keys (FK). Primary keys are unique identifiers for records in their respective tables, while foreign keys create links between tables, establishing relationships and allowing for complex queries.
+
+---
 ## User
 Represents the user of the platform. They can be a customer, a restaurant owner, or both.
 - **id** (PK)
@@ -8,15 +11,18 @@ Represents the user of the platform. They can be a customer, a restaurant owner,
 - username: varchar (Unique)
 - email: varchar (Unique)
 - hashed_password: varchar
-- street_address: varchar
-- city: varchar
-- state: varchar
-- postal_code: int
-- country: varchar
-- phone: varchar
 
 ---
 
+## Favorites
+Represents a user's favorite restaurants. The `user_id` and `restaurant_id` are foreign keys referring to the User and Restaurant tables, respectively, establishing which restaurants a user has marked as favorites.
+- **id** (PK)
+- user_id (FK -> User)
+- restaurant_id (FK -> Restaurant)
+- created_at: datetime
+- updated_at: datetime
+
+---
 ## Restaurant
 Each restaurant is owned by a user. The `owner_id` establishes a foreign key relationship with the User table. This means each restaurant is associated with a user (the owner).
 - **id** (PK)
@@ -99,4 +105,15 @@ Represents individual menu items within a shopping cart. It contains `menu_item_
 
 ---
 
-This ERD illustrates the relationships between different entities in the system. The foreign keys (FK) establish links between the tables, allowing for querying and understanding relationships between different pieces of data. The PK denotes primary keys, which are unique identifiers for records within their respective tables.
+## Payment
+Represents a record of payments associated with each order. Each order has a corresponding payment record. The  `order_id` is a foreign key linking the payment to a specific order.
+- **id** (PK)
+- order_id (FK -> Order)
+- method: varchar (E.g., 'Credit Card', 'PayPal')
+- status: varchar (E.g., 'Completed', 'Pending', 'Failed')
+- created_at: datetime
+- updated_at: datetime
+
+---
+
+In summary, the ERD provides a visual representation and explanation of the data model, emphasizing the relationships and attributes of each entity. Properly understanding these relationships is pivotal for database querying and the overall functionality of the system.
