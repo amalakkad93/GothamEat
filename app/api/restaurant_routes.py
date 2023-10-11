@@ -4,7 +4,7 @@ from sqlalchemy import func, distinct, or_, desc
 import json
 from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Restaurant, Review, db, MenuItem, MenuItemImg
-from ..forms import RestaurantForm
+from ..forms import RestaurantForm, ReviewForm
 
 restaurant_routes  = Blueprint('restaurants', __name__)
 
@@ -159,6 +159,16 @@ def delete_restaurant(id):
         db.session.rollback()
         return jsonify(error=f"Error deleting restaurant: {e}"), 500
 
+# *******************************Get Search Restaurant*******************************
+@restaurant_routes.route('/search/<search_term>')
+def search_restaurants(search_term):
+    restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
+    return jsonify([restaurant.to_dict() for restaurant in restaurants])
+
+# *************************************************************************************
+# *******************************REVIEWS FOR RESTAURANTS*******************************
+# *************************************************************************************
+
 # *******************************Get Reviews by Restaurant Id*******************************
 @restaurant_routes.route('/<int:id>/reviews')
 def get_reviews_by_restaurant_id(id):
@@ -205,9 +215,3 @@ def create_review(id):
         print(f"Error creating review: {e}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while creating the review."}), 500
-
-# *******************************Get Search Restaurant*******************************
-@restaurant_routes.route('/search/<search_term>')
-def search_restaurants(search_term):
-    restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
-    return jsonify([restaurant.to_dict() for restaurant in restaurants])

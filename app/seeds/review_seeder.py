@@ -1,6 +1,8 @@
 from ..models import db, Review, environment, SCHEMA
 from sqlalchemy import text
 
+
+
 def seed_reviews():
     reviews_list = [
         {"restaurant_id":1, "user_id":1, "review":"The service was as meticulous as I am with Master Wayne's suits. Quite splendid.", "stars":4},
@@ -209,6 +211,9 @@ def seed_reviews():
         db.session.add(review)
 
     db.session.commit()
+
+    
+
 
 def undo_reviews():
     if environment == "production":
