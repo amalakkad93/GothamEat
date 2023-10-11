@@ -13,6 +13,14 @@ Table User {
   country varchar
   phone varchar
 }
+// Favorites - Users can mark restaurants as favorites
+Table Favorites {
+  id int [pk, increment]
+  user_id int [ref: > User.id]
+  restaurant_id int [ref: > Restaurant.id]
+  created_at datetime
+  updated_at datetime
+}
 // Restaurants - Each restaurant has an owner, which is a user
 Table Restaurant {
   id int [pk, increment]
@@ -79,9 +87,20 @@ Table Review {
   review text
   stars float
 }
+// Payment - Record of payments associated with each order
+Table Payment {
+  id int [pk, increment]
+  order_id int
+  method varchar // E.g., 'Credit Card', 'PayPal'
+  status varchar // E.g., 'Completed', 'Pending', 'Failed'
+  created_at datetime
+  updated_at datetime
+}
 
 
 Ref: Restaurant.owner_id > User.id
+// Ref: Favorites.user_id > User.id
+// Ref: Favorites.restaurant_id > Restaurant.id
 Ref: Review.user_id > User.id
 Ref: Review.restaurant_id > Restaurant.id
 Ref: MenuItem.restaurant_id > Restaurant.id
@@ -92,3 +111,5 @@ Ref: ShoppingCartItem.shopping_cart_id > ShoppingCart.id
 Ref: Order.user_id > User.id
 Ref: OrderItem.menu_item_id > MenuItem.id
 Ref: OrderItem.order_id > Order.id
+Ref: Payment.order_id > Order.id
+

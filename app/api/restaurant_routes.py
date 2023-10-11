@@ -140,6 +140,7 @@ def create_restaurant():
         db.session.rollback()
         return jsonify({"error": "An error occurred while creating the restaurant."}), 500
 
+# *******************************Delete a Restaurant*******************************
 @restaurant_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_restaurant(id):
@@ -157,3 +158,56 @@ def delete_restaurant(id):
     except Exception as e:
         db.session.rollback()
         return jsonify(error=f"Error deleting restaurant: {e}"), 500
+
+# *******************************Get Reviews by Restaurant Id*******************************
+@restaurant_routes.route('/<int:id>/reviews')
+def get_reviews_by_restaurant_id(id):
+    try:
+        reviews = (db.session.query(Review).filter(Review.restaurant_id == id).all())
+
+        all_reviews_list = [review.to_dict() for review in reviews]
+        return jsonify({"Reviews": all_reviews_list})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "An error occurred while fetching the reviews."}), 500
+
+# *******************************Create a Review for a Restaurant*******************************
+@restaurant_routes.route('/<int:id>/reviews', methods=["POST"])
+def create_review(id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(errors="Invalid data"), 400
+
+        if not current_user.is_authenticated:
+            return jsonify(message="You need to be logged in"), 401
+
+        form = ReviewForm(data=data)
+        form['csrf_token'].data = request.cookies['csrf_token']
+
+        if form.validate_on_submit():
+            new_review = Review()
+            form.populate_obj(new_review)
+            new_review.user_id = current_user.id
+            new_review.restaurant_id = id
+
+            db.session.add(new_review)
+            db.session.commit()
+
+            return jsonify({
+                "message": "Review successfully created",
+                "review": new_review.to_dict()
+            }), 201
+
+        return jsonify(errors=form.errors), 400
+    except Exception as e:
+        print(f"Error creating review: {e}")
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while creating the review."}), 500
+
+# *******************************Get Search Restaurant*******************************
+@restaurant_routes.route('/search/<search_term>')
+def search_restaurants(search_term):
+    restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
+    return jsonify([restaurant.to_dict() for restaurant in restaurants])

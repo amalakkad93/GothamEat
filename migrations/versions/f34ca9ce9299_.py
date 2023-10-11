@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 160d9f372d65
+Revision ID: f34ca9ce9299
 Revises: 
-Create Date: 2023-10-09 17:40:25.267305
+Create Date: 2023-10-10 15:23:06.995233
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '160d9f372d65'
+revision = 'f34ca9ce9299'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -61,6 +61,17 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('favorites',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('restaurant_id', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'restaurant_id', name='unique_user_restaurant')
+    )
     op.create_table('menu_items',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('restaurant_id', sa.Integer(), nullable=True),
@@ -69,6 +80,18 @@ def upgrade():
     sa.Column('type', sa.String(length=50), nullable=False),
     sa.Column('price', sa.Float(), nullable=True),
     sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('payments',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('order_id', sa.Integer(), nullable=True),
+    sa.Column('gateway', sa.Enum('Stripe', 'PayPal', name='payment_gateways'), nullable=True),
+    sa.Column('stripe_payment_intent_id', sa.String(length=255), nullable=True),
+    sa.Column('stripe_payment_method_id', sa.String(length=255), nullable=True),
+    sa.Column('paypal_transaction_id', sa.String(length=255), nullable=True),
+    sa.Column('amount', sa.Float(), nullable=True),
+    sa.Column('status', sa.String(length=255), nullable=True),
+    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reviews',
@@ -115,7 +138,9 @@ def downgrade():
     op.drop_table('order_items')
     op.drop_table('menu_item_imgs')
     op.drop_table('reviews')
+    op.drop_table('payments')
     op.drop_table('menu_items')
+    op.drop_table('favorites')
     op.drop_table('shopping_carts')
     op.drop_table('restaurants')
     op.drop_table('orders')

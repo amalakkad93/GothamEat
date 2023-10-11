@@ -20,6 +20,7 @@ class Order(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     items = db.relationship("OrderItem", backref='order')
+    payment = db.relationship("Payment", backref="order", uselist=False, lazy=True)
 
     def to_dict(self):
         return {
