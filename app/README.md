@@ -11,7 +11,7 @@
 <!--!!START SILENT -->
 ![uberEats-database-schema]
 
-[uberEats-database-schema]: /home/amala/App_Academy/Projects/GothamEats/GothomEats/app/database_design/ubereat-database-schema.png
+[uberEats-database-schema]: https://github.com/amalakkad93/GothamEat/blob/main/app/database_design/ubereat-database-schema.png?raw=true
 [uberEats-db-diagram-info]: app/database_design/db-schema.diagram.txt
 <!--!!END -->
 <!--!!ADD -->
@@ -308,7 +308,7 @@ Returns all the Restaurants.
           "description": "Classic American diner.",
           "opening_time": "07:00",
           "closing_time": "22:00",
-          "stars": 4.5,
+          "average_rating": 4.5,
         }
       ]
     }

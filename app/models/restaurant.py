@@ -1,7 +1,8 @@
 from datetime import datetime
-from .db import db, environment, SCHEMA, add_prefix_for_prod
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy import func
+from .db import db, environment, SCHEMA, add_prefix_for_prod
 from .review import Review
 from .menu_item import MenuItem
 
@@ -34,12 +35,21 @@ class Restaurant(db.Model):
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True, cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='restaurant', lazy=True)
 
-    # menu_items = db.relationship('MenuItem', backref='restaurant', lazy='dynamic', cascade="all, delete-orphan")
-    # reviews = db.relationship('Review', backref='restaurant', lazy='dynamic')
+    # @property
+    # def avg_rating(self):
+    #     total_stars = 0
+    #     all_reviews = db.session.query(Review).filter(Review.restaurant_id == self.id).all()
+    #     for review in all_reviews:
+    #         total_stars += review.stars
+    #     average_rating = round(total_stars / len(all_reviews), 1) if all_reviews else 0
+    #     return average_rating
 
-    # user = db.relationship("User", back_populates="restaurants")
-    # reviews = db.relationship("Review", back_populates="restaurant")
-    # menu_items = db.relationship('MenuItem', back_populates='restaurant', cascade="all, delete-orphan", single_parent=True)
+    # or
+
+    @property
+    def avg_rating(self):
+        average_rating = db.session.query(func.avg(Review.stars)).filter(Review.restaurant_id == self.id).scalar()
+        return round(average_rating, 1) if average_rating is not None else 0
 
     def to_dict(self):
         return {
@@ -54,5 +64,6 @@ class Restaurant(db.Model):
             'country': self.country,
             'postal_code': self.postal_code,
             'opening_time': self.opening_time.strftime('%H:%M'),
-            'closing_time': self.closing_time.strftime('%H:%M')
+            'closing_time': self.closing_time.strftime('%H:%M'),
+            'average_rating': self.avg_rating
         }
