@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request,redirect, url_for, abort, send_fil
 import app
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy import func, distinct, or_, desc
-from ..models import User, Restaurant, Review, db, MenuItem, MenuItemImg
+from ..models import User, Review, Review, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, ALLOWED_EXTENSIONS, upload_file, allowed_file
 from ..forms import MenuItemForm, MenuItemImgForm
 import json
