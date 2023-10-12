@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request,redirect, url_for, abort
 import app
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Restaurant, Review, db, Order, OrderItem
+from app.models import User, Review, Review, db, Order, OrderItem
 from sqlalchemy import func, distinct, or_, desc
 
 import json

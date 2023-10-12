@@ -1,13 +1,17 @@
 from flask import Blueprint, jsonify, request,redirect, url_for, abort
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
+from marshmallow import ValidationError
 import json
 from flask_login import current_user, login_user, logout_user, login_required
-from ..models import User, Restaurant, Review, db, MenuItem, MenuItemImg
-from ..forms import RestaurantForm
+from ..models import User, Review, Review, db, MenuItem, MenuItemImg
+from ..forms import RestaurantForm, ReviewForm
+from ..schemas import RestaurantSchema, ReviewSchema, MenuItemSchema, MenuItemImgSchema
 
 restaurant_routes  = Blueprint('restaurants', __name__)
 
+restaurant_schema = RestaurantSchema()
+review_schema = ReviewSchema()
 
 # *******************************Get All Restaurants*******************************
 @restaurant_routes.route('/')
@@ -16,53 +20,59 @@ def get_all_restaurants():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
 
-        restaurants = db.session.query(Restaurant).limit(per_page).offset((page - 1) * per_page).all()
+        restaurants = (
+            db.session.query(Review)
+            .order_by(Review.average_rating.desc())
+            .limit(per_page)
+            .offset((page - 1) * per_page)
+            .all()
+        )
 
-        all_restaurants_list = [restaurant.to_dict() for restaurant in restaurants]
+        all_restaurants_list = [restaurant_schema.dump(restaurant) for restaurant in restaurants]
 
         return jsonify(all_restaurants_list)
 
     except Exception as e:
+        print(str(e))
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+
 
 # *******************************Get Restaurants of Current User*******************************
 @restaurant_routes.route('/current')
 def get_restaurants_of_current_user():
     try:
-        restaurants = (db.session.query(Restaurant)
-                       .options(joinedload(Restaurant.reviews))
-                       .filter(Restaurant.owner_id == current_user.id)
-                       .all())
+        restaurants = Review.query.filter_by(user_id=current_user.id).all()
 
-        all_restaurants_of_current_user_list = [restaurant.to_dict() for restaurant in restaurants]
-        return jsonify({"Restaurants": all_restaurants_of_current_user_list})
+
+        schema = RestaurantSchema(many=True)
+        return jsonify({"Restaurants": schema.dump(restaurants)})
 
     except Exception as e:
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
 
+
 # *******************************Get Details of a Restaurant by Id*******************************
 @restaurant_routes.route('/<int:id>')
 def get_restaurant_detail(id):
     try:
-        restaurant = Restaurant.query.get(id)
-
+        restaurant = Review.query.get(id)
         if restaurant is None:
             return jsonify({"error": "Restaurant not found."}), 404
 
         menu_item_imgs = (db.session.query(MenuItemImg)
-                        .join(MenuItem, MenuItem.id == MenuItemImg.menu_item_id)
-                        .filter(MenuItem.restaurant_id == restaurant.id)
-                        .all())
-        menu_item_imgs_list = [img.to_dict() for img in menu_item_imgs]
+                 .join(MenuItem, MenuItem.id == MenuItemImg.menu_item_id)
+                 .filter(MenuItem.restaurant_id == restaurant.id)
+                 .all())
 
-        owner = restaurant.owner.to_dict()
 
-        restaurant_dict = restaurant.to_dict()
+        # Using the schema to serialize the data
+        restaurant_schema = RestaurantSchema()
+        menu_item_img_schema = MenuItemImgSchema(many=True)
 
-        restaurant_dict["MenuItemImg"] = menu_item_imgs_list
-        restaurant_dict["Owner"] = owner
-
+        restaurant_dict = restaurant_schema.dump(restaurant)
+        restaurant_dict["MenuItemImg"] = menu_item_img_schema.dump(menu_item_imgs)
+        restaurant_dict["Owner"] = restaurant.owner.to_dict()
 
         return jsonify(restaurant_dict)
 
@@ -74,7 +84,7 @@ def get_restaurant_detail(id):
 @restaurant_routes.route('/<int:id>', methods=["PUT"])
 def update_restaurant(id):
     try:
-        restaurant_to_update = Restaurant.query.get(id)
+        restaurant_to_update = Review.query.get(id)
 
         if restaurant_to_update is None:
             return jsonify({"error": "Restaurant not found."}), 404
@@ -85,22 +95,19 @@ def update_restaurant(id):
         if restaurant_to_update.owner_id != current_user.id:
             return jsonify(message="Unauthorized"), 403
 
-        form = RestaurantForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
         data = request.get_json()
+        restaurant_schema = RestaurantSchema()
 
-        for field, value in data.items():
-            if hasattr(form, field):
-                setattr(form, field, value)
+        try:
+            validated_data = restaurant_schema.load(data)
+        except ValidationError as err:
+            return jsonify(errors=err.messages), 400
 
-        if form.validate_on_submit():
-            for field in form:
-                setattr(restaurant_to_update, field.name, field.data)
+        for field, value in validated_data.items():
+            setattr(restaurant_to_update, field, value)
 
-            db.session.commit()
-            return jsonify(message="Restaurant updated successfully"), 200
-        else:
-            return jsonify(errors=form.errors), 400
+        db.session.commit()
+        return jsonify(message="Restaurant updated successfully"), 200
 
     except Exception as e:
         print(e)
@@ -118,23 +125,24 @@ def create_restaurant():
         if not current_user.is_authenticated:
             return jsonify(message="You need to be logged in"), 401
 
-        form = RestaurantForm(data=data)
-        form['csrf_token'].data = request.cookies['csrf_token']
+        restaurant_schema = RestaurantSchema()
 
-        if form.validate_on_submit():
-            new_restaurant = Restaurant()
-            form.populate_obj(new_restaurant)
-            new_restaurant.owner_id = current_user.id
+        try:
+            validated_data = restaurant_schema.load(data)
+        except ValidationError as err:
+            return jsonify(errors=err.messages), 400
 
-            db.session.add(new_restaurant)
-            db.session.commit()
+        new_restaurant = Review(**validated_data)
+        new_restaurant.owner_id = current_user.id
 
-            return jsonify({
-                "message": "Restaurant successfully created",
-                "restaurant": new_restaurant.to_dict()
-            }), 201
+        db.session.add(new_restaurant)
+        db.session.commit()
 
-        return jsonify(errors=form.errors), 400
+        return jsonify({
+            "message": "Restaurant successfully created",
+            "restaurant": restaurant_schema.dump(new_restaurant)
+        }), 201
+
     except Exception as e:
         print(f"Error creating restaurant: {e}")
         db.session.rollback()
@@ -144,7 +152,7 @@ def create_restaurant():
 @restaurant_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_restaurant(id):
-    restaurant = Restaurant.query.get(id)
+    restaurant = Review.query.get(id)
 
     if not restaurant:
         return jsonify(error="Restaurant not found"), 404
@@ -159,13 +167,38 @@ def delete_restaurant(id):
         db.session.rollback()
         return jsonify(error=f"Error deleting restaurant: {e}"), 500
 
+# *******************************Get Search Restaurant*******************************
+@restaurant_routes.route('/search/<search_term>')
+def search_restaurants(search_term):
+    restaurants = Review.query.filter(Review.name.ilike(f'%{search_term}%')).all()
+    restaurant_schema = RestaurantSchema(many=True)
+    return jsonify(restaurant_schema.dump(restaurants))
+
+# *************************************************************************************
+# *******************************REVIEWS FOR RESTAURANTS*******************************
+# *************************************************************************************
+
 # *******************************Get Reviews by Restaurant Id*******************************
 @restaurant_routes.route('/<int:id>/reviews')
 def get_reviews_by_restaurant_id(id):
     try:
-        reviews = (db.session.query(Review).filter(Review.restaurant_id == id).all())
+        reviews = (
+            db.session.query(Review)
+            .filter(Review.restaurant_id == id)
+            .options(
+                joinedload(Review.user),
+                joinedload(Review.review_imgs)
+            )
+            .all()
+        )
 
-        all_reviews_list = [review.to_dict() for review in reviews]
+        if not reviews:
+            return jsonify({"Reviews": []})
+
+        # Using the schema to serialize the data
+        review_schema = ReviewSchema(many=True)
+        all_reviews_list = review_schema.dump(reviews)
+
         return jsonify({"Reviews": all_reviews_list})
 
     except Exception as e:
@@ -195,9 +228,13 @@ def create_review(id):
             db.session.add(new_review)
             db.session.commit()
 
+            # Using the schema to serialize the newly created review
+            review_schema = ReviewSchema()
+            serialized_review = review_schema.dump(new_review)
+
             return jsonify({
                 "message": "Review successfully created",
-                "review": new_review.to_dict()
+                "review": serialized_review
             }), 201
 
         return jsonify(errors=form.errors), 400
@@ -205,9 +242,3 @@ def create_review(id):
         print(f"Error creating review: {e}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while creating the review."}), 500
-
-# *******************************Get Search Restaurant*******************************
-@restaurant_routes.route('/search/<search_term>')
-def search_restaurants(search_term):
-    restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
-    return jsonify([restaurant.to_dict() for restaurant in restaurants])

@@ -10,3 +10,4 @@ from .shopping_cart_item import ShoppingCartItem
 from .order import Order
 from .order_item import OrderItem
 from .payment import Payment
+from .review_img import ReviewImg

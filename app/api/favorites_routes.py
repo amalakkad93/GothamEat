@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..models import db, User, Restaurant
+from ..models import db, User, Review
 
 from flask import Blueprint, jsonify, request
 from app.models import db, Favorite
@@ -47,7 +47,7 @@ def delete_favorite(id):
     try:
         db.session.delete(favorite)
         db.session.commit()
-        return '', 204  
+        return '', 204
     except Exception as e:
         db.session.rollback()
         return {"error": f"Favorite deletion failed: {str(e)}"}, 500
