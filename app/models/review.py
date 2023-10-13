@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from datetime import datetime
 from sqlalchemy import func
 from .review_img import ReviewImg
+from ..helper_functions import format_review_date
 
 class Review(db.Model):
     __tablename__ = 'reviews'
@@ -32,6 +33,6 @@ class Review(db.Model):
             'user_id': self.user_id,
             'review': self.review,
             'stars': self.stars,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at,
+            'created_at': format_review_date(self.created_at),
+            'updated_at': format_review_date(self.updated_at),
         }

@@ -7,6 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Review, ReviewImg, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, upload_file, allowed_file, ALLOWED_EXTENSIONS
 from ..forms import ReviewForm, ReviewImgForm
+from ..helper_functions import normalize_data
 
 
 review_routes = Blueprint('review', __name__)
@@ -31,21 +32,43 @@ def get_reviews_of_current_user():
         if not reviews:
             return jsonify({"error": "No reviews found for the current user."}), 404
 
-        all_reviews_of_current_user_list = [
-            {
-                'id': review.id,
-                'User': review.user.to_dict() if review.user else None,
-                'Restaurant': review.restaurant.to_dict() if review.restaurant else None,
-                'ReviewImages': [{'id': img.id, 'url': img.image_path} for img in review.review_imgs]
-            }
-            for review in reviews
-        ]
+        review_dicts = []
+        restaurant_dicts = []
+        image_dicts = []
+        user_dicts = []
 
-        return jsonify({"Reviews": all_reviews_of_current_user_list}), 200
+        for review in reviews:
+            review_dict = review.to_dict()
+            review_dict["review_img_ids"] = [img.id for img in review.review_imgs]
+            review_dicts.append(review_dict)
+
+            if review.restaurant:
+                restaurant_dicts.append(review.restaurant.to_dict())
+
+            if review.user:
+                user_dicts.append(review.user.to_dict())
+
+            for img in review.review_imgs:
+                image_dicts.append(img.to_dict())
+
+        normalized_reviews = normalize_data(review_dicts, 'id')
+        normalized_restaurants = normalize_data(restaurant_dicts, 'id')
+        normalized_images = normalize_data(image_dicts, 'id')
+        normalized_users = normalize_data(user_dicts, 'id')
+
+        return jsonify({
+            "entities": {
+                "reviews": normalized_reviews,
+                "restaurants": normalized_restaurants,
+                "reviewImages": normalized_images,
+                "users": normalized_users
+            }
+        })
 
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "An error occurred while fetching the reviews."}), 500
+
 
 
 # *******************************Edit a Review*******************************
@@ -109,8 +132,6 @@ def delete_review(id):
         print(e)
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the review."}), 500
-
-
 
 
 # *******************************Upload Review Image to AWS*******************************

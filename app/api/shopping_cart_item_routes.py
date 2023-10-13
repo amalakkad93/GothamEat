@@ -5,5 +5,6 @@ from app.models import User, Review, Review, db, MenuItem,MenuItemImg
 from sqlalchemy import func, distinct, or_, desc
 
 import json
+from ..helper_functions import normalize_data
 
 shopping_cart_item_routes = Blueprint('shopping_cart_item', __name__)

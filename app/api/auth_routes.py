@@ -42,7 +42,7 @@ def login():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
-        
+
         # return user.to_dict()
 
         # delete the line blew and uncomment the line above when  in production environment.
@@ -90,7 +90,7 @@ def unauthorized():
     """
     return {'errors': ['Unauthorized']}, 401
 
-@auth_routes.route('/csrf/restore', methods=['GET'])
-def restore_csrf():
-    print("Inside restore_csrf function")
-    return jsonify({"csrf_token": generate_csrf()})
+# @auth_routes.route('/csrf/restore', methods=['GET'])
+# def restore_csrf():
+#     print("Inside restore_csrf function")
+#     return jsonify({"csrf_token": generate_csrf()})

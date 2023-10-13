@@ -1,17 +1,17 @@
 from flask import Blueprint, jsonify, request,redirect, url_for, abort
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
-from marshmallow import ValidationError
 import json
 from flask_login import current_user, login_user, logout_user, login_required
-from ..models import User, Review, Review, db, MenuItem, MenuItemImg
+from collections import OrderedDict
+from ..models import User, Review, Review, db, MenuItem, MenuItemImg, Restaurant
 from ..forms import RestaurantForm, ReviewForm
-from ..schemas import RestaurantSchema, ReviewSchema, MenuItemSchema, MenuItemImgSchema
+from ..schemas import RestaurantSchema, ReviewSchema
+from ..helper_functions import normalize_data
 
 restaurant_routes  = Blueprint('restaurants', __name__)
 
-restaurant_schema = RestaurantSchema()
-review_schema = ReviewSchema()
+
 
 # *******************************Get All Restaurants*******************************
 @restaurant_routes.route('/')
@@ -21,16 +21,20 @@ def get_all_restaurants():
         per_page = request.args.get('per_page', 10, type=int)
 
         restaurants = (
-            db.session.query(Review)
-            .order_by(Review.average_rating.desc())
+            db.session.query(Restaurant)
+            .order_by(Restaurant.average_rating.desc())
             .limit(per_page)
             .offset((page - 1) * per_page)
             .all()
         )
 
-        all_restaurants_list = [restaurant_schema.dump(restaurant) for restaurant in restaurants]
+        if not restaurants:
+            return jsonify([])
 
-        return jsonify(all_restaurants_list)
+        restaurants_list = [restaurant.to_dict() for restaurant in restaurants]
+        normalized_restaurants = normalize_data(restaurants_list, 'id')
+
+        return jsonify(normalized_restaurants)
 
     except Exception as e:
         print(str(e))
@@ -41,44 +45,55 @@ def get_all_restaurants():
 @restaurant_routes.route('/current')
 def get_restaurants_of_current_user():
     try:
-        restaurants = Review.query.filter_by(user_id=current_user.id).all()
+        reviews = Review.query.filter_by(user_id=current_user.id).all()
 
+        restaurants_of_current_user = {review.restaurant_id: review.restaurant.to_dict() for review in reviews}
 
-        schema = RestaurantSchema(many=True)
-        return jsonify({"Restaurants": schema.dump(restaurants)})
+        return jsonify({"Restaurants": restaurants_of_current_user})
 
     except Exception as e:
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
 
-
 # *******************************Get Details of a Restaurant by Id*******************************
 @restaurant_routes.route('/<int:id>')
 def get_restaurant_detail(id):
     try:
-        restaurant = Review.query.get(id)
+        restaurant = Restaurant.query.get(id)
+
         if restaurant is None:
             return jsonify({"error": "Restaurant not found."}), 404
 
-        menu_item_imgs = (db.session.query(MenuItemImg)
-                 .join(MenuItem, MenuItem.id == MenuItemImg.menu_item_id)
-                 .filter(MenuItem.restaurant_id == restaurant.id)
-                 .all())
+        menu_items = (MenuItem.query
+                      .options(joinedload(MenuItem.menu_item_imgs))
+                      .filter_by(restaurant_id=id)
+                      .all())
 
+        menu_items_list = [item.to_dict() for item in menu_items]
+        normalized_menu_items = normalize_data(menu_items_list, 'id')
 
-        # Using the schema to serialize the data
-        restaurant_schema = RestaurantSchema()
-        menu_item_img_schema = MenuItemImgSchema(many=True)
+        images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
+        normalized_images = normalize_data(images_list, 'id')
 
-        restaurant_dict = restaurant_schema.dump(restaurant)
-        restaurant_dict["MenuItemImg"] = menu_item_img_schema.dump(menu_item_imgs)
-        restaurant_dict["Owner"] = restaurant.owner.to_dict()
+        owner = restaurant.owner.to_dict()
+        restaurant_list = [restaurant.to_dict()]
+        normalized_restaurant = normalize_data(restaurant_list, 'id')
 
-        return jsonify(restaurant_dict)
+        normalized_data = {
+            "entities": {
+                "restaurants": normalized_restaurant,
+                "menuItems": normalized_menu_items,
+                "menuItemImgs": normalized_images,
+                "owner": owner
+            }
+        }
+
+        return jsonify(normalized_data)
 
     except Exception as e:
         print(e)
         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
+
 
 # *******************************Edit a Restaurant*******************************
 @restaurant_routes.route('/<int:id>', methods=["PUT"])
@@ -95,19 +110,30 @@ def update_restaurant(id):
         if restaurant_to_update.owner_id != current_user.id:
             return jsonify(message="Unauthorized"), 403
 
+        form = RestaurantForm()
+        form['csrf_token'].data = request.cookies['csrf_token']
         data = request.get_json()
-        restaurant_schema = RestaurantSchema()
 
-        try:
-            validated_data = restaurant_schema.load(data)
-        except ValidationError as err:
-            return jsonify(errors=err.messages), 400
+        for field, value in data.items():
+            if hasattr(form, field):
+                setattr(form, field, value)
 
-        for field, value in validated_data.items():
-            setattr(restaurant_to_update, field, value)
+        if form.validate_on_submit():
+            for field in form:
+                setattr(restaurant_to_update, field.name, field.data)
 
-        db.session.commit()
-        return jsonify(message="Restaurant updated successfully"), 200
+            db.session.commit()
+
+            # return jsonify(message="Restaurant updated successfully"), 200
+            return jsonify({
+                "message": "Restaurant updated successfully",
+                "entities": {
+                    "restaurants": normalize_data([restaurant_to_update.to_dict()], 'id')
+                }
+            }), 200
+
+        else:
+            return jsonify(errors=form.errors), 400
 
     except Exception as e:
         print(e)
@@ -125,23 +151,31 @@ def create_restaurant():
         if not current_user.is_authenticated:
             return jsonify(message="You need to be logged in"), 401
 
-        restaurant_schema = RestaurantSchema()
+        form = RestaurantForm(data=data)
+        form['csrf_token'].data = request.cookies['csrf_token']
 
-        try:
-            validated_data = restaurant_schema.load(data)
-        except ValidationError as err:
-            return jsonify(errors=err.messages), 400
+        if form.validate_on_submit():
+            new_restaurant = Review()
+            form.populate_obj(new_restaurant)
+            new_restaurant.owner_id = current_user.id
 
-        new_restaurant = Review(**validated_data)
-        new_restaurant.owner_id = current_user.id
+            db.session.add(new_restaurant)
+            db.session.commit()
 
-        db.session.add(new_restaurant)
-        db.session.commit()
+            return jsonify({
+                "message": "Restaurant successfully created",
+                "entities": {
+                    "restaurants": normalize_data([new_restaurant.to_dict()], 'id')
+                }
+            }), 201
 
-        return jsonify({
-            "message": "Restaurant successfully created",
-            "restaurant": restaurant_schema.dump(new_restaurant)
-        }), 201
+
+            # return jsonify({
+            #     "message": "Restaurant successfully created",
+            #     "restaurant": new_restaurant.to_dict()
+            # }), 201
+
+        return jsonify(errors=form.errors), 400
 
     except Exception as e:
         print(f"Error creating restaurant: {e}")
@@ -171,8 +205,7 @@ def delete_restaurant(id):
 @restaurant_routes.route('/search/<search_term>')
 def search_restaurants(search_term):
     restaurants = Review.query.filter(Review.name.ilike(f'%{search_term}%')).all()
-    restaurant_schema = RestaurantSchema(many=True)
-    return jsonify(restaurant_schema.dump(restaurants))
+    return jsonify([restaurant.to_dict() for restaurant in restaurants])
 
 # *************************************************************************************
 # *******************************REVIEWS FOR RESTAURANTS*******************************
@@ -195,15 +228,41 @@ def get_reviews_by_restaurant_id(id):
         if not reviews:
             return jsonify({"Reviews": []})
 
-        # Using the schema to serialize the data
-        review_schema = ReviewSchema(many=True)
-        all_reviews_list = review_schema.dump(reviews)
+        review_dicts = []
+        image_dicts = []
+        user_dicts = []
 
-        return jsonify({"Reviews": all_reviews_list})
+        for review in reviews:
+            review_dict = review.to_dict()
+            review_dict["review_img_ids"] = [img.id for img in review.review_imgs]
+            review_dicts.append(review_dict)
+
+            user_dict = review.user.to_dict()
+            user_dicts.append(user_dict)
+
+            for img in review.review_imgs:
+                image_dicts.append(img.to_dict())
+
+        normalized_reviews = normalize_data(review_dicts, 'id')
+        normalized_images = normalize_data(image_dicts, 'id')
+        normalized_users = normalize_data(user_dicts, 'id')
+
+        return jsonify({
+            "entities": {
+                "reviews": normalized_reviews,
+                "reviewImages": normalized_images,
+                "users": normalized_users
+            },
+            "metadata": {
+                "totalReviews": len(normalized_reviews["allIds"])
+            }
+        })
 
     except Exception as e:
         print(e)
         return jsonify({"error": "An error occurred while fetching the reviews."}), 500
+
+
 
 # *******************************Create a Review for a Restaurant*******************************
 @restaurant_routes.route('/<int:id>/reviews', methods=["POST"])
@@ -228,13 +287,16 @@ def create_review(id):
             db.session.add(new_review)
             db.session.commit()
 
-            # Using the schema to serialize the newly created review
-            review_schema = ReviewSchema()
-            serialized_review = review_schema.dump(new_review)
+            # return jsonify({
+            #     "message": "Review successfully created",
+            #     "review": new_review.to_dict()
+            # }), 201
 
             return jsonify({
                 "message": "Review successfully created",
-                "review": serialized_review
+                "entities": {
+                    "reviews": normalize_data([new_review.to_dict()], 'id')
+                }
             }), 201
 
         return jsonify(errors=form.errors), 400
@@ -242,3 +304,67 @@ def create_review(id):
         print(f"Error creating review: {e}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while creating the review."}), 500
+
+# *************************************************************************************
+# *******************************MENU ITEMS FOR RESTAURANTS*******************************
+# *************************************************************************************
+
+# *******************************Get All Menu Items for a Restaurant By Id*******************************
+@restaurant_routes.route('/<int:id>/menu-items')
+def get_menu_items_by_restaurant_id(id):
+    try:
+        menu_items = (
+            db.session.query(MenuItem)
+            .filter(MenuItem.restaurant_id == id)
+            .options(joinedload(MenuItem.menu_item_imgs))
+            .all()
+        )
+
+        if not menu_items:
+            return jsonify({"MenuItems": []})
+
+        menu_items_list = [item.to_dict() for item in menu_items]
+        images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
+
+        for item_dict, item in zip(menu_items_list, menu_items):
+            item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
+
+        normalized_menu_items = normalize_data(menu_items_list, 'id')
+        normalized_images = normalize_data(images_list, 'id')
+
+        return jsonify({
+            "entities": {
+                "menuItems": normalized_menu_items,
+                "menuItemImages": normalized_images
+            }
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "An error occurred while fetching the menu items."}), 500
+
+
+
+
+
+
+
+
+
+
+# def get_menu_items_by_restaurant_id(id):
+#     try:
+#         menu_items = MenuItem.query.filter(MenuItem.restaurant_id == id).all()
+
+#         if not menu_items:
+#             return jsonify({"MenuItems": []})
+
+    #     # Using the schema to serialize the data
+    #     menu_item_schema = MenuItemSchema(many=True)
+    #     all_menu_items_list = menu_item_schema.dump(menu_items)
+
+    #     return jsonify({"MenuItems": all_menu_items_list})
+
+    # except Exception as e:
+    #     print(e)
+    #     return jsonify({"error": "An error occurred while fetching the menu items."}), 500

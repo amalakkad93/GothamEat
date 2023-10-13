@@ -25,7 +25,8 @@ class MenuItem(db.Model):
 
     menu_item_imgs = db.relationship('MenuItemImg', backref='menu_item', cascade="all, delete-orphan")
     cart_items = db.relationship('ShoppingCartItem', backref='menu_item')
-    
+
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -33,5 +34,6 @@ class MenuItem(db.Model):
             'name': self.name,
             'description': self.description,
             'type': self.type,
-            'price': self.price
+            'price': self.price,
+            # 'menu_item_imgs': [img.to_dict() for img in self.menu_item_imgs]
         }
