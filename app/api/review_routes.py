@@ -3,11 +3,12 @@ from sqlalchemy import func, distinct, or_, desc
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 import app, json
+import traceback
 from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Review, ReviewImg, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, upload_file, allowed_file, ALLOWED_EXTENSIONS
 from ..forms import ReviewForm, ReviewImgForm
-from ..helper_functions import normalize_data
+from ..helper_functions import normalize_data, handle_image_upload
 
 
 review_routes = Blueprint('review', __name__)
@@ -108,7 +109,7 @@ def update_review(id):
         db.session.rollback()
         return jsonify({"error": "An error occurred while updating the review."}), 500
 
-    # *******************************Delete a Review*******************************
+# *******************************Delete a Review*******************************
 @review_routes.route('/<int:id>', methods=["DELETE"])
 def delete_review(id):
     try:
@@ -138,35 +139,17 @@ def delete_review(id):
 @review_routes.route("/<int:review_id>/image", methods=["POST"])
 def upload_review_image(review_id):
     try:
-        json_data = request.get_json()
+        form = ReviewImgForm()
+        form['csrf_token'].data = request.cookies['csrf_token']
+        print("Form data:", form.data)
+        print("Form errors:", form.errors)
 
-        image = json_data.get('image')
-        image_url = json_data.get('image_url')
-
-        print("Image:", image)
-        print("Image URL:", image_url)
-
-        if image or image_url:
-            if image and allowed_file(image.filename):
-                image_url = upload_file_to_s3(image, app.config["S3_BUCKET"])
-
-                review_image = ReviewImg(review_id=review_id, image_path=image_url)
-                db.session.add(review_image)
-                db.session.commit()
-
-                return jsonify({"image_url": image_url}), 201
-
-            elif image_url:
-                review_image = ReviewImg(review_id=review_id, image_path=image_url)
-                db.session.add(review_image)
-                db.session.commit()
-
-                return jsonify({"image_url": image_url}), 201
-
-        return jsonify({"error": "Image or image URL is required."}), 400
-
+        if form.validate_on_submit():
+            return handle_image_upload(form.image.data, form.image_url.data, ReviewImg, review_id, db)
+        else:
+            return jsonify({"errors": form.errors}), 400
     except Exception as e:
-        print("Error:", e)
+        print("Error uploading image:", traceback.format_exc())
         return jsonify({"error": "An error occurred while uploading the image."}), 500
 
 

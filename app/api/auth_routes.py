@@ -90,7 +90,7 @@ def unauthorized():
     """
     return {'errors': ['Unauthorized']}, 401
 
-# @auth_routes.route('/csrf/restore', methods=['GET'])
-# def restore_csrf():
-#     print("Inside restore_csrf function")
-#     return jsonify({"csrf_token": generate_csrf()})
+@auth_routes.route('/csrf/restore', methods=['GET'])
+def restore_csrf():
+    print("Inside restore_csrf function")
+    return jsonify({"csrf_token": generate_csrf()})

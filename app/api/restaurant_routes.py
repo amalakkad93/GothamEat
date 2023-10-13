@@ -5,7 +5,7 @@ import json
 from flask_login import current_user, login_user, logout_user, login_required
 from collections import OrderedDict
 from ..models import User, Review, Review, db, MenuItem, MenuItemImg, Restaurant
-from ..forms import RestaurantForm, ReviewForm
+from ..forms import RestaurantForm, ReviewForm, MenuItemForm
 from ..schemas import RestaurantSchema, ReviewSchema
 from ..helper_functions import normalize_data
 
@@ -155,7 +155,7 @@ def create_restaurant():
         form['csrf_token'].data = request.cookies['csrf_token']
 
         if form.validate_on_submit():
-            new_restaurant = Review()
+            new_restaurant = Restaurant()
             form.populate_obj(new_restaurant)
             new_restaurant.owner_id = current_user.id
 
@@ -186,7 +186,7 @@ def create_restaurant():
 @restaurant_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_restaurant(id):
-    restaurant = Review.query.get(id)
+    restaurant = Restaurant.query.get(id)
 
     if not restaurant:
         return jsonify(error="Restaurant not found"), 404
@@ -204,7 +204,7 @@ def delete_restaurant(id):
 # *******************************Get Search Restaurant*******************************
 @restaurant_routes.route('/search/<search_term>')
 def search_restaurants(search_term):
-    restaurants = Review.query.filter(Review.name.ilike(f'%{search_term}%')).all()
+    restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
     return jsonify([restaurant.to_dict() for restaurant in restaurants])
 
 # *************************************************************************************
@@ -343,8 +343,49 @@ def get_menu_items_by_restaurant_id(id):
         print(e)
         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
 
+# *******************************Create a MenuItem Based on a Restaurant Id*******************************
+@restaurant_routes.route('/<int:id>/menu-items', methods=["POST"])
+@login_required
+def create_menu_item_by_restaurant_id(id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(errors="Invalid data"), 400
+
+        if not current_user.is_authenticated:
+            return jsonify(message="You need to be logged in"), 401
+
+        form = MenuItemForm(data=data)
+        form['csrf_token'].data = request.cookies['csrf_token']
+
+        if form.validate_on_submit():
+            new_MenuItem = MenuItem()
+            form.populate_obj(new_MenuItem)
+            # new_MenuItem.owner_id = current_user.id
+            new_MenuItem.restaurant_id = id
+
+            db.session.add(new_MenuItem)
+            db.session.commit()
+
+            return jsonify({
+                "message": "Menu Item successfully created",
+                "entities": {
+                    "MenuItem": normalize_data([new_MenuItem.to_dict()], 'id')
+                }
+            }), 201
 
 
+            # return jsonify({
+            #     "message": "Menu Item successfully created",
+            #     "MenuItem": new_MenuItem.to_dict()
+            # }), 201
+
+        return jsonify(errors=form.errors), 400
+
+    except Exception as e:
+        print(f"Error creating menu item: {e}")
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while creating the menu item."}), 500
 
 
 

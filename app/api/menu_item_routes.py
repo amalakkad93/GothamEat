@@ -1,49 +1,98 @@
 from flask import Blueprint, jsonify, request,redirect, url_for, abort, send_file
-import app
+# import app
+from flask import current_app as app
+import traceback
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy import func, distinct, or_, desc
 from ..models import User, Review, Review, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, ALLOWED_EXTENSIONS, upload_file, allowed_file
 from ..forms import MenuItemForm, MenuItemImgForm
 import json
+from ..helper_functions.handle_image_upload import handle_image_upload
 
 menu_item_routes = Blueprint('menu_items', __name__)
 
-# *******************************Upload Menu Item Image to AWS*******************************
-@menu_item_routes.route("/<int:menu_item_id>/image", methods=["POST"])
-def upload_menu_item_image(menu_item_id):
+# *******************************Edit a Menu Item*******************************
+@menu_item_routes.route('/<int:id>', methods=["PUT"])
+@login_required
+def update_menu_item(id):
     try:
-        json_data = request.get_json()
+        menu_item_to_update = MenuItem.query.get(id)
+        if menu_item_to_update is None:
+            return jsonify({"error": "Menu Item not found."}), 404
 
-        image = json_data.get('image')
-        image_url = json_data.get('image_url')
+        if not current_user.is_authenticated:
+            return jsonify(message="You need to be logged in"), 401
 
-        print("Image:", image)
-        print("Image URL:", image_url)
+        restaurant = menu_item_to_update.restaurant
+        if restaurant.owner_id != current_user.id:
+            return jsonify(message="Unauthorized"), 403
 
-        if image or image_url:
-            if image and allowed_file(image.filename):
-                image_url = upload_file_to_s3(image, app.config["S3_BUCKET"])
+        form = MenuItemForm()
+        form['csrf_token'].data = request.cookies['csrf_token']
+        data = request.get_json()
 
-                menu_item_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
-                db.session.add(menu_item_image)
-                db.session.commit()
+        for field, value in data.items():
+            if hasattr(form, field):
+                setattr(form, field, value)
 
-                return jsonify({"image_url": image_url}), 201
+        if form.validate_on_submit():
+            for field in form:
+                setattr(menu_item_to_update, field.name, field.data)
 
-            elif image_url:
-                menu_item_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
-                db.session.add(menu_item_image)
-                db.session.commit()
-
-                return jsonify({"image_url": image_url}), 201
-
-        return jsonify({"error": "Image or image URL is required."}), 400
+            db.session.commit()
+            return jsonify(message="Menu Item updated successfully"), 200
+        else:
+            return jsonify(errors=form.errors), 400
 
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": "An error occurred while uploading the image."}), 500
+        print(e)
+        print("Error Editing Menu Item:", traceback.format_exc())
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while updating the review."}), 500
 
+# *******************************Delete a Menu Item*******************************
+@menu_item_routes.route('/<int:id>', methods=["DELETE"])
+def delete_menu_item(id):
+    try:
+        menu_item_to_delete = MenuItem.query.get(id)
+
+        if menu_item_to_delete is None:
+            return jsonify({"error": "Menu Item not found."}), 404
+
+        restaurant = menu_item_to_delete.restaurant
+        if restaurant.owner_id != current_user.id:
+            return jsonify(message="Unauthorized"), 403
+
+        db.session.delete(menu_item_to_delete)
+        db.session.commit()
+
+        return jsonify(message="Menu Item deleted successfully"), 200
+
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while deleting the menu item."}), 500
+
+
+
+# *******************************Upload Menu Item Image to AWS*******************************
+@menu_item_routes.route("/<int:menu_item_id>/images", methods=["POST"])
+@login_required
+def upload_menu_item_image(menu_item_id):
+    try:
+        form = MenuItemImgForm()
+        form['csrf_token'].data = request.cookies['csrf_token']
+        print("Form data:", form.data)
+        print("Form errors:", form.errors)
+
+        if form.validate_on_submit():
+            return handle_image_upload(form.image.data, form.image_url.data, MenuItemImg, menu_item_id, db)
+        else:
+            return jsonify({"errors": form.errors}), 400
+    except Exception as e:
+        print("Error uploading image:", traceback.format_exc())
+        return jsonify({"error": "An error occurred while uploading the image."}), 500
 
 # *******************************Get Menu Item Image From AWS*******************************
 @menu_item_routes.route("/<int:menu_item_id>/image")
