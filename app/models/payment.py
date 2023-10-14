@@ -14,7 +14,9 @@ class Payment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('orders.id')))
-    gateway = db.Column(Enum("Stripe", "PayPal", name="payment_gateways"))
+    # gateway = db.Column(Enum("Stripe", "PayPal", name="payment_gateways"))
+    gateway = db.Column(Enum("Stripe", "PayPal", "Credit Card", name="payment_gateways"))
+
     stripe_payment_intent_id = db.Column(db.String(255))
     stripe_payment_method_id = db.Column(db.String(255))
     paypal_transaction_id = db.Column(db.String(255))

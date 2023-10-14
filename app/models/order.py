@@ -1,6 +1,7 @@
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from ..helper_functions import format_review_date
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -19,7 +20,9 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
-    items = db.relationship("OrderItem", backref='order')
+    # items = db.relationship("OrderItem", backref='order')
+    items = db.relationship("OrderItem", backref='order', cascade="all, delete-orphan")
+
     payment = db.relationship("Payment", backref="order", uselist=False, lazy=True)
 
     def to_dict(self):
@@ -28,6 +31,7 @@ class Order(db.Model):
             'user_id': self.user_id,
             'total_price': self.total_price,
             'status': self.status,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'created_at': format_review_date(self.created_at),
+            'updated_at': format_review_date(self.updated_at),
+            # 'orderItems': [item.to_dict() for item in self.items]
         }
