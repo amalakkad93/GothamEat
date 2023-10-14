@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import datetime
 from sqlalchemy import func
+from .review_img import ReviewImg
+from ..helper_functions import format_review_date
 
 class Review(db.Model):
     __tablename__ = 'reviews'
@@ -19,6 +21,10 @@ class Review(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('restaurants.id')))
     review = db.Column(db.Text)
     stars = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    review_imgs = db.relationship('ReviewImg', backref='review', cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -27,4 +33,6 @@ class Review(db.Model):
             'user_id': self.user_id,
             'review': self.review,
             'stars': self.stars,
+            'created_at': format_review_date(self.created_at),
+            'updated_at': format_review_date(self.updated_at),
         }

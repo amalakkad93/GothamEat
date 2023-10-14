@@ -12,19 +12,30 @@ def seed_orders_and_order_items():
     for user in users:
         # Randomly decide if a user makes an order
         if randint(0, 1):
-            order = Order(user_id=user.id, status="completed")  # Assuming status for simplicity
-            all_orders.append(order)
+            total_price = 0  # Initialize total_price
 
-            # Convert some or all shopping cart items to order items
             cart_items = ShoppingCartItem.query.filter_by(shopping_cart_id=user.shopping_cart.id).all()
+
+            # List to hold temporary order items for the current order
+            temp_order_items = []
 
             for cart_item in cart_items:
                 if randint(0, 1):  # Randomly decide to add to order
-                    # order_item = OrderItem(order=order, menu_item=cart_item.menu_item, quantity=cart_item.quantity)
-                    order_item = OrderItem(order_id=order.id, menu_item_id=cart_item.menu_item_id, quantity=cart_item.quantity)
-                    all_order_items.append(order_item)
+                    # Update the total price
+                    menu_item = MenuItem.query.get(cart_item.menu_item_id)
+                    total_price += menu_item.price * cart_item.quantity
 
-    db.session.add_all(all_orders)
+                    temp_order_item = OrderItem(menu_item_id=cart_item.menu_item_id, quantity=cart_item.quantity)
+                    temp_order_items.append(temp_order_item)
+
+            order = Order(user_id=user.id, status="completed", total_price=total_price)
+            db.session.add(order)
+            db.session.flush()  # This will assign an ID to the order without committing the transaction
+
+            for temp_order_item in temp_order_items:
+                temp_order_item.order_id = order.id
+                all_order_items.append(temp_order_item)
+
     db.session.add_all(all_order_items)
     db.session.commit()
 

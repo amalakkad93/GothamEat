@@ -5,8 +5,9 @@ from .favorites_routes import favorite_routes
 from .menu_item_routes import menu_item_routes
 from .menu_item_img_routes import menu_item_img_routes
 from .shopping_cart_routes import shopping_cart_routes
-from .shopping_cart_item_routes import shopping_cart_item_routes
 from .order_routes import order_routes
 from .order_item_routes import order_item_routes
 from .review_routes import review_routes
+from .review_img_routes import review_img_routes
 from .payment_routes import payment_routes
+from .images_routes import image_routes

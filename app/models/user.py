@@ -2,6 +2,9 @@ from datetime import datetime
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from .review import Review
+from .shopping_cart import ShoppingCart
+from .restaurant import Restaurant
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -18,7 +21,7 @@ class User(db.Model, UserMixin):
 
     # Relationships
     restaurants = db.relationship("Restaurant", backref='owner')
-    reviews = db.relationship("Review", backref='author')
+    reviews = db.relationship("Review", backref='user')
     shopping_cart = db.relationship("ShoppingCart", backref='user', uselist=False)
 
     @property

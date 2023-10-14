@@ -1,4 +1,17 @@
+****** for flask, flask-migrate, flask-seed ******\
+
 flask db init
 flask db migrate
 flask db upgrade
 flask seed all
+
+
+****** for boto3 AWS S3 bucket ******
+
+pip install boto3
+
+****** for marshmallow ******
+pip install marshmallow
+
+****** for arrow ******
+pip install arrow
