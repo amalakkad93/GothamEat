@@ -8,7 +8,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Review, ReviewImg, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, upload_file, allowed_file, ALLOWED_EXTENSIONS
 from ..forms import ReviewForm, ReviewImgForm
-from ..helper_functions import normalize_data, handle_image_upload
+from ..helper_functions import normalize_data, upload_image, delete_image
 
 
 review_routes = Blueprint('review', __name__)
@@ -145,7 +145,7 @@ def upload_review_image(review_id):
         print("Form errors:", form.errors)
 
         if form.validate_on_submit():
-            return handle_image_upload(form.image.data, form.image_url.data, ReviewImg, review_id, db)
+            return upload_image(form.image.data, form.image_url.data, ReviewImg, review_id, db)
         else:
             return jsonify({"errors": form.errors}), 400
     except Exception as e:

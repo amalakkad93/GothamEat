@@ -8,7 +8,8 @@ from ..models import User, Review, Review, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, ALLOWED_EXTENSIONS, upload_file, allowed_file
 from ..forms import MenuItemForm, MenuItemImgForm
 import json
-from ..helper_functions.handle_image_upload import handle_image_upload
+# from ..helper_functions.image_handlers import
+from ..helper_functions import upload_image, delete_image
 
 menu_item_routes = Blueprint('menu_items', __name__)
 
@@ -74,8 +75,6 @@ def delete_menu_item(id):
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the menu item."}), 500
 
-
-
 # *******************************Upload Menu Item Image to AWS*******************************
 @menu_item_routes.route("/<int:menu_item_id>/images", methods=["POST"])
 @login_required
@@ -87,7 +86,7 @@ def upload_menu_item_image(menu_item_id):
         print("Form errors:", form.errors)
 
         if form.validate_on_submit():
-            return handle_image_upload(form.image.data, form.image_url.data, MenuItemImg, menu_item_id, db)
+            return upload_image(form.image.data, form.image_url.data, MenuItemImg, menu_item_id, db)
         else:
             return jsonify({"errors": form.errors}), 400
     except Exception as e:
