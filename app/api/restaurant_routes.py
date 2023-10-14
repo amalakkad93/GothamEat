@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request,redirect, url_for, abort
+from flask import Blueprint, jsonify, request, redirect, url_for, abort
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
 import json
