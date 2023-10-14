@@ -22,9 +22,13 @@ def upload_file(file, bucket_name):
                 "ContentType": file.content_type
             }
         )
-        return f"https://{bucket_name}.s3.amazonaws.com/{file.filename}"
+        return {
+            "status": "success",
+            "url": f"https://{bucket_name}.s3.amazonaws.com/{file.filename}"
+        }
     except Exception as e:
-        # Handle exceptions
-        return str(e)
-    return f"{bucket_name}/{file.filename}"
-   #  return f"{bucket_name}/{file.filename}"
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+

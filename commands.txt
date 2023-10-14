@@ -12,3 +12,6 @@ pip install boto3
 
 ****** for marshmallow ******
 pip install marshmallow
+
+****** for arrow ******
+pip install arrow
