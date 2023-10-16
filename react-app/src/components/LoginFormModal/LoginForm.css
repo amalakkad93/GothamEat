@@ -1,0 +1,70 @@
+/* h2 {
+  display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'BatmanForeverAlternate', sans-serif;
+    text-shadow: 2px 2px black;
+} */
+
+.login-btn-modal {
+  color: white;
+    font-family: 'BatmanForeverAlternate', sans-serif;
+    text-shadow: 2px 2px black;
+}
+
+.demo-btn {
+  color: white;
+    font-family: 'BatmanForeverAlternate', sans-serif;
+    text-shadow: 2px 2px black;
+}
+
+.log-In-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background: var(--secondary-color);
+}
+
+.log-In-ul {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.log-In-li{
+  /* color: var(--error-color); */
+  margin-bottom: 10px;
+}
+
+.log-In-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  /* background-color: var(--primary-button-color); */
+  border: none;
+  border-radius: 4px;
+  /* color: var(--secondary-color); */
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}

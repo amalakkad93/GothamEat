@@ -1,7 +1,182 @@
-.profile-dropdown {
-  position: absolute;
+
+
+.navBar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.hidden {
-  display: none;
+.navBar-inner-container {
+  display: flex;
+  /* align-items: center; */
+  /* justify-content: flex-start; */
+  /* width: 80%; */
+  /* max-width: 1200px; */
+
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 1008px;
+  padding: 0px 20px;
+}
+
+.navBar-left {
+  gap: 14px;
+}
+
+.navBar-left button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.navBar-left,
+.navBar-center,
+.navBar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navBar-spacer {
+  flex-grow: 1;
+}
+
+/* ***************Log In, sign UP and Cart buttons****************** */
+/* Common button styles */
+.navBar-left{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+}
+
+.cart-btn {
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  margin-left: 10px;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: background-color 0.3s, transform 0.3s;
+  width: 91px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Login Button */
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  padding: 8px 16px;
+  width: 91px;
+  height: 36px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: background-color 0.3s, transform 0.3s;
+  font-family: 'Roboto', sans-serif;
+  background-color: white;
+  /* border: 1px solid #000000; */
+  /* color: #000; */
+}
+
+.login-btn:hover {
+  /* background-color: #555; */
+  color: white;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+.login-btn-word-logo-user-circle {
+  gap: 5px;
+}
+.login-btn * {
+  margin: 0;
+  padding: 0;
+}
+
+/* Signup Button */
+.signup-btn {
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  margin-left: 10px;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: background-color 0.3s, transform 0.3s;
+  width: 91px;
+  height: 36px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  color: white;
+}
+
+.signup-btn:hover {
+  background-color: #333;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+.signup-btn * {
+  margin: 0;
+  padding: 0;
+}
+
+/* Cart Button */
+.cart-btn {
+  background-color:#E2E2E2;
+  color: #000;
+  border: none;
+}
+
+.cart-btn:hover {
+  background-color: #C0C0C0;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+/* ******************************************************/
+
+.line {
+  margin-top: 10px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* .fas {
+  font-size: 24px;
+  cursor: pointer;
+} */
+
+.navbar-logo {
+  text-decoration: none;
+  color: #000;
+  font-size: 24px;
+  font-weight: bold;
+  align-items: center;
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.logo-h1-first {
+  font-weight: 300;
+  font-size: 1.5rem;
+  color:#000
+}
+
+.logo-h1-second {
+  font-weight: 700;
+  font-size: 1.5rem;
 }
