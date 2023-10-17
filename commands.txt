@@ -1,4 +1,5 @@
-****** for flask, flask-migrate, flask-seed ******\
+******************************************Backend******************************************
+****** for flask, flask-migrate, flask-seed ******
 
 flask db init
 flask db migrate
@@ -13,5 +14,13 @@ pip install boto3
 ****** for marshmallow ******
 pip install marshmallow
 
+
 ****** for arrow ******
 pip install arrow
+
+******************************************Frontend******************************************
+****** for react-google-maps ******
+npm install @react-google-maps/api
+
+****** for react version 6 ******
+npm install react@6 react-dom@6

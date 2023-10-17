@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, redirect, jsonify, request
-from flask_login import login_required
-from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, ALLOWED_EXTENSIONS, upload_file
-from ..models import User, Review, Review, db, MenuItem, MenuItemImg, ReviewImg
-# from ..forms import RestaurantForm, ReviewForm, ImageForm
+# from flask import Blueprint, render_template, redirect, jsonify, request
+# from flask_login import login_required
+# from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, ALLOWED_EXTENSIONS, upload_file
+# from ..models import User, Review, Review, db, MenuItem, MenuItemImg, ReviewImg
+# # from ..forms import RestaurantForm, ReviewForm, ImageForm
 
 
-image_routes = Blueprint("images", __name__)
+# image_routes = Blueprint("images", __name__)
 
 # # *******************************Upload Menu Item Image*******************************
 # @image_routes.route("/upload_menu_item_image", methods=["POST"])

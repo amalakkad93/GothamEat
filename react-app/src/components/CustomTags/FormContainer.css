@@ -1,0 +1,35 @@
+/* Container for the form */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* box-shadow: 0px 0px 10px rgba(0,0,0,0.1); */
+}
+
+/* General styles for form child elements */
+.form-container > * {
+  margin: 5px 0;
+}
+
+/* Styles for half-width input and textarea wrappers */
+.form-container .input-wrapper.half,
+.form-container .textarea-wrapper.half {
+  width: 48%;
+  box-sizing: border-box;
+  float: left;
+}
+
+/* Error message styles */
+.form-container .error {
+  color: red;
+  font-size: 12px;
+}
+.inputClassName.error {
+  border-color: transparent;
+}
+/* Placeholder styles */
+.form-container input::placeholder,
+.form-container textarea::placeholder {
+  color: grey;
+  font-style: italic;
+}

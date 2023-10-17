@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faBars } from '@fortawesome/free-solid-svg-icons';
 import OpenModalMenuItem from './OpenModalMenuItem';
 
-import './Navigation.css';
+import './ProfileButton.css';
 // import CreateMenuItemForm from "../MenuItems/MenuItemForm/CreateMenuItemForm";
 
 function ProfileButton({ user }) {
@@ -19,7 +19,7 @@ function ProfileButton({ user }) {
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
   const navigate = useNavigate();
-  const userInitials = user && `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+  const userInitials = user && `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`;
   const sessionUser = useSelector((state) => state.session.user);
 
   const openMenu = (e) => {
@@ -62,18 +62,20 @@ function ProfileButton({ user }) {
             {!user ? (
               <>
                 <FontAwesomeIcon icon={faBars} className="menu-icon" />
-                <FontAwesomeIcon icon={faUserCircle} className="profile-icon" />
+                {/* <FontAwesomeIcon icon={faUserCircle} className="profile-icon" /> */}
               </>
             ) : (
               <>
+                <div className="user-initials1">
                 <FontAwesomeIcon icon={faBars} className="menu-icon" />
-                <div className="user-initials1">{userInitials.toUpperCase()}</div>
+                  {/* {userInitials.toUpperCase()} */}
+                </div>
               </>
             )}
           </button>
         </div>
         <div className="menu-drop-down">
-          
+
         {/* SlidingModal start here */}
         <SlidingModal isVisible={showMenu} onClose={closeMenu}>
           <ul className={ulClassName} ref={ulRef} style={{ display: showMenu ? 'block' : 'none' }}>
@@ -107,22 +109,12 @@ function ProfileButton({ user }) {
               </>
             ) : (
               <>
-                <ul className="center-menu center-menu-login">
-                  <OpenModalMenuItem
-                    className="center-menu"
-                    itemText="Log In"
-                    onItemClick={closeMenu}
-                    modalComponent={<LoginFormModal />}
-                  />
-                </ul>
-                <ul className="center-menu center-menu-signUp">
-                  <OpenModalMenuItem
-                    className="center-menu"
-                    itemText="Sign Up"
-                    onItemClick={closeMenu}
-                    modalComponent={<SignupFormModal />}
-                  />
-                </ul>
+                <div className="center-menu-signUp">
+                  <button className="center-menu-signUp" onClick={(e) => { closeMenu(); navigate(`/signup`) }}>Sign up</button>
+                </div>
+                <div className="center-menu-login">
+                  <button className="center-menu-login" onClick={(e) => { closeMenu(); navigate(`/login`) }}>Log in</button>
+                </div>
               </>
             )}
           </ul>
