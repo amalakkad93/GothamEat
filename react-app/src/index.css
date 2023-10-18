@@ -12,3 +12,118 @@ html {
 -o-background-size: cover;
 background-size: cover;
 }
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+li {
+  list-style-type: none;
+}
+
+/* Base styles (mobile first) */
+
+/* body {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  line-height: 1.5;
+} */
+
+/* header {
+  background-color: #fff;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} */
+
+/* .logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #EA1D2C;
+} */
+
+/* .nav {
+  display: none;
+} */
+
+/* Small Devices (bigger phones, phablets) */
+/* @media only screen and (min-width : 481px) {
+  header {
+      padding: 0.75rem 1rem;
+  }
+
+  .logo {
+      font-size: 26px;
+  }
+} */
+
+/* Medium Devices (tablets in portrait) */
+/* @media only screen and (min-width : 601px) {
+  header {
+      padding: 1rem 1.5rem;
+  }
+
+  .logo {
+      font-size: 28px;
+  }
+
+  .navBar-container {
+      display: flex;
+  }
+} */
+
+/* Large Devices (tablets in landscape and small laptops) */
+/* @media only screen and (min-width : 769px) {
+  header {
+      padding: 1.5rem 2rem;
+  }
+
+  .logo {
+      font-size: 32px;
+  }
+} */
+
+/* Extra Large Devices (standard laptops and desktops) */
+/* @media only screen and (min-width : 993px) {
+  .main-content {
+      width: 80%;
+      margin: 0 auto;
+  }
+
+  .restaurant-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+  }
+
+  .restaurant-card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+  }
+
+  .restaurant-card:hover {
+      transform: scale(1.05);
+  }
+} */
+
+/* TV and Large Screen Devices (large desktop screens and TVs) */
+/* @media only screen and (min-width : 1201px) {
+  .main-content {
+      width: 75%;
+  }
+
+  .restaurant-list {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+
+  .logo {
+      font-size: 40px;
+  }
+
+  header {
+      padding: 2rem 3rem;
+  }
+} */

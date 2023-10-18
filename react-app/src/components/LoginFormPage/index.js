@@ -108,6 +108,10 @@ function LoginFormPage() {
         submitButtonClass="login-signup-form-btn"
         formTitle="Log In"
       />
+      <button className="log-In-btn demo-user-btn" type="submit" onClick={(e) => {
+          setEmail("demo@io.com");
+          setPassword("password")
+        }}>Demo User</button>
 
       </div>
 

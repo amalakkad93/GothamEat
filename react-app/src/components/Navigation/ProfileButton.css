@@ -1,4 +1,15 @@
-
+.profile-dropdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 60px;
+  margin-left: 40px;
+  background-color: #fff;
+  border-radius: 4px;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); */
+}
 .profile-dropdown.hidden {
   display: none;
 }
@@ -68,4 +79,7 @@
   color: white;
   transform: scale(1.05);
   cursor: pointer;
+}
+.navigation-btn {
+  background: transparent;
 }

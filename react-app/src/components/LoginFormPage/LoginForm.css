@@ -47,6 +47,8 @@
   background-color: black;
   color: white;
   border-radius: 5px;
+  height: 40px;
+
 }
 
 .login-signup-form-btn:hover {

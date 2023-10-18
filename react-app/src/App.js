@@ -35,14 +35,14 @@ function App() {
         document.documentElement.style.backgroundImage = `url(${images[newIndex]})`;
         return newIndex;
       });
-    // }, 10* 60 * 1000);
-    }, 10 * 1000);
+    }, 10* 60 * 1000);
+    // }, 10 * 1000);
     return () => clearInterval(interval);
   }, [images]);
 
   useEffect(() => {
     // Check if the user is on the login/signup pages or if they're logged in
-    if (location.pathname === "/login" || location.pathname === "/signup" || sessionUser) {
+    if (location.pathname === "/login" || location.pathname === "/signup" ) {
         document.documentElement.style.background = 'white';
         document.documentElement.style.backgroundImage = 'none';
     } else {

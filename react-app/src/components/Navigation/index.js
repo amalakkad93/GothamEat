@@ -1,91 +1,326 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ProfileButton from "./ProfileButton";
-import LoginFormModal from "../LoginFormModal";
-import SignupFormModal from "../SignupFormModal";
-import OpenModalMenuItem from "./OpenModalMenuItem";
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUserCircle, faBars, faUser } from '@fortawesome/free-solid-svg-icons';
 import "./Navigation.css";
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector((state) => state.session.user);
-  console.log("****************sessionUser", sessionUser)
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
-  const ulRef = useRef();
-  useEffect(() => {
-    if (!showMenu) return;
+  const [navVisible, setNavVisible] = useState(true);
 
-    const closeMenu = (e) => {
-      if (!ulRef.current.contains(e.target)) {
-        setShowMenu(false);
-      }
-    };
-
-    document.addEventListener("click", closeMenu);
-
-    return () => document.removeEventListener("click", closeMenu);
-  }, [showMenu]);
-
-  const closeMenu = () => setShowMenu(false);
+  const handleModalVisibilityChange = (isVisible) => {
+    setNavVisible(!isVisible);
+  };
 
   return (
-    <>
-      <div className="navBar-container">
-        <div className="navBar-inner-container">
+    <div className="navBar-inner-container">
+
+      {isLoaded && <ProfileButton user={sessionUser} onModalVisibilityChange={handleModalVisibilityChange} />}
+
+      {navVisible && (
+        <>
           <div className="navBar-left">
-            {isLoaded && (
-              <ul><ProfileButton user={sessionUser} showMenu={showMenu} /></ul>
-            )}
             <NavLink exact to="/" className="navbar-logo">
-							<div className="logo-container">
-								<h1 className="logo-h1-first">Starco</h1>
-              	<h1 className="logo-h1-second">Eats</h1>
-							</div>
+              <div className="logo-container">
+                <h1 className="logo-h1-first">Starco</h1>
+                <h1 className="logo-h1-second">Eats</h1>
+              </div>
             </NavLink>
           </div>
 
           <div className="navBar-spacer"></div>
 
           <div className="navBar-right">
-            {/* <button
-              className="cart-btn"
-              type="button"
-              onClick={() => alert("Feature Coming Soon...")}
-            >
-              <i
-                className="fas fa-shopping-cart"
-                style={{ marginRight: "6px" }}
-              ></i>
-              Cart
-            </button> */}
-            {sessionUser ? null : (
+            {!sessionUser && (
               <>
-							<div className="login-btn">
-                <button className="login-btn" onClick={(e) => { closeMenu(); navigate(`/login`) }}>
-                  <div className="login-btn-word-logo-user-circle">
-                    <FontAwesomeIcon icon={faUser} className="menu-icon" /> Log in
-							  	</div>
-                </button>
-							</div>
-							<div className="signup-btn">
-                <button className="signup-btn" onClick={(e) => { closeMenu(); navigate(`/signup`) }}>
-                     Sign up
-                </button>
-							</div>
+                <div className="login-btn">
+                  <button
+                    className="login-btn"
+                    onClick={() => navigate(`/login`)}
+                  >
+                    Log in
+                  </button>
+                </div>
+                <div className="signup-btn">
+                  <button
+                    className="signup-btn"
+                    onClick={() => navigate(`/signup`)}
+                  >
+                    Sign up
+                  </button>
+                </div>
               </>
             )}
           </div>
-        </div>
-      </div>
-    </>
+        </>
+      )}
+    </div>
   );
 }
 
 export default Navigation;
+
+
+
+// import React, { useState } from "react";
+// import { NavLink, useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import ProfileButton from "./ProfileButton";
+// import "./Navigation.css";
+
+// function Navigation({ isLoaded }) {
+//   const sessionUser = useSelector((state) => state.session.user);
+//   const navigate = useNavigate();
+//   const [isModalVisible, setIsModalVisible] = useState(false);
+//   const [navVisible, setNavVisible] = useState(true);
+
+
+//   return (
+//     <>
+//       {navVisible && (
+//         <div className="navBar-inner-container">
+//           <div className="navBar-left">
+//             {isLoaded && (
+//               <ul>
+//                 <ProfileButton
+//                   user={sessionUser}
+//                   onProfileClick={() => setNavVisible(false)}
+//                   onCloseMenu={() => setNavVisible(true)}
+//                 />
+
+//               </ul>
+//             )}
+
+//             <NavLink exact to="/" className="navbar-logo">
+//               <div className="logo-container">
+//                 <h1 className="logo-h1-first">Starco</h1>
+//                 <h1 className="logo-h1-second">Eats</h1>
+//               </div>
+//             </NavLink>
+//           </div>
+
+//           <div className="navBar-spacer"></div>
+
+//           <div className="navBar-right">
+//             {!sessionUser && (
+//               <>
+//                 <div className="login-btn">
+//                   <button
+//                     className="login-btn"
+//                     onClick={(e) => {
+//                       navigate(`/login`);
+//                     }}
+//                   >
+//                     Log in
+//                   </button>
+//                 </div>
+//                 <div className="signup-btn">
+//                   <button
+//                     className="signup-btn"
+//                     onClick={(e) => {
+//                       navigate(`/signup`);
+//                     }}
+//                   >
+//                     Sign up
+//                   </button>
+//                 </div>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// }
+
+// export default Navigation;
+
+// import React, { useState, useEffect, useRef } from "react";
+// import { NavLink, useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import ProfileButton from "./ProfileButton";
+// import LoginFormModal from "../LoginFormModal";
+// import SignupFormModal from "../SignupFormModal";
+// import OpenModalMenuItem from "./OpenModalMenuItem";
+
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faUserCircle, faBars, faUser } from '@fortawesome/free-solid-svg-icons';
+// import "./Navigation.css";
+
+// function Navigation({ isLoaded }) {
+//   const sessionUser = useSelector((state) => state.session.user);
+//   console.log("****************sessionUser", sessionUser)
+//   const navigate = useNavigate();
+//   const [showMenu, setShowMenu] = useState(false);
+//   const ulRef = useRef();
+//   useEffect(() => {
+//     if (!showMenu) return;
+
+//     const closeMenu = (e) => {
+//       if (!ulRef.current.contains(e.target)) {
+//         setShowMenu(false);
+//       }
+//     };
+
+//     document.addEventListener("click", closeMenu);
+
+//     return () => document.removeEventListener("click", closeMenu);
+//   }, [showMenu]);
+
+//   const closeMenu = () => setShowMenu(false);
+
+//   return (
+//     <>
+
+//         <div className="navBar-inner-container">
+//           <div className="navBar-left">
+//             {isLoaded && (
+//               <ul><ProfileButton user={sessionUser} showMenu={showMenu} /></ul>
+//             )}
+//             <NavLink exact to="/" className="navbar-logo">
+// 							<div className="logo-container">
+// 								<h1 className="logo-h1-first">Starco</h1>
+//               	<h1 className="logo-h1-second">Eats</h1>
+// 							</div>
+//             </NavLink>
+//           </div>
+
+//           <div className="navBar-spacer"></div>
+
+//           <div className="navBar-right">
+//             {/* <button
+//               className="cart-btn"
+//               type="button"
+//               onClick={() => alert("Feature Coming Soon...")}
+//             >
+//               <i
+//                 className="fas fa-shopping-cart"
+//                 style={{ marginRight: "6px" }}
+//               ></i>
+//               Cart
+//             </button> */}
+//             {sessionUser ? null : (
+//               <>
+// 							<div className="login-btn">
+//                 <button className="login-btn" onClick={(e) => { closeMenu(); navigate(`/login`) }}>
+//                   <div className="login-btn-word-logo-user-circle">
+//                     <FontAwesomeIcon icon={faUser} className="menu-icon" /> Log in
+// 							  	</div>
+//                 </button>
+// 							</div>
+// 							<div className="signup-btn">
+//                 <button className="signup-btn" onClick={(e) => { closeMenu(); navigate(`/signup`) }}>
+//                      Sign up
+//                 </button>
+// 							</div>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//     </>
+//   );
+// }
+
+// export default Navigation;
+
+
+
+
+
+// import React, { useState, useEffect, useRef } from "react";
+// import { NavLink, useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import ProfileButton from "./ProfileButton";
+// import OpenModalMenuItem from "./OpenModalMenuItem";
+// import OpenModalButton from "../OpenModalButton";
+
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faUserCircle, faBars, faUser } from '@fortawesome/free-solid-svg-icons';
+// import "./Navigation.css";
+
+// function Navigation({ isLoaded }) {
+//   const sessionUser = useSelector((state) => state.session.user);
+//   console.log("****************sessionUser", sessionUser)
+//   const navigate = useNavigate();
+//   const [showMenu, setShowMenu] = useState(false);
+//   const ulRef = useRef();
+//   useEffect(() => {
+//     if (!showMenu) return;
+
+//     const closeMenu = (e) => {
+//       if (!ulRef.current.contains(e.target)) {
+//         setShowMenu(false);
+//       }
+//     };
+
+//     document.addEventListener("click", closeMenu);
+
+//     return () => document.removeEventListener("click", closeMenu);
+//   }, [showMenu]);
+
+//   const closeMenu = () => setShowMenu(false);
+
+//   return (
+//     <>
+//       <div className="navBar-container">
+//         <div className="navBar-inner-container">
+//           <div className="navBar-left">
+//             {isLoaded && (
+//               // <ul><ProfileButton user={sessionUser} showMenu={showMenu} /></ul>
+              // <OpenModalButton
+              //   modalComponent={<ProfileButton user={sessionUser} />}
+              //   buttonText={sessionUser ? `${sessionUser.first_name.charAt(0)}${sessionUser.last_name.charAt(0)}` : <FontAwesomeIcon icon={faBars} className="menu-icon" />}
+              //   onButtonClick={closeMenu}
+              //   sliding={true}
+              // />
+//             )}
+//             <NavLink exact to="/" className="navbar-logo">
+// 							<div className="logo-container">
+// 								<h1 className="logo-h1-first">Starco</h1>
+//               	<h1 className="logo-h1-second">Eats</h1>
+// 							</div>
+//             </NavLink>
+//           </div>
+
+//           <div className="navBar-spacer"></div>
+
+//           <div className="navBar-right">
+//             {/* <button
+//               className="cart-btn"
+//               type="button"
+//               onClick={() => alert("Feature Coming Soon...")}
+//             >
+//               <i
+//                 className="fas fa-shopping-cart"
+//                 style={{ marginRight: "6px" }}
+//               ></i>
+//               Cart
+//             </button> */}
+//             {sessionUser ? null : (
+//               <>
+// 							<div className="login-btn">
+//                 <button className="login-btn" onClick={(e) => { closeMenu(); navigate(`/login`) }}>
+//                   <div className="login-btn-word-logo-user-circle">
+//                     <FontAwesomeIcon icon={faUser} className="menu-icon" /> Log in
+// 							  	</div>
+//                 </button>
+// 							</div>
+// 							<div className="signup-btn">
+//                 <button className="signup-btn" onClick={(e) => { closeMenu(); navigate(`/signup`) }}>
+//                      Sign up
+//                 </button>
+// 							</div>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+// export default Navigation;
 
 // import React, { useState, useEffect, useRef } from "react";
 // import { NavLink } from "react-router-dom";
