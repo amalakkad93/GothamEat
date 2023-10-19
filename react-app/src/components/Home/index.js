@@ -1,29 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import './home.css'
+import SearchBar from "../SearchBar";
+import './home.css';
+import { useDispatch } from 'react-redux';
+import { thunkGetNearbyRestaurants } from '../../store/restaurants';
+import NearbyRestaurants from '../Restaurants/GetNearbyRestaurants'
 
 export default function Home() {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    function handleDirectionChange(event) {
-        const selectedDirection = event.target.value;
+    function handlePlaceSelected(place) {
+        console.log(place.geometry.location.toString());
 
+        // Fetch the nearby restaurants based on the selected place's latitude and longitude
+        const { lat, lng } = place.geometry.location;
+        dispatch(thunkGetNearbyRestaurants(lat(), lng()));  // Dispatch the thunk with the latitude and longitude
 
-
-        if (['west', 'east', 'north', 'south'].includes(selectedDirection)) {
-            navigate('/restaurants');
-        }
+        navigate('/nearby');
     }
 
     return (
         <>
-            <select onChange={handleDirectionChange} className="batman-dropdown">
-                <option value="" disabled selected>Gotham Precinct</option>
-                <option value="west">West</option>
-                <option value="east">East</option>
-                <option value="north">North</option>
-                <option value="south">South</option>
-            </select>
+            <SearchBar onPlaceSelected={handlePlaceSelected} />
+            {/* <NearbyRestaurants /> */}
         </>
-    )
+    );
 }

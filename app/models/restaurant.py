@@ -17,6 +17,7 @@ class Restaurant(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
+    google_place_id = db.Column(db.String(255), nullable=True, unique=True)
     owner_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
     banner_image_path = db.Column(db.String(500))
     street_address = db.Column(db.String(255))

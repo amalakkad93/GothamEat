@@ -1,4 +1,7 @@
-from flask import Blueprint, jsonify, request, redirect, url_for, abort
+from sqlite3 import OperationalError
+from flask import Blueprint, jsonify, request, redirect, url_for, abort, current_app
+import requests
+
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
 import json
@@ -10,8 +13,6 @@ from ..schemas import RestaurantSchema, ReviewSchema
 from ..helper_functions import normalize_data
 
 restaurant_routes  = Blueprint('restaurants', __name__)
-
-
 
 # *******************************Get All Restaurants*******************************
 @restaurant_routes.route('/')
@@ -36,6 +37,10 @@ def get_all_restaurants():
 
         return jsonify(normalized_restaurants)
 
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         print(str(e))
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
@@ -50,6 +55,10 @@ def get_restaurants_of_current_user():
         restaurants_of_current_user = {review.restaurant_id: review.restaurant.to_dict() for review in reviews}
 
         return jsonify({"Restaurants": restaurants_of_current_user})
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
 
     except Exception as e:
         print(e)
@@ -89,6 +98,10 @@ def get_restaurant_detail(id):
         }
 
         return jsonify(normalized_data)
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
 
     except Exception as e:
         print(e)
@@ -135,6 +148,10 @@ def update_restaurant(id):
         else:
             return jsonify(errors=form.errors), 400
 
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         print(e)
         db.session.rollback()
@@ -177,6 +194,10 @@ def create_restaurant():
 
         return jsonify(errors=form.errors), 400
 
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         print(f"Error creating restaurant: {e}")
         db.session.rollback()
@@ -197,6 +218,11 @@ def delete_restaurant(id):
         db.session.delete(restaurant)
         db.session.commit()
         return jsonify(message="Restaurant deleted successfully"), 200
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         db.session.rollback()
         return jsonify(error=f"Error deleting restaurant: {e}"), 500
@@ -206,6 +232,68 @@ def delete_restaurant(id):
 def search_restaurants(search_term):
     restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
     return jsonify([restaurant.to_dict() for restaurant in restaurants])
+
+
+
+# *******************************map_google_place_to_restaurant_model *******************************
+def map_google_place_to_restaurant_model(google_place_data):
+    """
+    Map data from Google Places API to the Restaurant model structure.
+    """
+    # This is a basic mapping. You can add or adjust fields as needed.
+    return {
+        'google_place_id': google_place_data.get('place_id'),
+        'name': google_place_data.get('name'),
+        'street_address': google_place_data.get('vicinity'),
+        'banner_image_path': google_place_data.get('icon'),
+        # You might want to add more fields or adjust the mapping based on your needs.
+    }
+
+# *******************************Get Nearby Restaurants From Google Api Places*******************************
+@restaurant_routes.route('/nearby', methods=['GET'])
+def get_nearby_restaurants():
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+
+    google_api_key = current_app.config['MAPS_API_KEY']
+    endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
+
+    response = requests.get(endpoint)
+    data = response.json()
+
+    enriched_data = []
+
+    for restaurant in data['results']:
+        mapped_data = map_google_place_to_restaurant_model(restaurant)
+
+        # Check if restaurant exists in our database
+        db_restaurant = Restaurant.query.filter_by(name=restaurant["name"]).first()
+        if db_restaurant:
+            enriched_data.append({**mapped_data, **db_restaurant.to_dict()})
+        else:
+            enriched_data.append(mapped_data)
+
+    return jsonify(enriched_data)
+
+# *******************************Get Detailed Restaurant From Google Api Places*******************************
+@restaurant_routes.route('/details/<place_id>', methods=['GET'])
+def get_detailed_restaurant(place_id):
+    google_api_key = current_app.config['MAPS_API_KEY']
+    endpoint = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&key={google_api_key}"
+
+    response = requests.get(endpoint)
+    data = response.json()
+
+    restaurant = data.get('result', {})
+    db_restaurant = Restaurant.query.filter_by(name=restaurant["name"]).first()
+
+    if db_restaurant:
+        enriched_data = {**restaurant, **db_restaurant.to_dict()}
+    else:
+        enriched_data = restaurant
+
+    return jsonify(enriched_data)
+
 
 # *************************************************************************************
 # *******************************REVIEWS FOR RESTAURANTS*******************************
@@ -258,6 +346,10 @@ def get_reviews_by_restaurant_id(id):
             }
         })
 
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         print(e)
         return jsonify({"error": "An error occurred while fetching the reviews."}), 500
@@ -300,6 +392,11 @@ def create_review(id):
             }), 201
 
         return jsonify(errors=form.errors), 400
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
     except Exception as e:
         print(f"Error creating review: {e}")
         db.session.rollback()
@@ -338,6 +435,10 @@ def get_menu_items_by_restaurant_id(id):
                 "menuItemImages": normalized_images
             }
         })
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
 
     except Exception as e:
         print(e)
@@ -381,6 +482,10 @@ def create_menu_item_by_restaurant_id(id):
             # }), 201
 
         return jsonify(errors=form.errors), 400
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
 
     except Exception as e:
         print(f"Error creating menu item: {e}")

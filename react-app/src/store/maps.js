@@ -11,9 +11,15 @@ export const getKey = () => async (dispatch) => {
   const res = await fetch('/api/maps/key', {
     method: 'POST',
   });
-  const data = await res.json();
-  dispatch(loadApiKey(data.googleMapsAPIKey));
+  if (res.ok) {
+    const data = await res.json();
+    console.log("Received API Key:", data.googleMapsAPIKey);  
+    dispatch(loadApiKey(data.google_maps_api_key));
+  } else {
+    console.error("Failed to load API key:", await res.text());  // Log the error message
+  }
 };
+
 
 const initialState = { key: null };
 

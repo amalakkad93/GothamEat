@@ -6,6 +6,10 @@ import Navigation from "./components/Navigation";
 import Home from "./components/Home";
 import SignupFormPage from "./components/SignupFormPage";
 import LoginFormPage from "./components/LoginFormPage";
+import NearbyRestaurants from "./components/Restaurants/GetNearbyRestaurants";
+import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
+
+
 
 import image1 from "./assets/image1.png"
 import image2 from "./assets/image2.jpg"
@@ -65,12 +69,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginFormPage />} />
           <Route path="/signup" element={<SignupFormPage />} />
+          <Route path="/nearby" element={<NearbyRestaurants />} />
+          <Route path="/restaurant/:id" element={<RestaurantDetail />} />
           <Route>Page Not Found</Route>
         </Routes>
       )}
     </>
-);
-
+  );
 }
 
 export default App;

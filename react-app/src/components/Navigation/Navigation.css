@@ -73,6 +73,7 @@
   font-size: 18px;
   font-weight: 700;
   text-decoration: none;
+  border:transparent;
   border-radius: 25px;
   transition: background-color 0.3s, transform 0.3s;
   font-family: 'Roboto', sans-serif;
@@ -103,6 +104,7 @@
   padding: 8px 16px;
   text-decoration: none;
   border-radius: 25px;
+  border:transparent;
   transition: background-color 0.3s, transform 0.3s;
   width: 91px;
   height: 36px;
@@ -162,16 +164,19 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
+  margin-left: 13px;
 }
 .logo-h1-first {
   font-weight: 300;
-  font-size: 1.5rem;
+  /* font-size: 1.5rem; */
+  font-size: 35px;
   color:#000
 }
 
 .logo-h1-second {
   font-weight: 700;
-  font-size: 1.5rem;
+  /* font-size: 1.5rem; */
+  font-size: 35px;
 }
 .hidden {
   visibility: hidden;

@@ -18,6 +18,9 @@ pip install marshmallow
 ****** for arrow ******
 pip install arrow
 
+****** for flask-cors ******
+pip install requests
+
 ******************************************Frontend******************************************
 ****** for react-google-maps ******
 npm install @react-google-maps/api

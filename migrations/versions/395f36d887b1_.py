@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6a0c37fa55c6
+Revision ID: 395f36d887b1
 Revises: 
-Create Date: 2023-10-13 23:17:19.465722
+Create Date: 2023-10-18 20:25:05.947677
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6a0c37fa55c6'
+revision = '395f36d887b1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -41,6 +41,7 @@ def upgrade():
     )
     op.create_table('restaurants',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('google_place_id', sa.String(length=255), nullable=True),
     sa.Column('owner_id', sa.Integer(), nullable=True),
     sa.Column('banner_image_path', sa.String(length=500), nullable=True),
     sa.Column('street_address', sa.String(length=255), nullable=True),
@@ -53,7 +54,8 @@ def upgrade():
     sa.Column('opening_time', sa.Time(), nullable=True),
     sa.Column('closing_time', sa.Time(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('google_place_id')
     )
     op.create_table('shopping_carts',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -85,7 +87,7 @@ def upgrade():
     op.create_table('payments',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('order_id', sa.Integer(), nullable=True),
-    sa.Column('gateway', sa.Enum('Stripe', 'PayPal', name='payment_gateways'), nullable=True),
+    sa.Column('gateway', sa.Enum('Stripe', 'PayPal', 'Credit Card', name='payment_gateways'), nullable=True),
     sa.Column('stripe_payment_intent_id', sa.String(length=255), nullable=True),
     sa.Column('stripe_payment_method_id', sa.String(length=255), nullable=True),
     sa.Column('paypal_transaction_id', sa.String(length=255), nullable=True),
