@@ -1,32 +1,51 @@
 from flask import Blueprint, request, jsonify
 from ..models import db, User, Review
-
-from flask import Blueprint, jsonify, request
 from app.models import db, Favorite
 
 favorite_routes = Blueprint('favorites', __name__)
 
-# *******************************Get all favorites*******************************
+# ***************************************************************
+# Endpoint to Retrieve All Favorites
+# ***************************************************************
 @favorite_routes.route('/')
 def get_favorites():
-    """Retrieve all favorites."""
+    """
+    Get all favorites.
+
+    Returns:
+        list: A list of all favorite objects in the database.
+    """
     favorites = Favorite.query.all()
     return jsonify([favorite.to_dict() for favorite in favorites])
 
-# *******************************Create a favorite*******************************
+# ***************************************************************
+# Endpoint to Create a New Favorite
+# ***************************************************************
 @favorite_routes.route('/', methods=['POST'])
 def create_favorite():
-    """Create a new favorite."""
+    """
+    Create a new favorite.
+
+    Requires:
+        user_id (int): The ID of the user.
+        restaurant_id (int): The ID of the restaurant.
+
+    Returns:
+        dict: The newly created favorite object.
+    """
     data = request.json
 
+    # Check for required fields
     if not data.get('user_id') or not data.get('restaurant_id'):
         return {"error": "Missing required fields"}, 400
 
+    # Create a new favorite object
     new_favorite = Favorite(
         user_id=data['user_id'],
         restaurant_id=data['restaurant_id']
     )
 
+    # Try adding the favorite to the database
     try:
         db.session.add(new_favorite)
         db.session.commit()
@@ -35,15 +54,27 @@ def create_favorite():
         db.session.rollback()
         return {"error": f"Favorite creation failed: {str(e)}"}, 500
 
-# *******************************Delete a favorite*******************************
+# ***************************************************************
+# Endpoint to Delete a Specific Favorite
+# ***************************************************************
 @favorite_routes.route('/<int:id>', methods=['DELETE'])
 def delete_favorite(id):
-    """Delete a favorite."""
+    """
+    Delete a favorite by its ID.
+
+    Args:
+        id (int): The ID of the favorite to delete.
+
+    Returns:
+        str: An empty string with status code 204 if successful.
+    """
     favorite = Favorite.query.get(id)
 
+    # Check if favorite exists
     if not favorite:
         return {"error": "Favorite not found"}, 404
 
+    # Try deleting the favorite from the database
     try:
         db.session.delete(favorite)
         db.session.commit()
@@ -51,6 +82,7 @@ def delete_favorite(id):
     except Exception as e:
         db.session.rollback()
         return {"error": f"Favorite deletion failed: {str(e)}"}, 500
+
 
 
 # @favorite_routes.route('/toggle', methods=['POST'])

@@ -3,59 +3,56 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.models import db, Order, OrderItem, MenuItem, Payment
 from app.forms import OrderForm, OrderItemForm
-from ..helper_functions import normalize_data
+from ..helper_functions import normalize_data, is_valid_payment_data
 
 payment_routes = Blueprint('payments', __name__)
 
-# ********** Helper to Validate Payment Data **********
-def is_valid_payment_data(data):
-    # Validate gateway
-    if data['gateway'] not in ["Stripe", "PayPal"]:
-        return False, "Invalid payment gateway."
-
-    # Validate amount
-    try:
-        amount = float(data['amount'])
-        if amount <= 0:
-            return False, "Invalid payment amount. Amount must be positive."
-    except (ValueError, TypeError):
-        return False, "Invalid payment amount."
-
-    # Validate status
-    valid_statuses = ["Pending", "Completed", "Failed"]
-    if data['status'] not in valid_statuses:
-        return False, "Invalid payment status."
-
-    # Validate order_id
-    try:
-        order_id = int(data['order_id'])
-        if order_id <= 0:
-            return False, "Invalid order ID."
-    except (ValueError, TypeError):
-        return False, "Order ID must be a positive integer."
-
-    return True, None
-
-
-# *******************************Get all payments*******************************
+# ***************************************************************
+# Endpoint to Get All Payments
+# ***************************************************************
 @payment_routes.route('/')
 def get_all_payments():
+    """
+    Fetches and returns all payment records from the database.
+
+    Returns:
+        Response: A list of all payment records, or an error message if any issues arise.
+    """
     payments = Payment.query.all()
     return jsonify([payment.to_dict() for payment in payments])
 
-# *******************************Get payment by ID*******************************
+# ***************************************************************
+# Endpoint to Get Payment by ID
+# ***************************************************************
 @payment_routes.route('/<int:id>')
 def get_payment(id):
+    """
+    Fetches a specific payment record using its ID.
+
+    Args:
+        id (int): The ID of the payment record to retrieve.
+
+    Returns:
+        Response: The requested payment record or an error message if not found.
+    """
     payment = Payment.query.get(id)
     if payment:
         return jsonify(payment.to_dict())
     else:
         return jsonify({"error": "Payment not found"}), 404
 
-# *******************************Create a payment*******************************
+# ***************************************************************
+# Endpoint to Create a Payment
+# ***************************************************************
 @login_required
 @payment_routes.route('/', methods=['POST'])
 def create_payment():
+    """
+    Creates a new payment record in the database.
+
+    Returns:
+        Response: The newly created payment record or an error message if validation fails.
+    """
     data = request.json
     valid, error_message = is_valid_payment_data(data)
     if not valid:
@@ -71,10 +68,21 @@ def create_payment():
     db.session.commit()
     return jsonify(payment.to_dict())
 
-# *******************************Update a payment*******************************
+# ***************************************************************
+# Endpoint to Update a Payment
+# ***************************************************************
 @login_required
 @payment_routes.route('/<int:id>', methods=['PUT'])
 def update_payment(id):
+    """
+    Updates an existing payment record in the database.
+
+    Args:
+        id (int): The ID of the payment record to update.
+
+    Returns:
+        Response: The updated payment record or an error message if validation fails or record is not found.
+    """
     payment = Payment.query.get(id)
     if not payment:
         return jsonify({"error": "Payment not found"}), 404
@@ -93,10 +101,21 @@ def update_payment(id):
     db.session.commit()
     return jsonify(payment.to_dict())
 
-# *******************************Delete a payment*******************************
+# ***************************************************************
+# Endpoint to Delete a Payment
+# ***************************************************************
 @login_required
 @payment_routes.route('/<int:id>', methods=['DELETE'])
 def delete_payment(id):
+    """
+    Deletes a specific payment record using its ID.
+
+    Args:
+        id (int): The ID of the payment record to delete.
+
+    Returns:
+        Response: A success message if deletion is successful, or an error message if the record is not found.
+    """
     payment = Payment.query.get(id)
     if payment:
         db.session.delete(payment)

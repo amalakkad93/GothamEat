@@ -1,0 +1,35 @@
+/* home.css */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+img {
+  margin-right: 10px;
+}
+
+
+
+/* frontend/src/components/RestaurantList.css */
+/* .restaurant-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.restaurant-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  width: 200px;
+}
+
+.restaurant-item img {
+  max-width: 100%;
+  height: auto;
+} */

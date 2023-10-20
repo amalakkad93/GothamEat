@@ -1,0 +1,155 @@
+/* Base styles for mobile */
+/* *************************************Log in Navbar banner************************************* */
+.login-signup-form-pages-top-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 0px 64px;
+  margin-top: -7.6px;
+  width: 100%;
+  padding: 10px;
+  background-color: black;
+}
+.login-signup-logo-h1-first {
+  font-weight: 300;
+  font-size: 1.2rem;
+  color: white;
+}
+.login-signup-logo-h1-second {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: green;
+}
+
+/* *************************************Log in Form************************************* */
+
+.form-login {
+  margin-top: 15%;
+}
+
+.login-signup-form-input {
+  padding: 10px 15px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.login-signup-form-input.error {
+  border-color: transparent;
+}
+
+.login-signup-form-input:focus {
+  border-color: #007BFF;
+  outline: none;
+}
+
+.login-signup-form-btn {
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  height: 40px;
+
+}
+
+.login-signup-form-btn:hover {
+  background-color: #C0C0C0;
+}
+
+
+
+/* *************************************Log in Media queries************************************* */
+@media screen and (min-width: 768px) {
+  .login-signup-form-pages-top-banner {
+    padding: 0px 64px;
+  }
+  .login-signup-logo-h1-first,
+  .login-signup-logo-h1-second {
+    font-size: 1.4rem;
+  }
+  .login-signup-form {
+    max-width: 500px;
+  }
+  .login-signup-form-input,
+  .login-signup-form-btn {
+    font-size: 16px;
+  }
+
+}
+
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .login-signup-form-pages-top-banner {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px 64px;
+  }
+  .login-signup-logo-h1-first,
+  .login-signup-logo-h1-second {
+    font-size: 1.5rem;
+  }
+  .login-signup-form {
+    max-width: 600px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .login-signup-form-pages-top-banner {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px 64px;
+  }
+  .login-signup-form {
+    max-width: 700px;
+  }
+}
+
+/* Base styles for Desktops */
+/* .login-signup-form-pages-top-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  margin-top: -7.6px;
+  width: 1008px;
+  padding: 0px 20px;
+  background-color: black;
+}
+
+.login-signup-logo-h1-first {
+  font-weight: 300;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.login-signup-logo-h1-second {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: green;
+}
+
+@media screen and (max-width: 991px) {
+  .login-signup-form-pages-top-banner {
+      width: 80%;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .login-signup-form-pages-top-banner {
+      width: 90%;
+
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .login-signup-form-pages-top-banner {
+      width: 100%;
+      padding: 0px 10px;
+
+  }
+
+  .login-signup-logo-h1-first,
+  .login-signup-logo-h1-second {
+      font-size: 1rem;
+  }
+} */
