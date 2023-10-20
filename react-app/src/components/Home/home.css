@@ -1,0 +1,42 @@
+
+:root {
+    --batman-black: #03071e;
+    --batman-yellow: #fde74c;
+    --batman-gray: #8a8a8a;
+    --batman-metal: #2c3e50;
+}
+
+
+.batman-dropdown {
+    width: 250px;
+     font-family: 'BatmanForeverAlternate', sans-serif;
+    background: linear-gradient(145deg, var(--batman-metal), var(--batman-black));
+    color: var(--batman-yellow);
+    border: 3px solid var(--batman-metal);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    appearance: none;
+    cursor: pointer;
+    box-shadow: 5px 5px 10px #1c1c1b,
+                -5px -5px 10px #3e3e3d;
+    transition: all 0.3s ease;
+    margin-top: 171px;
+    text-shadow: 1px 1px white;
+}
+
+.batman-dropdown option {
+    background-color: var(--batman-black);
+    color: var(--batman-yellow);
+}
+
+.batman-dropdown:hover {
+    border: 3px solid var(--batman-yellow);
+    transform: scale(1.05);
+}
+
+.batman-dropdown:focus {
+    outline: none;
+    box-shadow: inset 2px 2px 5px #1c1c1b,
+                inset -3px -3px 7px #3e3e3d;
+}

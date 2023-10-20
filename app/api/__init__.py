@@ -10,4 +10,5 @@ from .order_item_routes import order_item_routes
 from .review_routes import review_routes
 from .review_img_routes import review_img_routes
 from .payment_routes import payment_routes
-from .images_routes import image_routes
+from .maps_routes import maps_routes
+from .ubereats_routes import ubereats_routes
