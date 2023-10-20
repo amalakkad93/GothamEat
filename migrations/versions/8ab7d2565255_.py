@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 395f36d887b1
+Revision ID: 8ab7d2565255
 Revises: 
-Create Date: 2023-10-18 20:25:05.947677
+Create Date: 2023-10-19 21:16:26.115147
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '395f36d887b1'
+revision = '8ab7d2565255'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,6 +42,7 @@ def upgrade():
     op.create_table('restaurants',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('google_place_id', sa.String(length=255), nullable=True),
+    sa.Column('ubereats_store_id', sa.String(length=255), nullable=True),
     sa.Column('owner_id', sa.Integer(), nullable=True),
     sa.Column('banner_image_path', sa.String(length=500), nullable=True),
     sa.Column('street_address', sa.String(length=255), nullable=True),
@@ -55,7 +56,8 @@ def upgrade():
     sa.Column('closing_time', sa.Time(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('google_place_id')
+    sa.UniqueConstraint('google_place_id'),
+    sa.UniqueConstraint('ubereats_store_id')
     )
     op.create_table('shopping_carts',
     sa.Column('id', sa.Integer(), nullable=False),

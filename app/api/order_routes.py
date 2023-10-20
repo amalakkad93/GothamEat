@@ -2,15 +2,25 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.models import db, Order, OrderItem, MenuItem
 from app.forms import OrderForm, OrderItemForm
-from ..helper_functions import normalize_data
+from ..helper_functions import normalize_data, is_authorized_to_access_order
 
+# Blueprint for routes related to Orders
 order_routes = Blueprint('orders', __name__)
 
-# *******************************Get User Orders*******************************
+# ***************************************************************
+# Endpoint to Get User Orders
+# ***************************************************************
 @login_required
 @order_routes.route('/')
 def get_user_orders():
+    """
+    Retrieve all orders associated with the currently authenticated user.
+
+    Returns:
+        Response: A JSON representation of the user's orders or an error message.
+    """
     try:
+        # Fetch orders associated with the current user
         orders = Order.query.filter_by(user_id=current_user.id).all()
 
         if not orders:
@@ -24,6 +34,7 @@ def get_user_orders():
                 }
             }), 404
 
+        # Normalize the order data for frontend consumption
         normalized_orders = normalize_data([order.to_dict() for order in orders], 'id')
 
         return jsonify({
@@ -33,27 +44,39 @@ def get_user_orders():
         })
 
     except Exception as e:
+        # In case of unexpected errors, return a generic error message
         return jsonify({"error": "An unexpected error occurred while fetching the orders."}), 500
 
-# *******************************Create an Orders*******************************
+# ***************************************************************
+# Endpoint to Create an Order
+# ***************************************************************
 @login_required
 @order_routes.route('/', methods=['POST'])
 def create_order():
+    """
+    Create a new order with associated order items.
+
+    Returns:
+        Response: A JSON representation of the newly created order and its items or an error message.
+    """
     form = OrderForm()
     form['csrf_token'].data = request.cookies['csrf_token']
+
     if form.validate_on_submit():
+        # Create a new order instance with data from the form
         order = Order(
             user_id=current_user.id,
             total_price=form.total_price.data,
             status=form.status.data
         )
         db.session.add(order)
-        db.session.flush()  # To get the new_order's ID before committing
+        db.session.flush()  # This is to retrieve the ID of the new order before committing
 
-        # Get the items from the request
-        cart_items = request.json.get('items', [])  # This assumes the frontend sends items in a key named 'items'
+        # Get the items associated with the order from the request
+        cart_items = request.json.get('items', [])
 
         for item in cart_items:
+            # For each item, create a new OrderItem instance
             menu_item_id = item.get('menu_item_id')
             quantity = item.get('quantity')
 
@@ -72,7 +95,7 @@ def create_order():
 
         db.session.commit()
 
-        # Return the created order and its associated items
+        # Return the created order and associated items in a normalized format
         order_items = [item.to_dict() for item in order.items]
         normalized_order_items = normalize_data(order_items, 'id')
 
@@ -89,26 +112,44 @@ def create_order():
         })
     return {'errors': form.errors}, 400
 
-
-
-# *******************************Get Order Details*******************************
+# ***************************************************************
+# Endpoint to Get Order Details
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>')
 def get_order_details(order_id):
+    """
+    Retrieve details for a specific order, including its associated items and menu items.
+
+    Args:
+        order_id (int): The ID of the order to retrieve.
+
+    Returns:
+        Response: A JSON representation of the order details, including associated items
+                  and menu items, or an error message.
+    """
     try:
+        # Fetch the order using the provided ID
         order = Order.query.get(order_id)
+
+        # Check if the order exists
         if not order:
             raise ValueError("Order not found.", 404)
+
+        # Check if the current user has permission to view the order details
         if order.user_id != current_user.id:
             raise PermissionError("You don't have permission to view this order.", 403)
 
+        # Extract order items and their associated menu items
         order_items = [item.to_dict() for item in order.items]
         menu_items_ids = [item['menu_item_id'] for item in order_items]
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
+        # Normalize the data for order items and menu items for a structured response
         normalized_order_items = normalize_data(order_items, 'id')
         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
 
+        # Return the order details, including the associated items and menu items
         return jsonify({
             "entities": {
                 "orders": {
@@ -121,33 +162,56 @@ def get_order_details(order_id):
                 "menuItems": normalized_menu_items
             }
         })
+
+    # Handle specific exceptions for meaningful error messages
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 404
     except PermissionError as pe:
         return jsonify({"error": str(pe)}), 403
     except Exception as e:
+        # Catch any other unexpected exceptions
         return jsonify({"error": "An unexpected error occurred."}), 500
 
-# *******************************Reorder Past Order*******************************
+# ***************************************************************
+# Endpoint to Reorder Past Order
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>/reorder', methods=['POST'])
 def reorder_past_order(order_id):
+    """
+    Reorders a past order by creating a new order with the same items.
+
+    Args:
+        order_id (int): The ID of the past order to reorder.
+
+    Returns:
+        Response: A JSON representation of the newly created order and its associated items
+                  and menu items, or an error message.
+    """
     try:
+        # Fetch the past order using the provided ID
         past_order = Order.query.get(order_id)
+
+        # Check if the past order exists
         if not past_order:
             raise ValueError("Order not found.", 404)
+
+        # Check if the current user has permission to reorder the past order
         if past_order.user_id != current_user.id:
             raise PermissionError("You don't have permission to reorder this order.", 403)
 
+        # Create a new order with the same details as the past order
         new_order = Order(
             user_id=current_user.id,
             total_price=past_order.total_price,
             status='Pending'
         )
 
+        # Add the new order to the session and get its ID
         db.session.add(new_order)
-        db.session.flush()  # To get the new_order's ID
+        db.session.flush()
 
+        # Copy the items from the past order to the new order
         for item in past_order.items:
             new_order_item = OrderItem(
                 menu_item_id=item.menu_item_id,
@@ -156,15 +220,19 @@ def reorder_past_order(order_id):
             )
             db.session.add(new_order_item)
 
+        # Commit the changes to the database
         db.session.commit()
 
+        # Extract the new order's items and their associated menu items
         order_items = [item.to_dict() for item in new_order.items]
         menu_items_ids = [item['menu_item_id'] for item in order_items]
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
+        # Normalize the data for order items and menu items for a structured response
         normalized_order_items = normalize_data(order_items, 'id')
         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
 
+        # Return the new order's details, including the associated items and menu items
         return jsonify({
             "message": "Order has been successfully reordered.",
             "entities": {
@@ -179,31 +247,53 @@ def reorder_past_order(order_id):
             }
         })
 
+    # Handle specific exceptions for meaningful error messages
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 404
     except PermissionError as pe:
         return jsonify({"error": str(pe)}), 403
     except Exception as e:
+        # Catch any other unexpected exceptions
         return jsonify({"error": "An unexpected error occurred while reordering."}), 500
 
-# *******************************Get Order Item*******************************
+# ***************************************************************
+# Endpoint to Get Order Items
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>/items')
 def get_order_items(order_id):
+    """
+    Retrieve items associated with a specific order.
+
+    Args:
+        order_id (int): The ID of the order for which to retrieve items.
+
+    Returns:
+        Response: A JSON representation of the order's items and their associated menu items,
+                  or an error message.
+    """
     try:
+        # Fetch the order using the provided ID
         order = Order.query.get(order_id)
+
+        # Check if the order exists
         if not order:
             raise ValueError("Order not found.", 404)
+
+        # Check if the current user has permission to view the order's items
         if order.user_id != current_user.id:
             raise PermissionError("You don't have permission to view items from this order.", 403)
 
+        # Extract the order's items and their associated menu items
         items = [item.to_dict() for item in order.items]
         menu_items_ids = [item['menu_item_id'] for item in items]
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
+        # Normalize the data for items and menu items for a structured response
         normalized_items = normalize_data(items, 'id')
         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
 
+        # Return the order's items and their associated menu items
         return jsonify({
             "entities": {
                 "orderItems": normalized_items,
@@ -211,23 +301,36 @@ def get_order_items(order_id):
             }
         })
 
+    # Handle specific exceptions for meaningful error messages
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 404
     except PermissionError as pe:
         return jsonify({"error": str(pe)}), 403
     except Exception as e:
+        # Catch any other unexpected exceptions
         return jsonify({"error": "An unexpected error occurred."}), 500
 
-# *******************************Delete Order*******************************
+# ***************************************************************
+# Endpoint to Delete an Order
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>', methods=['DELETE'])
 def delete_order(order_id):
+    """
+    Delete a specific order.
+
+    Args:
+        order_id (int): The ID of the order to delete.
+
+    Returns:
+        Response: A JSON message indicating successful deletion or an error message.
+    """
     try:
         order = Order.query.get(order_id)
         if not order:
-            raise ValueError("Order not found.", 404)
+            raise ValueError("Order not found.")
         if order.user_id != current_user.id:
-            raise PermissionError("You don't have permission to delete this order.", 403)
+            raise PermissionError("You don't have permission to delete this order.")
 
         db.session.delete(order)
         db.session.commit()
@@ -243,35 +346,21 @@ def delete_order(order_id):
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred while deleting the order."}), 500
 
-# *****************************************************************
-# ********** Check User's Authorization for Order Access **********
-# *****************************************************************
-def is_authorized_to_access_order(user, order_id):
-    # Fetch the order and related restaurant ID
-    print(db.session.query(Order, MenuItem)
-      .join(OrderItem, Order.id == OrderItem.order_id)
-      .join(MenuItem, OrderItem.menu_item_id == MenuItem.id)
-      .filter(Order.id == order_id))
-
-    order = (db.session.query(Order, MenuItem)
-             .join(OrderItem, Order.id == OrderItem.order_id)
-             .join(MenuItem, OrderItem.menu_item_id == MenuItem.id)
-             .filter(Order.id == order_id)
-             .first())
-
-    if not order:
-        return None, False
-
-    order_instance, menu_item_instance = order
-    if user.id == order_instance.user_id or user.id == menu_item_instance.restaurant_id:
-        return order_instance, True
-
-    return None, False
-
-# *******************************Update Order*******************************
+# ***************************************************************
+# Endpoint to Update an Order
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>', methods=['PUT'])
 def update_order(order_id):
+    """
+    Update the status of a specific order.
+
+    Args:
+        order_id (int): The ID of the order to update.
+
+    Returns:
+        Response: A JSON representation of the updated order or an error message.
+    """
     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
 
     if not order:
@@ -286,10 +375,21 @@ def update_order(order_id):
     db.session.commit()
     return order.to_dict()
 
-# *******************************Cancel Order*******************************
+# ***************************************************************
+# Endpoint to Cancel an Order
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>/cancel', methods=['POST'])
 def cancel_order(order_id):
+    """
+    Cancel a specific order.
+
+    Args:
+        order_id (int): The ID of the order to cancel.
+
+    Returns:
+        Response: A JSON representation of the canceled order or an error message.
+    """
     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
 
     if not order:
@@ -304,10 +404,21 @@ def cancel_order(order_id):
 
     return order.to_dict()
 
-#  *******************************Order Status*******************************
+# ***************************************************************
+# Endpoint to Update an Order's Status
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>/status', methods=['PUT'])
 def update_order_status(order_id):
+    """
+    Update the status of a specific order.
+
+    Args:
+        order_id (int): The ID of the order to update.
+
+    Returns:
+        Response: A JSON representation of the updated order or an error message.
+    """
     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
 
     if not order:
@@ -321,45 +432,3 @@ def update_order_status(order_id):
 
     db.session.commit()
     return order.to_dict()
-
-
-
-# order_routes = Blueprint('order', __name__)
-
-# # *******************************Get All Orders*******************************
-# @order_routes.route('/user/<int:user_id>/past_orders')
-# def get_past_orders(user_id):
-#     orders = Order.query.filter_by(user_id=user_id).all()
-#     return jsonify([order.to_dict() for order in orders])
-
-# # *******************************Commit New Order*******************************
-# @order_routes.route('/<int:order_id>/reorder', methods=['POST'])
-# def reorder(order_id):
-#     old_order = Order.query.get(order_id)
-#     if not old_order:
-#         return jsonify({"error": "Order not found"}), 404
-
-#     try:
-#         with db.session.begin_nested():
-#             new_order = Order(
-#                 user_id=old_order.user_id,
-#                 total_price=old_order.total_price,
-#                 status="Pending"
-#             )
-#             db.session.add(new_order)
-
-#             for item in old_order.items:
-#                 new_order_item = OrderItem(
-#                     menu_item_id=item.menu_item_id,
-#                     order_id=new_order.id,
-#                     quantity=item.quantity
-#                 )
-#                 db.session.add(new_order_item)
-
-#         db.session.commit()
-
-#         return jsonify(new_order.to_dict())
-
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"error": str(e)}), 500

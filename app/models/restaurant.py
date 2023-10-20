@@ -18,6 +18,7 @@ class Restaurant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     google_place_id = db.Column(db.String(255), nullable=True, unique=True)
+    ubereats_store_id = db.Column(db.String(255), nullable=True, unique=True)
     owner_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
     banner_image_path = db.Column(db.String(500))
     street_address = db.Column(db.String(255))
@@ -50,10 +51,11 @@ class Restaurant(db.Model):
             .label("average_rating")
         )
 
-
     def to_dict(self):
         return {
             'id': self.id,
+            'google_place_id': self.google_place_id,
+            'ubereats_store_id': self.ubereats_store_id,
             'owner_id': self.owner_id,
             'name': self.name,
             'description': self.description,

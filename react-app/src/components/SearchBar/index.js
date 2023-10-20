@@ -40,7 +40,7 @@ function SearchBar({ onPlaceSelected }) {
         <input
           type="text"
           className="search-input"
-          placeholder="Search for a restaurant location..."
+          placeholder="Enter a delivery address"
         />
       </StandaloneSearchBox>
     </LoadScript>

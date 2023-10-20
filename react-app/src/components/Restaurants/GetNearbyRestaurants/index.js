@@ -7,21 +7,20 @@ export default function NearbyRestaurants() {
 
     return (
         <div>
-            <h2>Nearby Restaurants</h2>
+            {/* <h2>Nearby Restaurants</h2> */}
             <ul>
                 {nearbyRestaurants.map(restaurant => (
-                    <li key={restaurant.place_id}>
-                        <img src={restaurant.icon} alt="Restaurant Icon" width="40" />
+                    <li key={restaurant.google_place_id}>
+                        <img src={restaurant.banner_image_path} alt="Restaurant Icon" width="40" />
                         <h3>{restaurant.name}</h3>
-                        <p>Status: {restaurant.business_status}</p>
+                        {/* <p>Status: {restaurant.business_status}</p> */}
                         {restaurant.permanently_closed && <p>This restaurant is permanently closed.</p>}
-                        <p>Address: {restaurant.vicinity}</p>
+                        <p>Address: {restaurant.street_address}</p>
                         {/* Assuming rating is a float, you can format it to display one decimal */}
-                        <p>Rating: {restaurant.rating} ({restaurant.user_ratings_total} ratings)</p>
-                        <p>Price Level: {"$".repeat(restaurant.price_level)}</p>
-                        {restaurant.photos && restaurant.photos.length > 0 &&
-                            <img src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${restaurant.photos[0].photo_reference}&key=YOUR_API_KEY`} alt="Restaurant Banner" />
-                        }
+                        <p>Rating: {restaurant.average_rating} ({restaurant.user_ratings_total} ratings)</p>
+                        {/* {restaurant.photos && restaurant.photos.length > 0 &&
+                            <img src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${restaurant.photos[0].photo_reference}&key=AIzaSyD9K3yiocDK8m9toC_sYxpLF366qfnlWtQ`} alt="Restaurant Banner" />
+                        } */}
                         {/* Other restaurant details can be added here */}
                     </li>
                 ))}

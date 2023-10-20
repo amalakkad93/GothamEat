@@ -21,6 +21,10 @@ pip install arrow
 ****** for flask-cors ******
 pip install requests
 
+******Caching the results of the Geocoding API calls******
+pip install Flask-Caching
+
+
 ******************************************Frontend******************************************
 ****** for react-google-maps ******
 npm install @react-google-maps/api

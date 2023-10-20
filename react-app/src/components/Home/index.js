@@ -22,6 +22,7 @@ export default function Home() {
 
     return (
         <>
+        <h1 className="Search-bar-title">Order delivery near you</h1>
             <SearchBar onPlaceSelected={handlePlaceSelected} />
             {/* <NearbyRestaurants /> */}
         </>

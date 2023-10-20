@@ -4,12 +4,15 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_login import LoginManager
+from flask_caching import Cache
 from .models import db, User
-from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, review_routes, review_img_routes, menu_item_routes, menu_item_img_routes, shopping_cart_routes, order_routes, order_item_routes, payment_routes, maps_routes
+from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, review_routes, review_img_routes, menu_item_routes, menu_item_img_routes, shopping_cart_routes, order_routes, order_item_routes, payment_routes, maps_routes, ubereats_routes
 from .seeds import seed_commands
-from .config import Config
+from .config import Config, cache
 
 app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
+
+
 
 # Setup login manager
 login = LoginManager(app)
@@ -23,6 +26,10 @@ def load_user(id):
 app.cli.add_command(seed_commands)
 
 app.config.from_object(Config)
+
+cache.init_app(app)
+
+
 app.register_blueprint(user_routes, url_prefix='/api/users')
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
 app.register_blueprint(restaurant_routes, url_prefix="/api/restaurants")
@@ -36,6 +43,7 @@ app.register_blueprint(review_routes, url_prefix="/api/reviews")
 app.register_blueprint(review_img_routes, url_prefix="/api/review-images")
 app.register_blueprint(payment_routes, url_prefix="/api/payments")
 app.register_blueprint(maps_routes, url_prefix='/api/maps')
+app.register_blueprint(ubereats_routes, url_prefix='/api/ubereat') # Delete this line when use in production
 
 db.init_app(app)
 Migrate(app, db)
