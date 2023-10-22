@@ -11,52 +11,82 @@ from collections import OrderedDict
 from ..models import User, Review, Review, db, MenuItem, MenuItemImg, Restaurant
 from ..forms import RestaurantForm, ReviewForm, MenuItemForm
 from ..schemas import RestaurantSchema, ReviewSchema
-from ..helper_functions import normalize_data, map_google_place_to_restaurant_model, get_address_components_from_geocoding, get_uber_access_token, fetch_from_ubereats_api_by_store_id, fetch_from_ubereats_by_location, map_ubereats_to_restaurant_model
+from ..helper_functions import normalize_data, map_google_place_to_restaurant_model, get_address_components_from_geocoding, get_uber_access_token, fetch_from_ubereats_api_by_store_id, fetch_from_ubereats_by_location, map_ubereats_to_restaurant_model, fetch_from_database_by_city
 
 restaurant_routes = Blueprint('restaurants', __name__)
 
 # ***************************************************************
 # Endpoint to Get All Restaurants
 # ***************************************************************
-@restaurant_routes.route('/')
-def get_all_restaurants():
+@restaurant_routes.route('/nearby', methods=['GET'])
+def get_nearby_restaurants():
     """
-    Fetches and returns a list of all restaurants stored in the database.
-    Results can be paginated by providing 'page' and 'per_page' parameters.
+    Fetches nearby restaurants based on user's location. The function first tries UberEats,
+    then Google Places, and finally the local database (based on city name) if the first two don't return results.
 
     Returns:
-        Response: A list of restaurants or an error message in case of failure.
+        Response: A list of nearby restaurants.
     """
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+    city_name = request.args.get('city')
+
+    # Try fetching from UberEats
     try:
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
+        access_token = get_uber_access_token()
+        restaurants_from_ubereats = fetch_from_ubereats_by_location(latitude, longitude, access_token)
 
-        # Fetching restaurants, ordered by their average rating
-        restaurants = (
-            db.session.query(Restaurant)
-            .order_by(Restaurant.average_rating.desc())
-            .limit(per_page)
-            .offset((page - 1) * per_page)
-            .all()
-        )
+        if restaurants_from_ubereats:
+            mapped_data = [map_ubereats_to_restaurant_model(restaurant) for restaurant in restaurants_from_ubereats]
+            return jsonify(mapped_data)
 
-        if not restaurants:
-            return jsonify([])
+    except Exception as e:
+        print(f"Error fetching data from UberEats: {e}")
+        return jsonify({"error": "Failed to fetch data from UberEats."}), 500
 
-        # Convert each restaurant into a dictionary format for easy serialization
-        restaurants_list = [restaurant.to_dict() for restaurant in restaurants]
-        normalized_restaurants = normalize_data(restaurants_list, 'id')
+    # If UberEats doesn't return data, try Google Places
+    try:
+        google_api_key = current_app.config['MAPS_API_KEY']
+        endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
+        response = requests.get(endpoint)
+        data = response.json()
 
-        return jsonify(normalized_restaurants)
+        if response.status_code == 200 and data.get('status', '') == "OK":
+            enriched_data = []
+            for restaurant in data['results']:
+                mapped_data = map_google_place_to_restaurant_model(restaurant)
+                db_restaurant = Restaurant.query.filter_by(name=restaurant["name"]).first()
+                if db_restaurant:
+                    enriched_data.append({**mapped_data, **db_restaurant.to_dict()})
+                else:
+                    enriched_data.append(mapped_data)
+            return jsonify(enriched_data)
+
+    except Exception as e:
+        print(f"Error fetching data from Google Places: {e}")
+        return jsonify({"error": "Failed to fetch data from Google Places."}), 500
+
+    # If neither UberEats nor Google Places provide results, fetch from database based on city
+    try:
+        if city_name:
+            restaurants = fetch_from_database_by_city(city_name)
+            if restaurants:
+                restaurants_list = [restaurant.to_dict() for restaurant in restaurants]
+                normalized_restaurants = normalize_data(restaurants_list, 'id')
+                return jsonify(normalized_restaurants)
+        else:
+            return jsonify({"error": "City is required to fetch data from the database."}), 400
 
     except OperationalError as oe:
         # Database operational errors (e.g., failed SQL query)
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500
     except Exception as e:
-        # General errors (e.g., unexpected data issues)
-        print(str(e))
-        return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+        print(f"Error fetching data from database: {e}")
+        return jsonify({"error": "Failed to fetch data from the local database."}), 500
+
+    return jsonify({"error": "No restaurants found nearby."}), 404
+
 
 # ***************************************************************
 # Endpoint to Get Restaurants of Current User
@@ -88,82 +118,23 @@ def get_restaurants_of_current_user():
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
 
 # ***************************************************************
-# Endpoint to Get Details of a Restaurant by Id
-# ***************************************************************
-# @restaurant_routes.route('/<int:id>')
-# def get_restaurant_detail(id):
-#     """
-#     Fetches detailed information of a specific restaurant, including menu items, images, and owner details.
-
-#     Args:
-#         id (int): The ID of the restaurant to retrieve details for.
-
-#     Returns:
-#         Response: Detailed information of the specified restaurant or an error message if not found.
-#     """
-#     try:
-#         # Fetching the restaurant with the provided ID
-#         restaurant = Restaurant.query.get(id)
-
-#         if restaurant is None:
-#             return jsonify({"error": "Restaurant not found."}), 404
-
-#         # Fetching menu items associated with the restaurant
-#         menu_items = (MenuItem.query
-#                       .options(joinedload(MenuItem.menu_item_imgs))
-#                       .filter_by(restaurant_id=id)
-#                       .all())
-
-#         # Converting menu items to dictionary format for serialization
-#         menu_items_list = [item.to_dict() for item in menu_items]
-#         normalized_menu_items = normalize_data(menu_items_list, 'id')
-
-#         # Extracting images associated with the menu items
-#         images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
-#         normalized_images = normalize_data(images_list, 'id')
-
-#         # Extracting the owner of the restaurant
-#         owner = restaurant.owner.to_dict()
-#         restaurant_list = [restaurant.to_dict()]
-#         normalized_restaurant = normalize_data(restaurant_list, 'id')
-
-#         normalized_data = {
-#             "entities": {
-#                 "restaurants": normalized_restaurant,
-#                 "menuItems": normalized_menu_items,
-#                 "menuItemImgs": normalized_images,
-#                 "owner": owner
-#             }
-#         }
-
-#         return jsonify(normalized_data)
-
-#     except OperationalError as oe:
-#         # Database operational errors (e.g., failed SQL query)
-#         print(oe)
-#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
-#     except Exception as e:
-#         # General errors (e.g., unexpected data issues)
-#         print(e)
-#         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
-
-# ***************************************************************
-# Endpoint to Get Details of a Restaurant by Google Place Id
+# Endpoint to Get Details of a Restaurant by Id or Google Place Id
 # ***************************************************************
 @restaurant_routes.route('/<string:id>')
 def get_restaurant_detail(id):
     """
-    Fetches detailed information of a specific restaurant using its Google Place ID.
+    Fetches detailed information of a specific restaurant.
     If the restaurant is associated with UberEats, the function will fetch data from the UberEats API.
+    Otherwise, it will fetch data from the local database.
 
     Args:
-        id (str): The Google Place ID of the restaurant.
+        id (str): The ID or Google Place ID of the restaurant.
 
     Returns:
         Response: Detailed information of the specified restaurant or an error message if not found.
     """
     try:
-        # First, attempt to fetch the restaurant from the database using the primary key
+        # Attempt to fetch the restaurant from the database using primary key
         restaurant = Restaurant.query.get(id)
 
         # If not found by primary key, try using google_place_id
@@ -219,6 +190,7 @@ def get_restaurant_detail(id):
         # General errors (e.g., unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
+
 
 # ***************************************************************
 # Endpoint to Edit a Restaurant's Details
@@ -386,72 +358,6 @@ def search_restaurants(search_term):
     """
     restaurants = Restaurant.query.filter(Restaurant.name.ilike(f'%{search_term}%')).all()
     return jsonify([restaurant.to_dict() for restaurant in restaurants])
-
-# ***************************************************************
-# Endpoint to Fetch Nearby Restaurants from UberEats
-# ***************************************************************
-@restaurant_routes.route('/nearby', methods=['GET'])
-def get_nearby_restaurants():
-    """
-    Fetches nearby restaurants based on user's location from UberEats.
-
-    Returns:
-        Response: A list of nearby restaurants from UberEats.
-    """
-    latitude = request.args.get('latitude')
-    longitude = request.args.get('longitude')
-
-    # Check for latitude and longitude parameters
-    if not latitude or not longitude:
-        return jsonify({"error": "Latitude and Longitude are required"}), 400
-
-    access_token = get_uber_access_token()
-    restaurants_from_ubereats = fetch_from_ubereats_by_location(latitude, longitude, access_token)
-
-    if not restaurants_from_ubereats:
-        return jsonify({"error": "Failed to fetch data from UberEats."}), 500
-
-    mapped_data = [map_ubereats_to_restaurant_model(restaurant) for restaurant in restaurants_from_ubereats]
-    return jsonify(mapped_data)
-
-# # ***************************************************************
-# # Endpoint to Fetch Nearby Restaurants from Google Places API
-# # ***************************************************************
-# @restaurant_routes.route('/nearby', methods=['GET'])
-# def get_nearby_restaurants():
-#     """
-#     Fetches nearby restaurants based on user's location from Google Places API.
-
-#     Returns:
-#         Response: A list of nearby restaurants from Google Places.
-#     """
-#     latitude = request.args.get('latitude')
-#     longitude = request.args.get('longitude')
-
-#     # Check for latitude and longitude parameters
-#     if not latitude or not longitude:
-#         return jsonify({"error": "Latitude and Longitude are required"}), 400
-
-#     google_api_key = current_app.config['MAPS_API_KEY']
-#     endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
-
-#     response = requests.get(endpoint)
-#     data = response.json()
-
-#     if response.status_code != 200 or data.get('status', '') != "OK":
-#         error_message = data.get('error_message', 'Unknown error from Google API')
-#         return jsonify({"error": f"Google API Error: {data.get('status', '')}. Message: {error_message}"}), 500
-
-#     enriched_data = []
-#     for restaurant in data['results']:
-#         mapped_data = map_google_place_to_restaurant_model(restaurant)
-#         db_restaurant = Restaurant.query.filter_by(name=restaurant["name"]).first()
-#         if db_restaurant:
-#             enriched_data.append({**mapped_data, **db_restaurant.to_dict()})
-#         else:
-#             enriched_data.append(mapped_data)
-
-#     return jsonify(enriched_data)
 
 # ***************************************************************
 # Endpoint to Fetch Detailed Restaurant Info from Google Places API

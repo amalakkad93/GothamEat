@@ -177,51 +177,51 @@ def map_google_place_to_restaurant_model(google_place_data):
     Returns:
         dict: A dictionary containing information in the structure of the restaurant model.
     """
-    pass
+    # pass
 
-    # # Extract latitude and longitude from the Google Place data
-    # lat = google_place_data['geometry']['location']['lat']
-    # lng = google_place_data['geometry']['location']['lng']
+    # Extract latitude and longitude from the Google Place data
+    lat = google_place_data['geometry']['location']['lat']
+    lng = google_place_data['geometry']['location']['lng']
 
-    # # Fetch address components using geocoding
-    # address_components = get_address_components_from_geocoding(lat, lng, current_app.config['MAPS_API_KEY'])
+    # Fetch address components using geocoding
+    address_components = get_address_components_from_geocoding(lat, lng, current_app.config['MAPS_API_KEY'])
 
-    # opening_time = None
-    # closing_time = None
-    # opening_hours = google_place_data.get('opening_hours', {})
+    opening_time = None
+    closing_time = None
+    opening_hours = google_place_data.get('opening_hours', {})
 
-    # # Extract opening and closing time for the current day
-    # if opening_hours:
-    #     periods = opening_hours.get('periods', [])
-    #     today = datetime.datetime.today().weekday()
-    #     today_timings = next((period for period in periods if period['open']['day'] == today), None)
-    #     if today_timings:
-    #         opening_time = today_timings.get('open', {}).get('time')
-    #         closing_time = today_timings.get('close', {}).get('time')
+    # Extract opening and closing time for the current day
+    if opening_hours:
+        periods = opening_hours.get('periods', [])
+        today = datetime.datetime.today().weekday()
+        today_timings = next((period for period in periods if period['open']['day'] == today), None)
+        if today_timings:
+            opening_time = today_timings.get('open', {}).get('time')
+            closing_time = today_timings.get('close', {}).get('time')
 
-    # # Generate random values for delivery fee and delivery time estimate
-    # delivery_fee = round(random.uniform(0.10, 12.00), 2)
-    # min_time = random.randint(10, 30)
-    # max_time = min_time + 10
-    # delivery_time_estimate = f"{min_time}-{max_time} min"
+    # Generate random values for delivery fee and delivery time estimate
+    delivery_fee = round(random.uniform(0.10, 12.00), 2)
+    min_time = random.randint(10, 30)
+    max_time = min_time + 10
+    delivery_time_estimate = f"{min_time}-{max_time} min"
 
-    # # Return the mapped restaurant model
-    # return {
-    #     'google_place_id': google_place_data.get('place_id'),
-    #     'name': google_place_data.get('name'),
-    #     'street_address': google_place_data.get('vicinity'),
-    #     'banner_image_path': google_place_data.get('icon'),
-    #     'city': address_components.get('city', None),
-    #     'state': address_components.get('state', None),
-    #     'postal_code': address_components.get('postal_code', None),
-    #     'country': address_components.get('country', None),
-    #     'description': None,
-    #     'opening_time': opening_time,
-    #     'closing_time': closing_time,
-    #     'average_rating': google_place_data.get('rating', None),
-    #     'delivery_fee': delivery_fee,
-    #     'delivery_time_estimate': delivery_time_estimate
-    # }
+    # Return the mapped restaurant model
+    return {
+        'google_place_id': google_place_data.get('place_id'),
+        'name': google_place_data.get('name'),
+        'street_address': google_place_data.get('vicinity'),
+        'banner_image_path': google_place_data.get('icon'),
+        'city': address_components.get('city', None),
+        'state': address_components.get('state', None),
+        'postal_code': address_components.get('postal_code', None),
+        'country': address_components.get('country', None),
+        'description': None,
+        'opening_time': opening_time,
+        'closing_time': closing_time,
+        'average_rating': google_place_data.get('rating', None),
+        'delivery_fee': delivery_fee,
+        'delivery_time_estimate': delivery_time_estimate
+    }
 
 # ***************************************************************
 # Get Address Components from Geocoding
@@ -238,31 +238,52 @@ def get_address_components_from_geocoding(lat, lng, api_key):
     Returns:
         dict: A dictionary containing various address components.
     """
-    pass
+    # pass
 
-    # # Define the endpoint for the Google Geocoding API
-    # endpoint = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={api_key}"
-    # response = requests.get(endpoint)
-    # data = response.json()
+    # Define the endpoint for the Google Geocoding API
+    endpoint = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={api_key}"
+    response = requests.get(endpoint)
+    data = response.json()
 
-    # # Check if there are results in the response
-    # if 'results' not in data or not data['results']:
-    #     return {}
+    # Check if there are results in the response
+    if 'results' not in data or not data['results']:
+        return {}
 
-    # # Extract address components from the response
-    # address_components = data['results'][0].get('address_components', [])
-    # details = {}
+    # Extract address components from the response
+    address_components = data['results'][0].get('address_components', [])
+    details = {}
 
-    # # Map each address component to its respective field in the details dictionary
-    # for component in address_components:
-    #     types = component.get('types')
-    #     if 'locality' in types:
-    #         details['city'] = component.get('long_name')
-    #     elif 'administrative_area_level_1' in types:
-    #         details['state'] = component.get('long_name')
-    #     elif 'country' in types:
-    #         details['country'] = component.get('long_name')
-    #     elif 'postal_code' in types:
-    #         details['postal_code'] = component.get('long_name')
+    # Map each address component to its respective field in the details dictionary
+    for component in address_components:
+        types = component.get('types')
+        if 'locality' in types:
+            details['city'] = component.get('long_name')
+        elif 'administrative_area_level_1' in types:
+            details['state'] = component.get('long_name')
+        elif 'country' in types:
+            details['country'] = component.get('long_name')
+        elif 'postal_code' in types:
+            details['postal_code'] = component.get('long_name')
 
-    # return details
+    return details
+
+
+def fetch_from_database_by_city(city_name):
+    """
+    Fetch restaurants from the database that are located within a specified city.
+
+    Args:
+    - city_name (str): Name of the city.
+
+    Returns:
+    - List[Restaurant]: List of restaurants in the specified city.
+    """
+    from ..models import Restaurant
+    # Filter restaurants by the provided city name
+    restaurants_in_city = (
+        Restaurant.query
+        .filter_by(city=city_name)
+        .all()
+    )
+
+    return restaurants_in_city
