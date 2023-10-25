@@ -1,6 +1,7 @@
 from sqlite3 import OperationalError
 from flask import Blueprint, jsonify, request, redirect, url_for, abort, current_app
 import requests
+import logging
 from flask_caching import Cache
 
 from sqlalchemy.orm import joinedload
@@ -11,81 +12,159 @@ from collections import OrderedDict
 from ..models import User, Review, Review, db, MenuItem, MenuItemImg, Restaurant
 from ..forms import RestaurantForm, ReviewForm, MenuItemForm
 from ..schemas import RestaurantSchema, ReviewSchema
-from ..helper_functions import normalize_data, map_google_place_to_restaurant_model, get_address_components_from_geocoding, get_uber_access_token, fetch_from_ubereats_api_by_store_id, fetch_from_ubereats_by_location, map_ubereats_to_restaurant_model, fetch_from_database_by_city
+from .. import helper_functions as hf
+
+
+# Set up logging to capture error messages and other logs.
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 restaurant_routes = Blueprint('restaurants', __name__)
 
+# # ***************************************************************
+# # Endpoint to Get All Nearby Restaurants
+# # ***************************************************************
+# This endpoint aggregates nearby restaurants from various sources and returns them.
+# Import necessary modules for handling logging, exceptions, and other functions.
+# @restaurant_routes.route('/nearby', methods=['GET'])
+# def get_nearby_restaurants():
+#     """
+#     Endpoint to fetch nearby restaurants.
+#     Aggregates results from UberEats, Google Places, and the local database.
+
+#     Returns:
+#         Response: A JSON list of aggregated nearby restaurants.
+#     """
+
+#     # Retrieve user-provided parameters: latitude, longitude, and city name.
+#     latitude = request.args.get('latitude')
+#     longitude = request.args.get('longitude')
+#     city_name = request.args.get('city')
+
+#     # List to store aggregated restaurant results from all sources.
+#     results = []
+
+#     # Fetching restaurant data from UberEats.
+#     try:
+#         # Obtain the access token required for the UberEats API.
+#         access_token = hf.get_uber_access_token()
+
+#         # Fetch nearby restaurants from UberEats using the provided location.
+#         restaurants_from_ubereats = hf.fetch_from_ubereats_by_location(latitude, longitude, access_token)
+
+#         # If there are restaurants from UberEats, format the data and add it to the results.
+#         if restaurants_from_ubereats:
+#             mapped_ubereats_data = [hf.map_ubereats_to_restaurant_model(restaurant) for restaurant in restaurants_from_ubereats]
+#             results.extend(mapped_ubereats_data)
+#     except Exception as e:
+#         # Log any errors encountered during the UberEats data retrieval process.
+#         logger.error(f"Error fetching data from UberEats: {e}")
+
+#     # Fetching restaurant data from Google Places.
+#     try:
+#         # Access the Google API key stored in app configuration.
+#         google_api_key = current_app.config['MAPS_API_KEY']
+
+#         # Build the API URL for fetching nearby restaurants from Google Places.
+#         endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
+
+#         # Fetch data from Google Places.
+#         response = requests.get(endpoint)
+#         data = response.json()
+
+#         # If the response is successful and contains data, format and add it to results.
+#         if response.status_code == 200 and data.get('status', '') == "OK":
+#             mapped_google_data = [hf.map_google_place_to_restaurant_model(restaurant) for restaurant in data['results']]
+#             results.extend(mapped_google_data)
+#     except Exception as e:
+#         # Log any errors encountered during the Google Places data retrieval process.
+#         logger.error(f"Error fetching data from Google Places: {e}")
+
+#     # Fetching restaurant data from the local database.
+#     try:
+#         # If a city name was provided, retrieve restaurants from the database associated with that city.
+#         if city_name:
+#             restaurants_from_db = hf.fetch_from_database_by_location(city_name)
+
+#             # Convert the database results to a standard dictionary format and add to results.
+#             db_restaurants_list = [restaurant.to_dict() for restaurant in restaurants_from_db]
+#             results.extend(db_restaurants_list)
+#     except OperationalError as oe:
+#         # Specifically handle database operational errors.
+#         logger.error(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         # Log other exceptions related to database operations.
+#         logger.error(f"Error fetching data from database: {e}")
+
+#     # If no restaurants were found from any source, return an appropriate error message.
+#     if not results:
+#         return jsonify({"error": "No restaurants found nearby."}), 404
+
+#     # Return the combined restaurant data from all sources.
+#     return jsonify(results)
+
 # ***************************************************************
-# Endpoint to Get All Restaurants
+# Endpoint to Get All Nearby Restaurants
 # ***************************************************************
 @restaurant_routes.route('/nearby', methods=['GET'])
 def get_nearby_restaurants():
     """
-    Fetches nearby restaurants based on user's location. The function first tries UberEats,
-    then Google Places, and finally the local database (based on city name) if the first two don't return results.
+    Retrieve nearby restaurants from multiple sources: UberEats, Google Places, and a local database.
 
     Returns:
-        Response: A list of nearby restaurants.
+        Response: A JSON list of aggregated nearby restaurants or an error message.
     """
+    logger.info("Received request to fetch nearby restaurants.")
+
+    # Extract latitude, longitude, city name, state, and country from the request parameters.
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
     city_name = request.args.get('city')
+    state_name = request.args.get('state')
+    country_name = request.args.get('country')
 
-    # Try fetching from UberEats
-    try:
-        access_token = get_uber_access_token()
-        restaurants_from_ubereats = fetch_from_ubereats_by_location(latitude, longitude, access_token)
+    # Convert the extracted values to float
+    if latitude:
+        latitude = float(latitude)
+    if longitude:
+        longitude = float(longitude)
 
-        if restaurants_from_ubereats:
-            mapped_data = [map_ubereats_to_restaurant_model(restaurant) for restaurant in restaurants_from_ubereats]
-            return jsonify(mapped_data)
 
-    except Exception as e:
-        print(f"Error fetching data from UberEats: {e}")
-        return jsonify({"error": "Failed to fetch data from UberEats."}), 500
+    logger.info(f"Parameters received - city_name: {city_name}, state_name: {state_name}, country_name: {country_name}")
 
-    # If UberEats doesn't return data, try Google Places
-    try:
-        google_api_key = current_app.config['MAPS_API_KEY']
-        endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
-        response = requests.get(endpoint)
-        data = response.json()
-
-        if response.status_code == 200 and data.get('status', '') == "OK":
-            enriched_data = []
-            for restaurant in data['results']:
-                mapped_data = map_google_place_to_restaurant_model(restaurant)
-                db_restaurant = Restaurant.query.filter_by(name=restaurant["name"]).first()
-                if db_restaurant:
-                    enriched_data.append({**mapped_data, **db_restaurant.to_dict()})
-                else:
-                    enriched_data.append(mapped_data)
-            return jsonify(enriched_data)
-
-    except Exception as e:
-        print(f"Error fetching data from Google Places: {e}")
-        return jsonify({"error": "Failed to fetch data from Google Places."}), 500
-
-    # If neither UberEats nor Google Places provide results, fetch from database based on city
-    try:
+    # If both latitude and longitude aren't provided but city is, then attempt geocoding.
+    if not latitude or not longitude:
         if city_name:
-            restaurants = fetch_from_database_by_city(city_name)
-            if restaurants:
-                restaurants_list = [restaurant.to_dict() for restaurant in restaurants]
-                normalized_restaurants = normalize_data(restaurants_list, 'id')
-                return jsonify(normalized_restaurants)
+            coordinates = hf.get_coordinates_from_geocoding_service(city_name, current_app.config['MAPS_API_KEY'])
+            if coordinates:
+                latitude = coordinates['latitude']
+                longitude = coordinates['longitude']
+            else:
+                # If geocoding fails, fetch restaurants from the database using city, state, and country.
+                aggregated_results = hf.fetch_local_db_data(city_name, state_name, country_name)
+                if aggregated_results:
+                    return jsonify(aggregated_results)
+                else:
+                    return jsonify({"error": "Failed to get coordinates for the provided city and no restaurants found in the database for this city."}), 400
         else:
-            return jsonify({"error": "City is required to fetch data from the database."}), 400
+            return jsonify({"error": "Latitude, longitude, or city name must be provided."}), 400
+    # If latitude and longitude are provided, aggregate data based on coordinates.
+    if latitude and longitude:
+        aggregated_results = hf.aggregate_restaurant_data_by_coordinates(latitude, longitude)
+    # If city is provided (without latitude and longitude), aggregate data based on city, state, and country.
+    elif city_name:
+        aggregated_results = hf.aggregate_restaurant_data_by_city_state_country(city_name, state_name, country_name)
 
-    except OperationalError as oe:
-        # Database operational errors (e.g., failed SQL query)
-        print(oe)
-        return jsonify({"error": "Database operation failed. Please try again later."}), 500
-    except Exception as e:
-        print(f"Error fetching data from database: {e}")
-        return jsonify({"error": "Failed to fetch data from the local database."}), 500
+    # Return aggregated results or an error if no restaurants were found.
+    if not aggregated_results:
+        return jsonify({"error": "No restaurants found nearby."}), 404
 
-    return jsonify({"error": "No restaurants found nearby."}), 404
+    # Normalize the aggregated results
+    normalized_results = hf.normalize_data(aggregated_results, 'id')
+
+    return jsonify(normalized_results)
+
 
 
 # ***************************************************************
@@ -143,8 +222,8 @@ def get_restaurant_detail(id):
 
         # If found in the database and associated with an UberEats store_id
         if restaurant and hasattr(restaurant, 'ubereats_store_id') and restaurant.ubereats_store_id:
-            access_token = get_uber_access_token()
-            ubereats_data = fetch_from_ubereats_api_by_store_id(restaurant.ubereats_store_id, access_token)
+            access_token = hf.get_uber_access_token()
+            ubereats_data = hf.fetch_from_ubereats_api_by_store_id(restaurant.ubereats_store_id, access_token)
             if ubereats_data:
                 return jsonify(ubereats_data)  # Return data directly from UberEats
 
@@ -160,16 +239,16 @@ def get_restaurant_detail(id):
 
         # Converting menu items to dictionary format for serialization
         menu_items_list = [item.to_dict() for item in menu_items]
-        normalized_menu_items = normalize_data(menu_items_list, 'id')
+        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
 
         # Extracting images associated with the menu items
         images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
-        normalized_images = normalize_data(images_list, 'id')
+        normalized_images = hf.normalize_data(images_list, 'id')
 
         # Extracting the owner of the restaurant
         owner = restaurant.owner.to_dict()
         restaurant_list = [restaurant.to_dict()]
-        normalized_restaurant = normalize_data(restaurant_list, 'id')
+        normalized_restaurant = hf.normalize_data(restaurant_list, 'id')
 
         normalized_data = {
             "entities": {
@@ -242,7 +321,7 @@ def update_restaurant(id):
             return jsonify({
                 "message": "Restaurant updated successfully",
                 "entities": {
-                    "restaurants": normalize_data([restaurant_to_update.to_dict()], 'id')
+                    "restaurants": hf.normalize_data([restaurant_to_update.to_dict()], 'id')
                 }
             }), 200
         else:
@@ -294,7 +373,7 @@ def create_restaurant():
             return jsonify({
                 "message": "Restaurant successfully created",
                 "entities": {
-                    "restaurants": normalize_data([new_restaurant.to_dict()], 'id')
+                    "restaurants": hf.normalize_data([new_restaurant.to_dict()], 'id')
                 }
             }), 201
         return jsonify(errors=form.errors), 400
@@ -435,9 +514,9 @@ def get_reviews_by_restaurant_id(id):
             for img in review.review_imgs:
                 image_dicts.append(img.to_dict())
 
-        normalized_reviews = normalize_data(review_dicts, 'id')
-        normalized_images = normalize_data(image_dicts, 'id')
-        normalized_users = normalize_data(user_dicts, 'id')
+        normalized_reviews = hf.normalize_data(review_dicts, 'id')
+        normalized_images = hf.normalize_data(image_dicts, 'id')
+        normalized_users = hf.normalize_data(user_dicts, 'id')
 
         return jsonify({
             "entities": {
@@ -492,7 +571,7 @@ def create_review(id):
             return jsonify({
                 "message": "Review successfully created",
                 "entities": {
-                    "reviews": normalize_data([new_review.to_dict()], 'id')
+                    "reviews": hf.normalize_data([new_review.to_dict()], 'id')
                 }
             }), 201
 
@@ -540,8 +619,8 @@ def get_menu_items_by_restaurant_id(id):
             for img in item.menu_item_imgs:
                 images_list.append(img.to_dict())
 
-        normalized_menu_items = normalize_data(menu_items_list, 'id')
-        normalized_images = normalize_data(images_list, 'id')
+        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
+        normalized_images = hf.normalize_data(images_list, 'id')
 
         return jsonify({
             "entities": {
@@ -600,7 +679,7 @@ def create_menu_item_by_restaurant_id(id):
             return jsonify({
                 "message": "Menu Item successfully created",
                 "entities": {
-                    "MenuItem": normalize_data([new_MenuItem.to_dict()], 'id')
+                    "MenuItem": hf.normalize_data([new_MenuItem.to_dict()], 'id')
                 }
             }), 201
 

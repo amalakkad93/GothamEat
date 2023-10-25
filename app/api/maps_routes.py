@@ -19,7 +19,7 @@ def get_api_key():
 
     # Debugging line to print the API key to the server logs
     # (Remove this line in production for security reasons)
-    print("Backend API Key:", google_maps_api_key)
+    # print("Backend API Key:", google_maps_api_key)
 
     # If API key exists, send it to the frontend
     if google_maps_api_key:
@@ -27,4 +27,3 @@ def get_api_key():
     # If API key does not exist or is not configured, send an error
     else:
         return jsonify(error="API key not configured"), 500
-

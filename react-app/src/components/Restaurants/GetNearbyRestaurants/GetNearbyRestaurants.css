@@ -1,35 +1,144 @@
-/* home.css */
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-
-img {
-  margin-right: 10px;
-}
-
-
-
-/* frontend/src/components/RestaurantList.css */
-/* .restaurant-list {
+.restaurant-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  justify-content: center; /* Center the items */
+  padding: 20px;
+  background-color: #f4f4f4;
+  gap: 25px;
 }
 
-.restaurant-item {
+.restaurant-card {
+  flex: 0 0 calc(33.3333% - 25px); /* Take up one third of the container width minus gap */
+  max-width: calc(33.3333% - 25px); /* Ensure it doesn't grow larger than a third */
+  background-color: #ffffff;
+  border-radius: 10px;
   border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-  width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  padding: 15px;
+  box-sizing: border-box; /* Ensure padding and border are included in the width */
 }
 
-.restaurant-item img {
-  max-width: 100%;
+.restaurant-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s;
+  margin-bottom: 10px; /* Add some space below the image */
+}
+
+.restaurant-image:hover {
+  transform: scale(1.05);
+}
+
+.favorite-heart {
+  position: absolute;
+  top: 15px; /* Adjust the position a bit */
+  right: 15px; /* Adjust the position a bit */
+  font-size: 24px;
+  color: #fff;
+  border: 1px solid #fff; /* Add border */
+  border-radius: 50%; /* Make it circular */
+  padding: 3px 6px; /* Add some padding */
+  background-color: rgba(0,0,0,0.5); /* Slightly transparent black background */
+  cursor: pointer;
+  transition: color 0.3s, background-color 0.3s; /* Add transition for background-color */
+}
+
+.favorite-heart:hover {
+  color: red;
+  background-color: rgba(255,255,255,0.7); /* Change background on hover */
+}
+
+.favorited {
+  color: red;
+  background-color: rgba(255,255,255,0.7); /* Change background for favorited */
+}
+
+.restaurant-details {
+  padding: 0 15px; /* Adjust padding */
+}
+
+.restaurant-name {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.restaurant-address {
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: #777;
+}
+
+.restaurant-rating {
+  font-size: 15px;
+  color: #ff9800;
+}
+
+
+
+/* .restaurant-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  width: 260px;
+  border-radius: 5px;
+  margin-right: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: transform 0.2s;
+} */
+
+/* .restaurant-item:last-child {
+  margin-right: 0;
+} */
+
+/* .restaurant-item:hover {
+  transform: scale(1.03);
+} */
+
+/* .restaurant-banner {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.restaurant-banner img {
+  width: 100%;
   height: auto;
+}
+
+.restaurant-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.restaurant-details {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.restaurant-address, .restaurant-rating, .delivery-fee-time {
+  font-size: 14px;
+  color: #777;
+}
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.favorite-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: red;
+  z-index: 10;
 } */

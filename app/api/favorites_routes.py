@@ -35,14 +35,22 @@ def create_favorite():
     """
     data = request.json
 
-    # Check for required fields
+        # Check for required fields
     if not data.get('user_id') or not data.get('restaurant_id'):
         return {"error": "Missing required fields"}, 400
 
+    user_id = data['user_id']
+    restaurant_id = data['restaurant_id']
+
+    # Check if the favorite already exists
+    existing_favorite = Favorite.query.filter_by(user_id=user_id, restaurant_id=restaurant_id).first()
+    if existing_favorite:
+        return {"error": "Favorite already exists for this user and restaurant"}, 400
+
     # Create a new favorite object
     new_favorite = Favorite(
-        user_id=data['user_id'],
-        restaurant_id=data['restaurant_id']
+        user_id=user_id,
+        restaurant_id=restaurant_id
     )
 
     # Try adding the favorite to the database
@@ -83,6 +91,28 @@ def delete_favorite(id):
         db.session.rollback()
         return {"error": f"Favorite deletion failed: {str(e)}"}, 500
 
+@favorite_routes.route('/check', methods=['GET'])
+def check_favorite():
+    """
+    Check if a favorite exists for a specific user and restaurant.
+
+    Requires:
+        user_id (int): The ID of the user.
+        restaurant_id (int): The ID of the restaurant.
+
+    Returns:
+        dict: A response indicating whether the favorite exists.
+    """
+    user_id = request.args.get('user_id')
+    restaurant_id = request.args.get('restaurant_id')
+
+    # Check if a favorite exists with the given user_id and restaurant_id
+    favorite = Favorite.query.filter_by(user_id=user_id, restaurant_id=restaurant_id).first()
+
+    if favorite:
+        return {"exists": True}
+    else:
+        return {"exists": False}
 
 
 # @favorite_routes.route('/toggle', methods=['POST'])

@@ -8,6 +8,8 @@ import SignupFormPage from "./components/SignupFormPage";
 import LoginFormPage from "./components/LoginFormPage";
 import NearbyRestaurants from "./components/Restaurants/GetNearbyRestaurants";
 import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
+import NotFound from "./components/NotFound";
+
 
 
 
@@ -66,13 +68,14 @@ function App() {
       )}
       {isLoaded && (
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginFormPage />} />
-          <Route path="/signup" element={<SignupFormPage />} />
-          <Route path="/nearby" element={<NearbyRestaurants />} />
-          <Route path="/restaurant/:id" element={<RestaurantDetail />} />
-          <Route>Page Not Found</Route>
-        </Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<LoginFormPage />} />
+    <Route path="/signup" element={<SignupFormPage />} />
+    <Route path="/restaurants/nearby" element={<NearbyRestaurants />} />
+    <Route path="/restaurants/:restaurantId" element={<RestaurantDetail />} />
+    <Route path="*" element={<NotFound />} />
+</Routes>
+
       )}
     </>
   );

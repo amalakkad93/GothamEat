@@ -4,9 +4,14 @@ from flask_wtf.csrf import generate_csrf
 from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
+import logging
+
+
+# Set up logging to capture error messages and other logs.
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 auth_routes = Blueprint('auth', __name__)
-
 
 def validation_errors_to_error_messages(validation_errors):
     """
@@ -18,6 +23,12 @@ def validation_errors_to_error_messages(validation_errors):
             errorMessages.append(f'{field} : {error}')
     return errorMessages
 
+@auth_routes.route('/csrf/restore', methods=['GET'])
+def restore_csrf():
+    """
+    Returns the CSRF token for frontend usage.
+    """
+    return jsonify({"csrf_token": generate_csrf()})
 
 @auth_routes.route('/')
 def authenticate():
@@ -66,8 +77,10 @@ def sign_up():
     """
     Creates a new user and logs them in
     """
+    print("************request.json: ",request.json)
     form = SignUpForm()
-    form['csrf_token'].data = request.cookies['csrf_token']
+
+    # If the form is valid, try to create the user
     if form.validate_on_submit():
         user = User(
             first_name=form.data['first_name'],
@@ -76,10 +89,20 @@ def sign_up():
             email=form.data['email'],
             password=form.data['password'],
         )
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
-        return user.to_dict()
+        try:
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            csrf_token = generate_csrf()
+            return {"user": user.to_dict(), "csrf_token": csrf_token}
+        except Exception as e:
+            # Rollback the session in case of error
+            db.session.rollback()
+            print(f"Database Error: {e}")
+            return {'errors': ['An error occurred while trying to create your account. Please try again later.']}, 500
+
+    # If the form isn't valid, print and return the errors
+    print("Form Errors:", form.errors)
     return {'errors': validation_errors_to_error_messages(form.errors)}, 401
 
 
@@ -89,8 +112,3 @@ def unauthorized():
     Returns unauthorized JSON when flask-login authentication fails
     """
     return {'errors': ['Unauthorized']}, 401
-
-@auth_routes.route('/csrf/restore', methods=['GET'])
-def restore_csrf():
-    print("Inside restore_csrf function")
-    return jsonify({"csrf_token": generate_csrf()})

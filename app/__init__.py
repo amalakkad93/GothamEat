@@ -11,8 +11,8 @@ from .seeds import seed_commands
 from .config import Config, cache
 
 app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
-
-
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 # Setup login manager
 login = LoginManager(app)
@@ -26,6 +26,7 @@ def load_user(id):
 app.cli.add_command(seed_commands)
 
 app.config.from_object(Config)
+print(app.config['SECRET_KEY'])
 
 cache.init_app(app)
 
@@ -66,16 +67,27 @@ def https_redirect():
             return redirect(url, code=code)
 
 
+# @app.after_request
+# def inject_csrf_token(response):
+#     response.set_cookie(
+#         'csrf_token',
+#         generate_csrf(),
+#         secure=True if os.environ.get('FLASK_ENV') == 'production' else False,
+#         samesite='Strict' if os.environ.get(
+#             'FLASK_ENV') == 'production' else None,
+#         httponly=True)
+#     return response
 @app.after_request
 def inject_csrf_token(response):
     response.set_cookie(
-        'csrf_token',
+        'XSRF-TOKEN',
         generate_csrf(),
         secure=True if os.environ.get('FLASK_ENV') == 'production' else False,
         samesite='Strict' if os.environ.get(
             'FLASK_ENV') == 'production' else None,
-        httponly=True)
+        httponly=False)  # Note: This should not be set to True for the XSRF-TOKEN
     return response
+
 
 
 @app.route("/api/docs")

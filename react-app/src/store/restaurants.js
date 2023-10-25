@@ -18,29 +18,36 @@ const actionGetSingleRestaurant = (restaurant) => ({type: GET_SINGLE_RESTAURANT,
 
 const actionSetRestaurantError = (errorMessage) => ({type: SET_RESTAURANT_ERROR, payload: errorMessage,});
 
-
 // ************************************************
 //                   ****Thunks****
 // ************************************************
+export const thunkGetNearbyRestaurants = (latitude, longitude, city, state, country) => async (dispatch) => {
+  console.log("Inside thunk with:", latitude, longitude, city, state, country);
+  let url = `/api/restaurants/nearby`;
 
-// ******************************thunkGetNearbyRestaurants******************************
-export const thunkGetNearbyRestaurants = (latitude, longitude) => async (dispatch) => {
+  if (latitude && longitude) {
+      url += `?latitude=${latitude}&longitude=${longitude}`;
+  } else if (city) {
+      url += `?city=${city}&state=${state}&country=${country}`;
+  } else {
+      dispatch(actionSetRestaurantError("Either coordinates or city name must be provided."));
+      return;
+  }
+
   try {
-    const response = await fetch(`/api/restaurants/nearby?latitude=${latitude}&longitude=${longitude}`);
-
-    if(response.ok) {
-        const restaurants = await response.json();
-        dispatch(actionGetNearbyRestaurants(restaurants));
-    } else {
-        const errors = await response.json();
-        console.error("Error fetching nearby restaurants:", errors);
-        dispatch(actionSetRestaurantError(errors.message || "Error fetching nearby restaurants."));
-    }
+      const response = await fetch(url);
+      if(response.ok) {
+          const restaurants = await response.json();
+          dispatch(actionGetNearbyRestaurants(restaurants));
+      } else {
+          const errors = await response.json();
+          dispatch(actionSetRestaurantError(errors.error || "Error fetching nearby restaurants."));
+      }
   } catch (error) {
-    console.error("An error occurred while fetching nearby restaurants:", error);
-    dispatch(actionSetRestaurantError("An error occurred while fetching nearby restaurants."));
+      dispatch(actionSetRestaurantError("An error occurred while fetching nearby restaurants."));
   }
 };
+
 
 // ******************************thunkGetAllRestaurants******************************
 export const thunkGetAllRestaurants = () => async (dispatch) => {
@@ -84,12 +91,26 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
 // ************************************************
 //                   ****Reducer****
 // ************************************************
-const initialState = { nearby: [], allRestaurants: {}, singleRestaurant: {}, error: null };
+const initialState = {
+  nearby: { byId: {}, allIds: [] },
+  allRestaurants: { byId: {}, allIds: [] },
+  singleRestaurant: {},
+  error: null
+};
+
 
 export default function restaurantsReducer(state = initialState, action) {
+  let newState;
   switch (action.type) {
     case GET_NEARBY_RESTAURANTS:
-      return { ...state, nearby: action.restaurants };
+      // return { ...state, nearby: action.restaurants };
+      newState = { ...state, nearby: [] };
+      newState.nearby = action.restaurants;
+      return newState;
+
+
+
+
     case GET_ALL_RESTAURANTS:
       return { ...state, allRestaurants: action.restaurants };
     case GET_SINGLE_RESTAURANT:

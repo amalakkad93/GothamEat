@@ -26,6 +26,8 @@ class Restaurant(db.Model):
     state = db.Column(db.String(100))
     postal_code = db.Column(db.String(20))
     country = db.Column(db.String(100))
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
     name = db.Column(db.String(100))
     description = db.Column(db.Text)
     opening_time = db.Column(db.Time)
@@ -64,6 +66,8 @@ class Restaurant(db.Model):
             'city': self.city,
             'state': self.state,
             'country': self.country,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
             'postal_code': self.postal_code,
             'opening_time': self.opening_time.strftime('%H:%M'),
             'closing_time': self.closing_time.strftime('%H:%M'),
