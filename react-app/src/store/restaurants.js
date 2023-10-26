@@ -4,20 +4,14 @@
 const GET_NEARBY_RESTAURANTS = "restaurants/GET_NEARBY_RESTAURANTS";
 const GET_ALL_RESTAURANTS = "restaurants/GET_ALL_RESTAURANTS";
 const GET_SINGLE_RESTAURANT = "restaurants/GET_SINGLE_RESTAURANT";
-
 const SET_RESTAURANT_ERROR = "restaurants/SET_RESTAURANT_ERROR";
-
-
-
 // ************************************************
 //                   ****action creator****
 // ************************************************
 const actionGetNearbyRestaurants = (restaurants) => ({type: GET_NEARBY_RESTAURANTS, restaurants})
 const actionGetAllRestaurants = (restaurants) => ({type: GET_ALL_RESTAURANTS, restaurants})
 const actionGetSingleRestaurant = (restaurant) => ({type: GET_SINGLE_RESTAURANT, restaurant})
-
 const actionSetRestaurantError = (errorMessage) => ({type: SET_RESTAURANT_ERROR, payload: errorMessage,});
-
 // ************************************************
 //                   ****Thunks****
 // ************************************************
@@ -87,17 +81,15 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
   }
 };
 
-
 // ************************************************
 //                   ****Reducer****
 // ************************************************
 const initialState = {
   nearby: { byId: {}, allIds: [] },
   allRestaurants: { byId: {}, allIds: [] },
-  singleRestaurant: {},
+  singleRestaurant: { byId: {}, allIds: [] },
   error: null
 };
-
 
 export default function restaurantsReducer(state = initialState, action) {
   let newState;
@@ -108,15 +100,15 @@ export default function restaurantsReducer(state = initialState, action) {
       newState.nearby = action.restaurants;
       return newState;
 
-
-
-
     case GET_ALL_RESTAURANTS:
       return { ...state, allRestaurants: action.restaurants };
+
     case GET_SINGLE_RESTAURANT:
       return { ...state, singleRestaurant: action.restaurant };
+
     case SET_RESTAURANT_ERROR:
       return { ...state, error: action.payload };
+
     default:
       return state;
   }

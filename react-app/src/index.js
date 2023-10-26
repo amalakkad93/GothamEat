@@ -4,7 +4,6 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 
 import { ModalProvider, Modal } from "./context/Modal";
-import { FavoritesProvider } from "./context/FavoritesContext";
 import configureStore from "./store";
 import * as sessionActions from "./store/session";
 import App from "./App";

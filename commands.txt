@@ -34,3 +34,6 @@ npm install react@6 react-dom@6
 
 ****** for Install js-cookie ******
 npm install js-cookie
+
+****** for Install heart symbol ******
+npm install @fortawesome/free-regular-svg-icons

@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect
+from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
@@ -10,7 +11,9 @@ from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, re
 from .seeds import seed_commands
 from .config import Config, cache
 
-app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
+# app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
+app = Flask(__name__, static_folder='../react-app/public', static_url_path='/')
+
 csrf = CSRFProtect()
 csrf.init_app(app)
 
@@ -117,4 +120,7 @@ def react_root(path):
 
 @app.errorhandler(404)
 def not_found(e):
-    return app.send_static_file('index.html')
+    try:
+        return app.send_static_file('index.html')
+    except NotFound:
+        return "Page not found", 404

@@ -48,17 +48,20 @@ def login():
     form = LoginForm()
     # Get the csrf_token from the request cookie and put it into the
     # form manually to validate_on_submit can be used
-    form['csrf_token'].data = request.cookies['csrf_token']
+    # form['csrf_token'].data = request.cookies['csrf_token']
+        # Check if the XSRF-TOKEN is in the request cookies
+    if 'XSRF-TOKEN' in request.cookies:
+        form['csrf_token'].data = request.cookies['XSRF-TOKEN']
+    else:
+        # Handle the error, e.g., return a response indicating the CSRF token was missing.
+        return {'errors': ['CSRF token missing.']}, 400
+
     if form.validate_on_submit():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
-
-        # return user.to_dict()
-
-        # delete the line blew and uncomment the line above when  in production environment.
+        # delete the line below and uncomment the line above when in a production environment.
         return { "user": user.to_dict(), "csrf_token": generate_csrf() }
-
 
     return {'errors': validation_errors_to_error_messages(form.errors)}, 401
 

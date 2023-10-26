@@ -9,13 +9,12 @@ import { faUserCircle, faBars } from "@fortawesome/free-solid-svg-icons";
 import "./ProfileButton.css";
 // import CreateMenuItemForm from "../MenuItems/MenuItemForm/CreateMenuItemForm";
 
-function ProfileButton(props) {
+export default function ProfileButton(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const sessionUser = useSelector((state) => state.session.user);
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
-
 
   const openMenu = (e) => {
     e.stopPropagation();
@@ -112,6 +111,18 @@ function ProfileButton(props) {
                       </li>
                     </Link>
 
+                    <li className="center-menu center-menu-profile">
+                      <button
+                        className="Manage-spot-button center-menu1"
+                        onClick={(e) => {
+                          closeMenu();
+                          navigate(`/favorites`);
+                        }}
+                      >
+                        View Favorites
+                      </button>
+                    </li>
+
                     <li className="center-menu">
                       <button
                         className="Manage-spot-button center-menu1"
@@ -189,5 +200,3 @@ function ProfileButton(props) {
     </>
   );
 }
-
-export default ProfileButton;
