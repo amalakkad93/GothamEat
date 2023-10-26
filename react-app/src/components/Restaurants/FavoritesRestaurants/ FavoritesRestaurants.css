@@ -1,11 +1,35 @@
+.Back-to-Nearby-Restaurant a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.Back-to-Nearby-Restaurant a:hover {
+  background-color: #0056b3;
+}
+
 .restaurant-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   padding: 20px;
-  background-color: #f4f4f4;
   gap: 25px;
 }
+
+.restaurant-list.with-favorites {
+  background-color: #f4f4f4;
+}
+
+.restaurant-list.no-favorites {
+  background-color: transparent;
+}
+
 
 .restaurant-card {
   flex: 0 0 calc(33.3333% - 25px);

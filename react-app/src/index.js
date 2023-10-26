@@ -25,13 +25,14 @@ function Root() {
 		<ModalProvider>
 			<Provider store={store}>
 				<BrowserRouter>
-					<App />
+						<App />
 					<Modal />
 				</BrowserRouter>
 			</Provider>
 		</ModalProvider>
 	);
 }
+
 
 ReactDOM.render(
 	<React.StrictMode>

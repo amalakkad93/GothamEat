@@ -1,0 +1,101 @@
+{
+    "info": {
+        "_postman_id": "6949772__757",
+        "name": "WorldWide Restaurants API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Search Location",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "2477|c3QgicpPDGAX9YUSq5atwHEOykBuXOwDWGDO5wyy",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "url": {
+                    "raw": "https://zylalabs.com/api/757/worldwide+restaurants+api/476/search+location?q=San Diego&language=en_US",
+                    "protocol": "https",
+                    "host": [
+                        "zylalabs",
+                        "com"
+                    ],
+                    "path": [
+                        "api",
+                        "757",
+                        "worldwide+restaurants+api",
+                        "476",
+                        "search+location"
+                    ],
+                    "query": [
+                        {
+                            "key": "q",
+                            "value": "San Diego"
+                        },
+                        {
+                            "key": "language",
+                            "value": "en_US"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Search Restaurants In Location",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "2477|c3QgicpPDGAX9YUSq5atwHEOykBuXOwDWGDO5wyy",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "url": {
+                    "raw": "https://zylalabs.com/api/757/worldwide+restaurants+api/477/search+restaurants+in+location?language=en_US&limit=10&location_id=60750&currency=USD",
+                    "protocol": "https",
+                    "host": [
+                        "zylalabs",
+                        "com"
+                    ],
+                    "path": [
+                        "api",
+                        "757",
+                        "worldwide+restaurants+api",
+                        "477",
+                        "search+restaurants+in+location"
+                    ],
+                    "query": [
+                        {
+                            "key": "language",
+                            "value": "en_US"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "10"
+                        },
+                        {
+                            "key": "location_id",
+                            "value": "60750"
+                        },
+                        {
+                            "key": "currency",
+                            "value": "USD"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}

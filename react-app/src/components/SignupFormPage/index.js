@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { signUp } from "../../store/session";
@@ -19,6 +19,21 @@ function SignupFormPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState([]);
+
+  const [csrfToken, setCsrfToken] = useState("");
+
+
+// Fetch CSRF token on component mount
+useEffect(() => {
+  (async () => {
+    const response = await fetch("/api/auth/csrf/restore");
+    if (response.ok) {
+      const data = await response.json();
+      setCsrfToken(data.csrf_token);
+    }
+  })();
+}, []);
+
 
   if (sessionUser) {
     navigate("/");
@@ -164,6 +179,7 @@ function SignupFormPage() {
       </div>
       <div className="form-login">
       {/* {errors.map((error, idx) => <div key={idx} className="error">{error}</div>)} */}
+      <input type="hidden" name="csrf_token" value={csrfToken} />
       <FormContainer
         fields={signUpFields}
         onSubmit={handleSubmit}
