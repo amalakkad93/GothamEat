@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { useNavigate, Link } from "react-router-dom";
-import SlidingModal from "../SlidingModal/SlidingModal";
+import SlidingModal from "../Modals/SlidingModal/SlidingModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faBars } from "@fortawesome/free-solid-svg-icons";
 

@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoadScript, StandaloneSearchBox } from "@react-google-maps/api";
 import { getKey } from "../../store/maps";
-import "./SearchBar.css";
+import './home.css';
+
 
 // The SearchBar component is responsible for rendering a location search input field
 // using the Google Maps API. It loads the API script and handles place selection.
@@ -34,4 +35,3 @@ function SearchBar({ onPlaceSelected }) {
 }
 
 export default SearchBar;
-

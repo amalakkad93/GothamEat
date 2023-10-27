@@ -27,9 +27,7 @@ export default function NearbyRestaurants() {
   );
   const userId = useSelector((state) => state.session.user?.id);
 
-  useEffect(() => {
-    console.log("NearbyRestaurants re-rendered!");
-  });
+
 
   useEffect(() => {
     setSelectedLocation(JSON.parse(localStorage.getItem("userLocation")));
@@ -91,7 +89,7 @@ export default function NearbyRestaurants() {
                   </p>
                 </div>
               </div>
-        
+
           );
         })}
     </div>

@@ -26,4 +26,5 @@ class RestaurantForm(FlaskForm):
     postal_code = StringField('Postal Code', validators=[DataRequired(), Length(max=20)])
     opening_time = TimeField('Opening Time', format='%H:%M', validators=[DataRequired()])
     closing_time = TimeField('Closing Time', format='%H:%M', validators=[DataRequired()])
+    food_type = StringField('Food Type', validators=[DataRequired(), Length(max=100)])
     submit = SubmitField("Create Restaurant")

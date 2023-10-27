@@ -32,6 +32,7 @@ class Restaurant(db.Model):
     description = db.Column(db.Text)
     opening_time = db.Column(db.Time)
     closing_time = db.Column(db.Time)
+    food_type = db.Column(db.String(100))
 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True, cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='restaurant', lazy=True)
@@ -52,6 +53,14 @@ class Restaurant(db.Model):
             .where(Review.restaurant_id == cls.id)
             .label("average_rating")
         )
+    def get_num_reviews(self):
+        # Calculate and return the number of reviews for this restaurant
+        num_reviews = (
+            db.session.query(func.count(Review.id))
+            .filter(Review.restaurant_id == self.id)
+            .scalar()
+        )
+        return num_reviews or 0
 
     def to_dict(self):
         return {
@@ -69,9 +78,11 @@ class Restaurant(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'postal_code': self.postal_code,
-            'opening_time': self.opening_time.strftime('%H:%M'),
-            'closing_time': self.closing_time.strftime('%H:%M'),
-            'average_rating': self.average_rating
+            'opening_time': self.opening_time.strftime('%I:%M %p'),
+            'closing_time': self.closing_time.strftime('%I:%M %p'),
+            'food_type': self.food_type,
+            'average_rating': self.average_rating,
+            'num_reviews': self.get_num_reviews()
         }
 
 

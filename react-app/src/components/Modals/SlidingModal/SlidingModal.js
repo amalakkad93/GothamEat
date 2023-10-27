@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../context/Modal.css';
+import './SlidingModal.css';
 
 export default function SlidingModal({ isVisible, onClose, children }) {
   return (

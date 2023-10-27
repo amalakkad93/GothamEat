@@ -196,6 +196,7 @@ def get_restaurants_of_current_user():
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
 
+
 # ***************************************************************
 # Endpoint to Get Details of a Restaurant by Id or Google Place Id
 # ***************************************************************
@@ -213,11 +214,10 @@ def get_restaurant_detail(id):
         Response: Detailed information of the specified restaurant or an error message if not found.
     """
     try:
-        # Attempt to fetch the restaurant from the database using primary key
-        restaurant = Restaurant.query.get(id)
-
-        # If not found by primary key, try using google_place_id
-        if restaurant is None:
+        # Check if id is a digit
+        if id.isdigit():
+            restaurant = Restaurant.query.get(int(id))
+        else:
             restaurant = Restaurant.query.filter_by(google_place_id=id).first()
 
         # If found in the database and associated with an UberEats store_id
@@ -231,19 +231,8 @@ def get_restaurant_detail(id):
         if restaurant is None:
             return jsonify({"error": "Restaurant details not found."}), 404
 
-        # Extracting menu items associated with the restaurant
-        menu_items = (MenuItem.query
-                      .options(joinedload(MenuItem.menu_item_imgs))
-                      .filter_by(restaurant_id=restaurant.id)
-                      .all())
-
-        # Converting menu items to dictionary format for serialization
-        menu_items_list = [item.to_dict() for item in menu_items]
-        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
-
-        # Extracting images associated with the menu items
-        images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
-        normalized_images = hf.normalize_data(images_list, 'id')
+        # Use the helper function to fetch menu items for the restaurant
+        menu_data = hf.fetch_menu_items_for_restaurant(restaurant.id)
 
         # Extracting the owner of the restaurant
         owner = restaurant.owner.to_dict()
@@ -253,8 +242,8 @@ def get_restaurant_detail(id):
         normalized_data = {
             "entities": {
                 "restaurants": normalized_restaurant,
-                "menuItems": normalized_menu_items,
-                "menuItemImgs": normalized_images,
+                "menuItems": menu_data["entities"]["menuItems"],
+                "menuItemImgs": menu_data["entities"]["menuItemImages"],
                 "owner": owner
             }
         }
@@ -269,6 +258,7 @@ def get_restaurant_detail(id):
         # General errors (e.g., unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
+
 
 
 # ***************************************************************
@@ -599,35 +589,11 @@ def get_menu_items_by_restaurant_id(id):
         Response: A collection of menu items and associated images for the specified restaurant.
     """
     try:
-        menu_items = (
-            db.session.query(MenuItem)
-            .filter(MenuItem.restaurant_id == id)
-            .options(joinedload(MenuItem.menu_item_imgs))
-            .all()
-        )
+        # Use the helper function to fetch menu items for the restaurant
+        menu_data = hf.fetch_menu_items_for_restaurant(id)
 
-        if not menu_items:
-            return jsonify({"MenuItems": []})
+        return jsonify(menu_data)
 
-        # Extract menu items and their images
-        menu_items_list, images_list = [], []
-        for item in menu_items:
-            item_dict = item.to_dict()
-            item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
-            menu_items_list.append(item_dict)
-
-            for img in item.menu_item_imgs:
-                images_list.append(img.to_dict())
-
-        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
-        normalized_images = hf.normalize_data(images_list, 'id')
-
-        return jsonify({
-            "entities": {
-                "menuItems": normalized_menu_items,
-                "menuItemImages": normalized_images
-            }
-        })
     except OperationalError as oe:
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500

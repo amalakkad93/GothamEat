@@ -64,7 +64,8 @@ function App() {
       "/login",
       "/signup",
       "/restaurants/nearby",
-      "/favorites"
+      "/favorites",
+      "/restaurants"
     ];
 
     // Using .some() to check if location.pathname matches any of the routes
