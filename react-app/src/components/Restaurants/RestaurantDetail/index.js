@@ -7,27 +7,34 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import MoreInfoModal from "./MoreInfoModal";
 import OpenModalButton from "../../Modals/OpenModalButton/index";
 import MenuSection from "../../MenuItems";
+import GetReviews from "../../Reviews/GetReviews";
+import CreateReview from "../../Reviews/CreateReview";
 import { thunkGetRestaurantDetails } from "../../../store/restaurants";
 import { thunkGetMenuItemsByRestaurantId } from "../../../store/menuItems";
-import { thunkToggleFavorite, thunkFetchAllFavorites } from "../../../store/favorites";
+import {
+  thunkToggleFavorite,
+  thunkFetchAllFavorites,
+} from "../../../store/favorites";
 import "./RestaurantDetail.css";
 
 export default function RestaurantDetail() {
   const { restaurantId } = useParams();
   const dispatch = useDispatch();
 
-  const restaurantData = useSelector((state) => state.restaurants?.singleRestaurant);
+  const currentUser = useSelector((state) => state.session.user);
+  const restaurantData = useSelector(
+    (state) => state.restaurants?.singleRestaurant
+  );
   // const menuItemsByRestaurant = useSelector((state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {});
   const menuItemsByRestaurant = useSelector(
     (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {}
   );
 
-
-
   console.log("Menu Items By Restaurant:", menuItemsByRestaurant);
 
-
-  const menuItemImages = useSelector((state) => state.menuItems.menuItemImages?.byId || {});
+  const menuItemImages = useSelector(
+    (state) => state.menuItems.menuItemImages?.byId || {}
+  );
 
   const restaurant = restaurantData.entities?.restaurants?.byId[restaurantId];
   const owner = restaurantData.entities?.owner || {};
@@ -35,16 +42,15 @@ export default function RestaurantDetail() {
   const userId = useSelector((state) => state.session.user?.id);
   const favoritesById = useSelector((state) => state.favorites?.byId);
   const restaurantError = useSelector((state) => state.restaurants.error);
-    // Convert the items into an array
-    const convertItemsToArray = (itemsObj) => {
-      return itemsObj && itemsObj.byId ? Object.values(itemsObj.byId) : [];
+  // Convert the items into an array
+  const convertItemsToArray = (itemsObj) => {
+    return itemsObj && itemsObj.byId ? Object.values(itemsObj.byId) : [];
   };
   const menuItemsTypes = useSelector((state) => state.menuItems?.types || {});
 
   console.log("***********menuItemsTypes:", menuItemsTypes);
 
-
-console.log("***********convertItemsToArray:", convertItemsToArray);
+  console.log("***********convertItemsToArray:", convertItemsToArray);
   const [isFavorite, setIsFavorite] = useState(!!favoritesById[restaurantId]);
 
   // Handle favorite click
@@ -74,7 +80,6 @@ console.log("***********convertItemsToArray:", convertItemsToArray);
   if (!restaurant) {
     return <p>Loading...</p>;
   }
-
 
   // Render restaurant details
   return (
@@ -116,25 +121,33 @@ console.log("***********convertItemsToArray:", convertItemsToArray);
       {/* Menu items section */}
       <h2 className="restaurant-detail-titles-h2">Menu Items</h2>
       <div className="menu-items-container">
-  {Object.entries(menuItemsTypes).map(([type, itemIds]) => {
-    // Extract items for this type using the itemIds
-    const itemsOfType = itemIds.map(id => menuItemsByRestaurant.byId[id]).filter(Boolean);
-    return (
-      <MenuSection
-        key={type}
-        type={type}
-        items={itemsOfType}
-        menuItemImgs={menuItemImages}
-      />
-    );
-  })}
-</div>
+        {Object.entries(menuItemsTypes).map(([type, itemIds]) => {
+          // Extract items for this type using the itemIds
+          const itemsOfType = itemIds
+            .map((id) => menuItemsByRestaurant.byId[id])
+            .filter(Boolean);
+          return (
+            <MenuSection
+              key={type}
+              type={type}
+              items={itemsOfType}
+              menuItemImgs={menuItemImages}
+            />
+          );
+        })}
+      </div>
+      {/* Customer Reviews section */}
+      <div className="reviews-section">
+        <h2 className="restaurant-detail-titles-h2">Customer Reviews</h2>
+        {currentUser && <CreateReview restaurantId={restaurantId} />}
 
-
+      <GetReviews restaurantId={restaurantId} />
+        <GetReviews restaurantId={restaurantId} />
+      </div>
 
       {/* Owner information */}
       <div className="owner-info">
-      <h2 className="restaurant-detail-titles-h2">Owner</h2>
+        <h2 className="restaurant-detail-titles-h2">Owner</h2>
         <p>
           Name: {owner.first_name} {owner.last_name}
         </p>

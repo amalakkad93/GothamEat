@@ -7,6 +7,7 @@ import favoritesReducer from './favorites';
 import menuItemsReducer from './menuItems';
 import ordersReducer from './orders';
 import shoppingCartReducer from './shoppingCarts';
+import reviewsReducer from './reviews'
 
 
 
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   menuItems: menuItemsReducer,
   orders: ordersReducer,
   shoppingCarts: shoppingCartReducer,
+  reviews: reviewsReducer,
 
 });
 

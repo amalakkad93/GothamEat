@@ -43,7 +43,6 @@ const menuItemInitialState = {
 
 export default function ordersReducer(state = menuItemInitialState, action) {
   switch (action.type) {
-    // ... other cases
 
     case ADD_ORDER:
       return {
