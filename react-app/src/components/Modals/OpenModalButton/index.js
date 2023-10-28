@@ -22,7 +22,8 @@ function OpenModalButton({
   };
 
   return (
-    <button className="post-delete-review-btn" onClick={onClick}>{buttonText}</button>
+    // <button className="more-info-button" onClick={onClick}>{buttonText}</button>
+    <span className="more-info-text" onClick={onClick}>{buttonText}</span>
   );
 }
 

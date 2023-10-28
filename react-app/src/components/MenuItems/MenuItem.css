@@ -1,0 +1,57 @@
+/* Menu Section Styles */
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.menu-section h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.menu-section ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between menu items */
+  justify-content: space-between; /* If there are less than 4 items in the last row, they will spread evenly */
+}
+
+/* Menu Item Styles */
+.menu-item {
+  flex-basis: 23%; /* This gives a tiny bit of room for the gap */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f6f6f6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.menu-item-image {
+  width: 100%;
+  height: auto; /* Adjust as needed */
+  margin-bottom: 15px;
+}
+
+.menu-item-name-price {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.menu-item-name, .menu-item-price, .menu-item-description {
+  margin: 5px 0;
+}
+.menu-item-description {
+  font-size: 14px;
+  color: #888;
+  /* margin: 10px 0; */
+  margin: 0px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}

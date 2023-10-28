@@ -9,6 +9,8 @@ import LoginFormPage from "./components/LoginFormPage";
 import NearbyRestaurants from "./components/Restaurants/GetNearbyRestaurants";
 import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
 import FavoritesRestaurants from "./components/Restaurants/FavoritesRestaurants";
+import MenuItemOverview from "./components/MenuItems/MenuItemOverview";
+import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";
 import NotFound from "./components/NotFound";
 
 import image1 from "./assets/image1.png";
@@ -57,26 +59,39 @@ function App() {
     // }, 10 * 1000);
     return () => clearInterval(interval);
   }, [images]);
-
   useEffect(() => {
-    // Check if the user is on the login/signup pages or if they're logged in
-    const whiteBackgroundRoutes = [
-      "/login",
-      "/signup",
-      "/restaurants/nearby",
-      "/favorites",
-      "/restaurants"
-    ];
-
-    // Using .some() to check if location.pathname matches any of the routes
-    if (whiteBackgroundRoutes.some(route => location.pathname.startsWith(route))) {
+    if (location.pathname === "/") {
+      document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
+    } else {
       document.documentElement.style.background = "white";
       document.documentElement.style.backgroundImage = "none";
-    } else {
-      document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
     }
-  }, [sessionUser, bgImageIndex, images, location.pathname]);
+  }, [bgImageIndex, images, location.pathname]);
 
+  // useEffect(() => {
+  //   // Check if the user is on the login/signup pages or if they're logged in
+  //   const whiteBackgroundRoutes = [
+  //     "/login",
+  //     "/signup",
+  //     "/restaurants/nearby",
+  //     "/favorites",
+  //     "/restaurants",
+  //     "/menu-item"
+  //   ];
+
+  //   const isMenuItemDetailPage = /^\/restaurant\/\d+\/menu-item\/\d+$/.test(location.pathname);
+
+  //   // Using .some() to check if location.pathname matches any of the routes
+  //   if (
+  //     whiteBackgroundRoutes.some((route) => location.pathname.startsWith(route)) ||
+  //     isMenuItemDetailPage
+  //   ) {
+  //     document.documentElement.style.background = "white";
+  //     document.documentElement.style.backgroundImage = "none";
+  //   } else {
+  //     document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
+  //   }
+  // }, [sessionUser, bgImageIndex, images, location.pathname]);
 
   useEffect(() => {
     dispatch(authenticate()).then(() => setIsLoaded(true));
@@ -93,8 +108,18 @@ function App() {
           <Route path="/login" element={<LoginFormPage />} />
           <Route path="/signup" element={<SignupFormPage />} />
           <Route path="/restaurants/nearby" element={<NearbyRestaurants />} />
-          <Route path="/restaurants/:restaurantId" element={<RestaurantDetail />} />
+          {/* <Route path="/menu-item/:itemId" element={<MenuItemOverview />} /> */}
+          <Route
+            path="/restaurant/:restaurantId/menu-item/:itemId"
+            element={<MenuItemOverview />}
+          />
+          <Route
+            path="/restaurants/:restaurantId"
+            element={<RestaurantDetail />}
+          />
           <Route path="/favorites" element={<FavoritesRestaurants />} />
+          <Route path="/shopping-cart" element={<ShoppingCart />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}

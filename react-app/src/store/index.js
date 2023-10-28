@@ -4,12 +4,21 @@ import session from './session'
 import mapsReducer from './maps'
 import restaurantsReducer from './restaurants'
 import favoritesReducer from './favorites';
+import menuItemsReducer from './menuItems';
+import ordersReducer from './orders';
+import shoppingCartReducer from './shoppingCarts';
+
+
 
 const rootReducer = combineReducers({
   session,
   maps: mapsReducer,
   restaurants: restaurantsReducer,
-  favorites: favoritesReducer
+  favorites: favoritesReducer,
+  menuItems: menuItemsReducer,
+  orders: ordersReducer,
+  shoppingCarts: shoppingCartReducer,
+
 });
 
 

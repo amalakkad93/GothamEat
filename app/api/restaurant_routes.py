@@ -243,7 +243,8 @@ def get_restaurant_detail(id):
             "entities": {
                 "restaurants": normalized_restaurant,
                 "menuItems": menu_data["entities"]["menuItems"],
-                "menuItemImgs": menu_data["entities"]["menuItemImages"],
+                "menuItemImages": menu_data["entities"]["menuItemImages"],
+                "types": menu_data["entities"]["types"],
                 "owner": owner
             }
         }

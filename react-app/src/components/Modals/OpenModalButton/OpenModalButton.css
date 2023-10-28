@@ -11,3 +11,11 @@ height: 30px;
 color: white;
 cursor: pointer;
 } */
+.more-info-text {
+  display: inline-block;
+  text-decoration: underline;
+  cursor: pointer;
+  color: black;
+  /* font-weight: bold; */
+  font-family: 'Roboto', sans-serif;
+}

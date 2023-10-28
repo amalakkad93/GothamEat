@@ -1,6 +1,7 @@
 import logging
 from flask import current_app
 from sqlalchemy.orm import joinedload
+from collections import defaultdict
 from .normalize_data import normalize_data
 from .google_map_related_helper_function import fetch_google_places_data
 from .uber_eats_related_helper_function import fetch_ubereats_data
@@ -46,15 +47,55 @@ def aggregate_restaurant_data(latitude, longitude, city_name=None, state_name=No
 
     return aggregated_results
 
+# def fetch_menu_items_for_restaurant(restaurant_id):
+#     """
+#     Fetches menu items and their associated images for a specific restaurant from the local database.
+
+#     Args:
+#         restaurant_id (int): The ID of the restaurant for which the menu items are to be retrieved.
+
+#     Returns:
+#         dict: A dictionary containing normalized menu items and their images for the specified restaurant.
+#     """
+#     from ..models import db, MenuItem, MenuItemImg
+#     # Query the database to get all menu items for the given restaurant ID
+#     menu_items = (
+#         db.session.query(MenuItem)
+#         .filter(MenuItem.restaurant_id == restaurant_id)
+#         .options(joinedload(MenuItem.menu_item_imgs))
+#         .all()
+#     )
+
+#     # Extract details of each menu item and its associated images
+#     menu_items_list, images_list = [], []
+#     for item in menu_items:
+#         item_dict = item.to_dict()
+#         item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
+#         menu_items_list.append(item_dict)
+#         for img in item.menu_item_imgs:
+#             images_list.append(img.to_dict())
+
+#     # Normalize the data for menu items and images for easier frontend consumption
+#     normalized_menu_items = normalize_data(menu_items_list, 'id')
+#     normalized_images = normalize_data(images_list, 'id')
+
+#     return {
+#         "entities": {
+#             "menuItems": normalized_menu_items,
+#             "menuItemImages": normalized_images
+#         }
+#     }
 def fetch_menu_items_for_restaurant(restaurant_id):
     """
-    Fetches menu items and their associated images for a specific restaurant from the local database.
+    Fetches menu items and their associated images for a specific restaurant from the local database,
+    categorized by item type.
 
     Args:
         restaurant_id (int): The ID of the restaurant for which the menu items are to be retrieved.
 
     Returns:
-        dict: A dictionary containing normalized menu items and their images for the specified restaurant.
+        dict: A dictionary containing normalized menu items and their images for the specified restaurant,
+              categorized by item type.
     """
     from ..models import db, MenuItem, MenuItemImg
     # Query the database to get all menu items for the given restaurant ID
@@ -65,22 +106,30 @@ def fetch_menu_items_for_restaurant(restaurant_id):
         .all()
     )
 
-    # Extract details of each menu item and its associated images
-    menu_items_list, images_list = [], []
+    # Collect menu items and their associated images, and maintain a types mapping
+    menu_items_list = []
+    images_list = []
+    types_mapping = defaultdict(list)  # This will hold the mapping for types
+
     for item in menu_items:
         item_dict = item.to_dict()
         item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
         menu_items_list.append(item_dict)
+
+        item_type = item_dict['type']
+        types_mapping[item_type].append(item_dict['id'])  # Map type to menu item ID
+
         for img in item.menu_item_imgs:
             images_list.append(img.to_dict())
 
-    # Normalize the data for menu items and images for easier frontend consumption
+    # Normalize the data for menu items and images
     normalized_menu_items = normalize_data(menu_items_list, 'id')
     normalized_images = normalize_data(images_list, 'id')
 
     return {
         "entities": {
             "menuItems": normalized_menu_items,
-            "menuItemImages": normalized_images
+            "menuItemImages": normalized_images,
+            "types": types_mapping   # Add this to the response
         }
     }

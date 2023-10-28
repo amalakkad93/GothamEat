@@ -1,11 +1,53 @@
-/* RestaurantDetail.css */
+/* Enhanced Title Styles */
+
+.restaurant-detail-titles-h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: #333; /* Dark background */
+  color: #fff; /* White text */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.restaurant-detail-titles-h2::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(60deg, #56D399, #2DC771, #56D399, #2DC771); /* Shades of green */
+  z-index: -1;
+  background-size: 300% 300%;
+  animation: gradientWave 6s infinite;
+  border-radius: inherit;
+}
+
+
+@keyframes gradientWave {
+  0% {background-position: 100% 50%;}
+  50% {background-position: 0 50%;}
+  100% {background-position: 100% 50%;}
+}
+
+/* Base Styles */
 .restaurant-detail-container {
   font-family: "Arial", sans-serif;
   width: 96%;
   margin: 0 auto;
   background-color: #f7f7f7;
+  padding: 20px;
 }
 
+h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+/* Restaurant Banner */
 .restaurant-banner {
   width: 100%;
   height: 160px;
@@ -14,6 +56,7 @@
   position: relative;
   background: rgba(0, 0, 0, 0.02);
 }
+
 .favorite-heart {
   position: absolute;
   top: 10px;
@@ -22,6 +65,7 @@
   cursor: pointer;
   z-index: 1;
 }
+
 .restaurant-name {
   bottom: 10px;
   left: 10px;
@@ -33,29 +77,33 @@
   margin-bottom: 10px;
   margin: 20px 0;
   border-radius: 5px;
+  font-family: 'Roboto', sans-serif;
 }
 
+/* Restaurant Info */
 .restaurant-name-div {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
   background-color: white;
-
-  /* padding: 20px 20px 0;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px; */
 }
+
 .avgRating-numberOfReviews-p-tag {
   display: flex;
   align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
 }
 
-.avgRating-numberOfReviews-span,
-.num_reviews-food_type-moreInfo-div {
+.avgRating-numberOfReviews-span, .num_reviews-food_type-moreInfo-div {
   display: inline-block;
   margin-right: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
 }
+
 .rating-box {
   background-color: #e0e0e0;
   padding: 5px 15px;
@@ -64,45 +112,84 @@
   font-weight: bold;
 }
 
+.delivery-times-p {
+  margin-top: 0px;
+  color: grey;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Content Sections */
 .restaurant-info, .menu-items, .owner-info {
   padding: 20px;
   background-color: white;
-  margin-top: 10px;
+  margin-top: 20px;
   border-radius: 10px;
 }
 
-h2 {
-  font-size: 20px;
-  margin-bottom: 20px;
-}
-
+/* Menu Items */
 .menu-items ul {
   list-style-type: none;
   padding: 0;
 }
 
+/* Additional Styles for Menu Items based on the image */
+/* .menu-items { */
+  /* display: grid; */
+  /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
+  /* grid-template-columns: repeat(4, 1fr); */
+
+  /* gap: 20px; */
+/* } */
+
+
+.menu-items-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .menu-item {
+  width: 23%;
   border-bottom: 1px solid #eee;
   padding: 15px 0;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  /* gap: 20px; */
+  background-color: #f6f6f6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.menu-item-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px 10px 0 0;
+}
+
+.menu-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
 }
 
 .menu-item-name-price {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  width: 100%;
 }
 
 .menu-item-name {
+  font-size: 16px;
   font-weight: 600;
-  font-size: 18px;
-  margin: 0;
 }
 
-.menu-item-description {
-  font-size: 14px;
-  color: #888;
-  margin: 10px 0;
-}
+
 
 .menu-item-price {
   font-size: 18px;

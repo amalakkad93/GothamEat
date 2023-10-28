@@ -37,3 +37,6 @@ npm install js-cookie
 
 ****** for Install heart symbol ******
 npm install @fortawesome/free-regular-svg-icons
+
+****Magnifying Glass****
+npm install react-image-magnify --legacy-peer-deps
