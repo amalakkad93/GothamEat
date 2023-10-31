@@ -13,7 +13,7 @@
 //   onChange={handleTextareaChange}
 // />
 
-export default function TextareaComponent({ label, value, error, width = 'full', ...restProps }) {
+export function TextareaComponent({ label, value, error, width = 'full', ...restProps }) {
   return (
     <div className={`textarea-wrapper ${width}`}>
       <label>{label}</label>

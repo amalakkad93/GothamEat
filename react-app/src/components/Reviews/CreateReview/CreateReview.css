@@ -1,0 +1,155 @@
+/* Universal Styles */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif; /* A basic sans-serif font; you might want to use a different font based on your design */
+}
+
+/* Review Form */
+#form-review {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 400px;
+  padding: 20px;
+  border: solid 2px #E0E0E0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.review-form-h2 {
+  display: flex;
+  justify-content: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+#form-review textarea {
+  margin: 10px 10px 20px 10px;
+  padding: 10px;
+  background-color: #F7F7F7;
+  height: 111px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  resize: none; /* Prevents resizing of textarea */
+}
+
+.star-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.star-container span {
+  font-size: 1.4em;
+  transition: color 0.3s;
+}
+
+.star-container span:hover,
+.star-container span:hover ~ span {
+  color: green;
+}
+
+#submit-review-btn {
+  background-color: black;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  height: 50px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#submit-review-btn:hover {
+  background-color:  green;
+}
+
+#submit-review-btn:active {
+  transform: scale(0.98);
+}
+
+#submit-review-btn:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.error {
+  color: red;
+  margin: 10px;
+  font-weight: bold;
+}
+
+/* Star Rating Styles */
+.star-container {
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.star-container span {
+  color: gray;
+  transition: color 0.3s; /* Smooth color transition on hover */
+}
+
+.star-container span:hover,
+.star-container span:hover ~ span {
+  color: black;
+}
+
+/* .star-container {
+  cursor: pointer;
+}
+
+.star-container span {
+  color: gray;
+}
+
+.star-container span:hover,
+.star-container span:hover ~ span {
+  color: black;
+}
+#form-review{
+display: flex;
+justify-content: center;
+flex-direction: column;
+width: 400px;
+height: 344px;
+border: solid 4px black;
+border-radius: 10px;
+}
+.review-form-h2 {
+  display: flex;
+  justify-content: center;
+}
+#form-review textarea {
+
+margin-left: 10px;
+margin-right: 10px;
+background-color: rgb(207, 219, 252);
+height: 111px;;
+}
+.star-container{
+text-align: center;
+}
+
+#submit-review-btn{
+background-color:  #FF5A5F;
+border: black solid 1px;
+box-shadow: 3px 3px 2px black;
+margin-bottom: 20px;
+height: 50px;
+color: white;
+margin-right: 10px;
+margin-left: 10px;
+cursor: pointer;
+}
+#submit-review-btn:disabled{
+background-color: gray;
+border: black solid 1px;
+box-shadow: none;
+}
+.errors {
+  color: red;
+
+} */

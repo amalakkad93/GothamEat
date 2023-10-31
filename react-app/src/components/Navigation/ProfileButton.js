@@ -140,10 +140,7 @@ export default function ProfileButton(props) {
                         className="Manage-spot-button center-menu1"
                         onClick={(e) => {
                           closeMenu();
-                          navigate("/restaurants/new", {
-                            formType: "Create",
-                            userId: sessionUser.id,
-                          });
+                          navigate("/create-restaurant");
                         }}
                       >
                         Add your Restaurant

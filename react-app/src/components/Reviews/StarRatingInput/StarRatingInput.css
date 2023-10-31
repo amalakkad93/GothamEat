@@ -1,0 +1,10 @@
+.filled .fa-star {
+  color: gold;
+}
+
+.empty .fa-star {
+  color: lightgray;
+}
+.rating-input div {
+  display: inline-block;
+}

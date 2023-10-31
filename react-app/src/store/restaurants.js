@@ -11,7 +11,7 @@
  * - Thunks (for asynchronous operations)
  * - Reducer (to modify the state based on actions)
  */
-
+import { csrfFetch } from "./csrf";
 // =========================================================
 //                  ****action types****
 // =========================================================
@@ -26,6 +26,15 @@ const GET_ALL_RESTAURANTS = "restaurants/GET_ALL_RESTAURANTS";
 
 /** Action type to handle fetching details of a single restaurant */
 const GET_SINGLE_RESTAURANT = "restaurants/GET_SINGLE_RESTAURANT";
+
+/** Action type to handle fetching restaurants owned by a user */
+const GET_OWNER_RESTAURANTS = "restaurants/GET_OWNER_RESTAURANTS";
+
+/** Action type to handle creating a new restaurant */
+const CREATE_RESTAURANT = "restaurants/CREATE_RESTAURANT";
+
+/** Action type to handle updating a restaurant */
+const UPDATE_RESTAURANT = "restaurants/UPDATE_RESTAURANT";
 
 /** Action type to handle errors related to restaurant actions */
 const SET_RESTAURANT_ERROR = "restaurants/SET_RESTAURANT_ERROR";
@@ -51,6 +60,24 @@ const actionGetAllRestaurants = (restaurants) => ({
 /** Creates an action to set details of a specific restaurant in the store */
 const actionGetSingleRestaurant = (restaurant) => ({
   type: GET_SINGLE_RESTAURANT,
+  restaurant,
+});
+
+/** Creates an action to set restaurants owned by a user in the store */
+const actionGetOwnerRestaurants = (restaurants) => ({
+  type: GET_OWNER_RESTAURANTS,
+  restaurants,
+});
+
+/** Creates an action to handle creating a new restaurant */
+const actionCreateRestaurant = (restaurant) => ({
+  type: CREATE_RESTAURANT,
+  restaurant,
+});
+
+/** Creates an action to handle updating a restaurant */
+const actionUpdateRestaurant = (restaurant) => ({
+  type: UPDATE_RESTAURANT,
   restaurant,
 });
 
@@ -157,6 +184,43 @@ export const thunkGetAllRestaurants = () => async (dispatch) => {
  * Fetches details for a specific restaurant by its unique ID.
  * Dispatches actions based on the result.
  */
+// export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
+//   console.log(`____Fetching details for restaurant with ID ${restaurantId}`);
+//   try {
+//     const response = await fetch(`/api/restaurants/${restaurantId}`);
+//     console.log("____Response from server:", response);
+
+//     if (response.ok) {
+//       const restaurant = await response.json();
+//       console.log("____Restaurant details:", restaurant);
+//       console.log("____Restaurant details structure:", Object.keys(restaurant));
+
+//       dispatch(actionGetSingleRestaurant(restaurant));
+//     } else {
+//       const errors = await response.json();
+//       console.error(
+//         `Error fetching details for restaurant with ID ${restaurantId}:`,
+//         errors
+//       );
+//       dispatch(
+//         actionSetRestaurantError(
+//           errors.message ||
+//             `Error fetching details for restaurant with ID ${restaurantId}.`
+//         )
+//       );
+//     }
+//   } catch (error) {
+//     console.error(
+//       `An error occurred while fetching details for restaurant with ID ${restaurantId}:`,
+//       error
+//     );
+//     dispatch(
+//       actionSetRestaurantError(
+//         `An error occurred while fetching details for restaurant with ID ${restaurantId}.`
+//       )
+//     );
+//   }
+// };
 export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
   console.log(`____Fetching details for restaurant with ID ${restaurantId}`);
   try {
@@ -166,7 +230,13 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
     if (response.ok) {
       const restaurant = await response.json();
       console.log("____Restaurant details:", restaurant);
+      console.log("____Restaurant details structure:", Object.keys(restaurant));
+
       dispatch(actionGetSingleRestaurant(restaurant));
+
+      // Return the fetched restaurant details.
+      return restaurant;
+
     } else {
       const errors = await response.json();
       console.error(
@@ -193,6 +263,93 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
   }
 };
 
+export const thunkGetOwnerRestaurants = () => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/restaurants/owned`);
+
+    if (response.ok) {
+      const restaurants = await response.json();
+      dispatch(actionGetOwnerRestaurants(restaurants.Restaurants));
+      console.log("Fetched owner restaurants:", restaurants);
+    } else {
+      const errors = await response.json();
+      dispatch(
+        actionSetRestaurantError(
+          errors.error || "Error fetching owner's restaurants."
+        )
+      );
+    }
+  } catch (error) {
+    dispatch(
+      actionSetRestaurantError(
+        "An error occurred while fetching owner's restaurants."
+      )
+    );
+  }
+};
+
+export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
+  try {
+    const response = await csrfFetch(`/api/restaurants`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(restaurantData),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(actionCreateRestaurant(data.entities.restaurants));
+      return { type: "SUCCESS", data }; // Added return
+    } else {
+      const errors = await response.json();
+      dispatch(
+        actionSetRestaurantError(errors.error || "Error creating restaurant.")
+      );
+      throw errors; // Added throw
+    }
+  } catch (error) {
+    console.log("Entered catch block", error);
+    dispatch(
+      actionSetRestaurantError(
+        "An error occurred while creating the restaurant."
+      )
+    );
+    throw error; // Added throw
+  }
+};
+
+export const thunkUpdateRestaurant =
+  (updatedData) => async (dispatch) => {
+    try {
+      const response = await csrfFetch(`/api/restaurants/${updatedData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch(actionUpdateRestaurant(data.entities.restaurants));
+        return { type: "SUCCESS", data }; // Added return
+      } else {
+        const errors = await response.json();
+        dispatch(
+          actionSetRestaurantError(
+            errors.error || `Error updating restaurant with ID ${updatedData.id}.`
+          )
+        );
+        throw errors; // Added throw
+      }
+    } catch (error) {
+      dispatch(
+        actionSetRestaurantError(
+          `An error occurred while updating restaurant with ID ${updatedData.id}.`
+        )
+      );
+      throw error; // Added throw
+    }
+  };
+
 // =========================================================
 //                   ****Reducer****
 // =========================================================
@@ -201,6 +358,7 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
 
 const initialState = {
   nearby: { byId: {}, allIds: [] },
+  owner: { byId: {}, allIds: [] },
   allRestaurants: { byId: {}, allIds: [] },
   singleRestaurant: { byId: {}, allIds: [] },
   error: null,
@@ -222,9 +380,38 @@ export default function restaurantsReducer(state = initialState, action) {
     // case GET_SINGLE_RESTAURANT:
     //   return { ...state, singleRestaurant: action.restaurant };
     case GET_SINGLE_RESTAURANT:
+      console.log("Processing GET_SINGLE_RESTAURANT:", action.restaurant);
+      return {
+          ...state,
+          singleRestaurant: { ...state.singleRestaurant, ...action.restaurant.entities.restaurants }
+      };
+
+
+
+    case GET_OWNER_RESTAURANTS:
+      newState = { ...state, owner: [] };
+      newState.owner = action.restaurants;
+      return newState;
+
+    case CREATE_RESTAURANT:
       return {
         ...state,
-        singleRestaurant: { ...state.singleRestaurant, ...action.restaurant },
+        allRestaurants: {
+          byId: {
+            ...state.allRestaurants.byId,
+            ...action.restaurant.byId,
+          },
+          allIds: [...state.allRestaurants.allIds, ...action.restaurant.allIds],
+        },
+      };
+
+    case UPDATE_RESTAURANT:
+      return {
+        ...state,
+        singleRestaurant: {
+          ...state.singleRestaurant,
+          ...action.restaurant,
+        },
       };
 
     case SET_RESTAURANT_ERROR:

@@ -1,5 +1,5 @@
 from flask import (Blueprint, jsonify, request, redirect, url_for, abort,
-                   send_file, current_app as app)
+                   send_file, current_app)
 import traceback
 from flask_login import current_user, login_required
 from sqlalchemy import func, distinct, or_, desc
@@ -57,8 +57,6 @@ def get_menu_item(id):
     except Exception as e:
         app.logger.error(f"Error fetching menu item with ID {id}: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while fetching the menu item."}), 500
-
-
 
 # ***************************************************************
 # Endpoint to Edit a Menu Item
@@ -158,28 +156,33 @@ def delete_menu_item(id):
 @login_required
 def upload_menu_item_image(menu_item_id):
     """
-    Upload a new image for a specific menu item.
-
-    Args:
-        menu_item_id (int): The ID of the menu item for which the image is being uploaded.
-
-    Returns:
-        Response: A success or error message in JSON format.
+    Stores the image URL for a specified menu item.
     """
     try:
-        form = MenuItemImgForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # Get data from the incoming request
+        data = request.get_json()
+        image_url = data.get("image_url")
 
-        if form.validate_on_submit():
-            # Use helper function to handle the image upload process
-            # return upload_image(form.image.data, form.image_url.data, MenuItemImg, menu_item_id, db)
-            return hf.upload_image(form.image.data, form.image_url.data, MenuItemImg, menu_item_id, db)
-        else:
-            return jsonify({"errors": form.errors}), 400
+        # Check if image_url is present in the payload
+        if not image_url:
+            return jsonify({"error": "Image URL is required."}), 400
+
+        # Create a new MenuItemImg instance and store the image URL
+        new_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
+        db.session.add(new_image)
+        db.session.commit()
+
+        return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
+
     except Exception as e:
-        # Log the error for debugging purposes
-        print("Error uploading image:", traceback.format_exc())
-        return jsonify({"error": "An error occurred while uploading the image."}), 500
+        db.session.rollback()
+        current_app.logger.error(f"Unexpected error in upload_menu_item_image: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while storing the image URL."}), 500
+
+        # # Log the error for debugging purposes
+        # print("Error uploading image:", traceback.format_exc())
+        # return jsonify({"error": "An error occurred while uploading the image."}), 500
+
 
 # ***************************************************************
 # Endpoint to Get Menu Item Image

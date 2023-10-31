@@ -24,7 +24,10 @@ class RestaurantForm(FlaskForm):
     latitude = FloatField('Latitude', validators=[Optional(), validate_latitude])
     longitude = FloatField('Longitude', validators=[Optional(), validate_longitude])
     postal_code = StringField('Postal Code', validators=[DataRequired(), Length(max=20)])
-    opening_time = TimeField('Opening Time', format='%H:%M', validators=[DataRequired()])
-    closing_time = TimeField('Closing Time', format='%H:%M', validators=[DataRequired()])
+    opening_time = TimeField('Opening Time', format='%I:%M %p', validators=[DataRequired()])
+    closing_time = TimeField('Closing Time', format='%I:%M %p', validators=[DataRequired()])
+
+    # opening_time = TimeField('Opening Time', format='%H:%M', validators=[DataRequired()])
+    # closing_time = TimeField('Closing Time', format='%H:%M', validators=[DataRequired()])
     food_type = StringField('Food Type', validators=[DataRequired(), Length(max=100)])
     submit = SubmitField("Create Restaurant")

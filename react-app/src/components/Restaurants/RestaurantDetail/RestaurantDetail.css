@@ -5,7 +5,7 @@
   margin-bottom: 25px;
   padding: 10px 20px;
   border-radius: 10px;
-  background-color: #333; /* Dark background */
+  /* background-color: #333;  */
   color: #fff; /* White text */
   position: relative;
   overflow: hidden;
@@ -19,7 +19,7 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(60deg, #56D399, #2DC771, #56D399, #2DC771); /* Shades of green */
+  /* background: linear-gradient(60deg, #56D399, #2DC771, #56D399, #2DC771);  */
   z-index: -1;
   background-size: 300% 300%;
   animation: gradientWave 6s infinite;

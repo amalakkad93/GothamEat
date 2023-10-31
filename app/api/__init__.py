@@ -12,3 +12,4 @@ from .review_img_routes import review_img_routes
 from .payment_routes import payment_routes
 from .maps_routes import maps_routes
 from .ubereats_routes import ubereats_routes
+from .s3_routes import s3_routes

@@ -14,8 +14,9 @@
 //   onChange={handleInputChange}
 // />
 
-import "./FormContainer.css";
-export default function InputComponent({
+// import "./FormContainer.css";
+
+export function InputComponent({
   value,
   error,
   width = "full",
@@ -23,6 +24,11 @@ export default function InputComponent({
   inputClassName = "",
   ...restProps
 }) {
+  // This function will now just pass the whole event to the parent's onChange handler
+  const handleChange = (e) => {
+    restProps.onChange(e);
+  };
+
   return (
     <div className={`input-wrapper ${width} ${className}`}>
       <input
@@ -30,9 +36,9 @@ export default function InputComponent({
         className={`${inputClassName} ${error ? "error-border" : ""}`}
         placeholder={`Enter ${restProps.label}`}
         {...restProps}
+        onChange={handleChange}
       />
       {error && <div className="error">{error}</div>}
     </div>
   );
 }
-
