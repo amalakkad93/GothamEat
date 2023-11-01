@@ -6,9 +6,16 @@ import Navigation from "./components/Navigation";
 import Home from "./components/Home";
 import SignupFormPage from "./components/SignupFormPage";
 import LoginFormPage from "./components/LoginFormPage";
-import NearbyRestaurants from "./components/Restaurants/GetNearbyRestaurants";
+import GetRestaurants from "./components/Restaurants/GetRestaurants";
 import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
 import FavoritesRestaurants from "./components/Restaurants/FavoritesRestaurants";
+import CreateRestaurantForm from "./components/Restaurants/RestaurantForms/CreateRestaurantForm";
+import EditRestaurantForm from "./components/Restaurants/RestaurantForms/EditRestaurantForm";
+import MenuItemOverview from "./components/MenuItems/MenuItemOverview";
+import CreateMenuItemForm from "./components/MenuItems/MenuItemForm/CreateMenuItemForm";
+import EditMenuItemForm from "./components/MenuItems/MenuItemForm/EditMenuItemForm";
+import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";
+import UserProfile from "./components/UserProfile/UserProfile";
 import NotFound from "./components/NotFound";
 
 import image1 from "./assets/image1.png";
@@ -57,25 +64,39 @@ function App() {
     // }, 10 * 1000);
     return () => clearInterval(interval);
   }, [images]);
-
   useEffect(() => {
-    // Check if the user is on the login/signup pages or if they're logged in
-    const whiteBackgroundRoutes = [
-      "/login",
-      "/signup",
-      "/restaurants/nearby",
-      "/favorites"
-    ];
-
-    // Using .some() to check if location.pathname matches any of the routes
-    if (whiteBackgroundRoutes.some(route => location.pathname.startsWith(route))) {
+    if (location.pathname === "/") {
+      document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
+    } else {
       document.documentElement.style.background = "white";
       document.documentElement.style.backgroundImage = "none";
-    } else {
-      document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
     }
-  }, [sessionUser, bgImageIndex, images, location.pathname]);
+  }, [bgImageIndex, images, location.pathname]);
 
+  // useEffect(() => {
+  //   // Check if the user is on the login/signup pages or if they're logged in
+  //   const whiteBackgroundRoutes = [
+  //     "/login",
+  //     "/signup",
+  //     "/restaurants/nearby",
+  //     "/favorites",
+  //     "/restaurants",
+  //     "/menu-item"
+  //   ];
+
+  //   const isMenuItemDetailPage = /^\/restaurant\/\d+\/menu-item\/\d+$/.test(location.pathname);
+
+  //   // Using .some() to check if location.pathname matches any of the routes
+  //   if (
+  //     whiteBackgroundRoutes.some((route) => location.pathname.startsWith(route)) ||
+  //     isMenuItemDetailPage
+  //   ) {
+  //     document.documentElement.style.background = "white";
+  //     document.documentElement.style.backgroundImage = "none";
+  //   } else {
+  //     document.documentElement.style.backgroundImage = `url(${images[bgImageIndex]})`;
+  //   }
+  // }, [sessionUser, bgImageIndex, images, location.pathname]);
 
   useEffect(() => {
     dispatch(authenticate()).then(() => setIsLoaded(true));
@@ -88,12 +109,47 @@ function App() {
       )}
       {isLoaded && (
         <Routes>
+          {/* Basic Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginFormPage />} />
           <Route path="/signup" element={<SignupFormPage />} />
-          <Route path="/restaurants/nearby" element={<NearbyRestaurants />} />
-          <Route path="/restaurants/:restaurantId" element={<RestaurantDetail />} />
+          <Route path="/users/show" element={<UserProfile />} />
           <Route path="/favorites" element={<FavoritesRestaurants />} />
+          <Route path="/shopping-cart" element={<ShoppingCart />} />
+
+          {/* Restaurant Routes */}
+          <Route path="/restaurants/nearby" element={<GetRestaurants />} />
+          <Route
+            path="/owner/restaurants"
+            element={<GetRestaurants ownerMode={true} />}
+          />
+          <Route path="/create-restaurant" element={<CreateRestaurantForm />} />
+          <Route
+            path="/edit-restaurant/:restaurantId"
+            element={<EditRestaurantForm />}
+          />
+
+          {/* Menu Item Routes */}
+          <Route
+            path="/restaurant/:restaurantId/create-menu-item"
+            element={<CreateMenuItemForm />}
+          />
+          <Route
+            path="/restaurant/:restaurantId/edit-menu-item/:itemId"
+            element={<EditMenuItemForm />}
+          />
+          <Route
+            path="/restaurant/:restaurantId/menu-item/:itemId"
+            element={<MenuItemOverview />}
+          />
+
+          {/* More General Restaurant Route */}
+          <Route
+            path="/restaurants/:restaurantId"
+            element={<RestaurantDetail />}
+          />
+
+          {/* Catch-all Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}

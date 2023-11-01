@@ -11,4 +11,7 @@ class ReviewImgForm(FlaskForm):
         if not self.image.data and not self.image_url.data:
             raise ValidationError('Either upload an image or provide an image URL')
 
+
+
+
     # image = FileField("Image File", validators=[FileRequired(), FileAllowed(list(ALLOWED_EXTENSIONS))])

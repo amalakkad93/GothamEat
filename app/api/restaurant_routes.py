@@ -3,14 +3,14 @@ from flask import Blueprint, jsonify, request, redirect, url_for, abort, current
 import requests
 import logging
 from flask_caching import Cache
-
+from werkzeug.datastructures import CombinedMultiDict
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
 import json
 from flask_login import current_user, login_user, logout_user, login_required
 from collections import OrderedDict
-from ..models import User, Review, Review, db, MenuItem, MenuItemImg, Restaurant
-from ..forms import RestaurantForm, ReviewForm, MenuItemForm
+from ..models import User, ReviewImg, Review, db, MenuItem, MenuItemImg, Restaurant
+from ..forms import RestaurantForm, ReviewForm, ReviewImgForm, MenuItemForm
 from ..schemas import RestaurantSchema, ReviewSchema
 from .. import helper_functions as hf
 
@@ -170,22 +170,51 @@ def get_nearby_restaurants():
 # ***************************************************************
 # Endpoint to Get Restaurants of Current User
 # ***************************************************************
-@restaurant_routes.route('/current')
-def get_restaurants_of_current_user():
+# @restaurant_routes.route('/owned')
+# def get_owned_restaurants():
+#     """
+#     Retrieves the restaurants owned by the currently logged-in user.
+
+#     Returns:
+#         Response: A dictionary of restaurants that the current user owns.
+#     """
+#     try:
+#         # Fetching all restaurants owned by the current user
+#         owned_restaurants = Restaurant.query.filter_by(owner_id=current_user.id).all()
+
+#         # Convert the restaurants to dictionary format
+#         restaurants_dict = {restaurant.id: restaurant.to_dict() for restaurant in owned_restaurants}
+
+#         return jsonify({"Restaurants": restaurants_dict})
+
+#     except OperationalError as oe:
+#         # Database operational errors (e.g., failed SQL query)
+#         print(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         # General errors (e.g., unexpected data issues)
+#         print(e)
+#         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+
+@restaurant_routes.route('/owned')
+def get_owned_restaurants():
     """
-    Retrieves the restaurants that have been reviewed by the currently logged-in user.
+    Retrieves the restaurants owned by the currently logged-in user.
 
     Returns:
-        Response: A dictionary of restaurants that the current user has reviewed.
+        Response: A dictionary of restaurants that the current user owns in a normalized structure.
     """
     try:
-        # Fetching all reviews made by the current user
-        reviews = Review.query.filter_by(user_id=current_user.id).all()
+        # Fetching all restaurants owned by the current user
+        owned_restaurants = Restaurant.query.filter_by(owner_id=current_user.id).all()
 
-        # Extracting restaurants that the current user has reviewed
-        restaurants_of_current_user = {review.restaurant_id: review.restaurant.to_dict() for review in reviews}
+        # Convert the restaurants to a list of dictionaries
+        restaurants_list = [restaurant.to_dict() for restaurant in owned_restaurants]
 
-        return jsonify({"Restaurants": restaurants_of_current_user})
+        # Normalize the list
+        normalized_results = hf.normalize_data(restaurants_list, 'id')
+        print("***********normalized_results: ", normalized_results)
+        return jsonify(normalized_results)
 
     except OperationalError as oe:
         # Database operational errors (e.g., failed SQL query)
@@ -195,6 +224,9 @@ def get_restaurants_of_current_user():
         # General errors (e.g., unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+
+
+
 
 # ***************************************************************
 # Endpoint to Get Details of a Restaurant by Id or Google Place Id
@@ -213,11 +245,10 @@ def get_restaurant_detail(id):
         Response: Detailed information of the specified restaurant or an error message if not found.
     """
     try:
-        # Attempt to fetch the restaurant from the database using primary key
-        restaurant = Restaurant.query.get(id)
-
-        # If not found by primary key, try using google_place_id
-        if restaurant is None:
+        # Check if id is a digit
+        if id.isdigit():
+            restaurant = Restaurant.query.get(int(id))
+        else:
             restaurant = Restaurant.query.filter_by(google_place_id=id).first()
 
         # If found in the database and associated with an UberEats store_id
@@ -231,19 +262,8 @@ def get_restaurant_detail(id):
         if restaurant is None:
             return jsonify({"error": "Restaurant details not found."}), 404
 
-        # Extracting menu items associated with the restaurant
-        menu_items = (MenuItem.query
-                      .options(joinedload(MenuItem.menu_item_imgs))
-                      .filter_by(restaurant_id=restaurant.id)
-                      .all())
-
-        # Converting menu items to dictionary format for serialization
-        menu_items_list = [item.to_dict() for item in menu_items]
-        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
-
-        # Extracting images associated with the menu items
-        images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
-        normalized_images = hf.normalize_data(images_list, 'id')
+        # Use the helper function to fetch menu items for the restaurant
+        menu_data = hf.fetch_menu_items_for_restaurant(restaurant.id)
 
         # Extracting the owner of the restaurant
         owner = restaurant.owner.to_dict()
@@ -253,8 +273,9 @@ def get_restaurant_detail(id):
         normalized_data = {
             "entities": {
                 "restaurants": normalized_restaurant,
-                "menuItems": normalized_menu_items,
-                "menuItemImgs": normalized_images,
+                "menuItems": menu_data["entities"]["menuItems"],
+                "menuItemImages": menu_data["entities"]["menuItemImages"],
+                "types": menu_data["entities"]["types"],
                 "owner": owner
             }
         }
@@ -269,6 +290,7 @@ def get_restaurant_detail(id):
         # General errors (e.g., unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
+
 
 
 # ***************************************************************
@@ -287,7 +309,7 @@ def update_restaurant(id):
     """
     try:
         # Fetching the restaurant with the provided ID
-        restaurant_to_update = Review.query.get(id)
+        restaurant_to_update = Restaurant.query.get(id)
 
         # Check if the restaurant exists
         if restaurant_to_update is None:
@@ -325,6 +347,7 @@ def update_restaurant(id):
                 }
             }), 200
         else:
+            print(form.errors)
             return jsonify(errors=form.errors), 400
 
     except OperationalError as oe:
@@ -339,7 +362,7 @@ def update_restaurant(id):
 # ***************************************************************
 # Endpoint to Create a New Restaurant
 # ***************************************************************
-@restaurant_routes.route('/', methods=["POST"])
+@restaurant_routes.route('', methods=["POST"])
 def create_restaurant():
     """
     Creates a new restaurant in the database.
@@ -393,18 +416,8 @@ def create_restaurant():
 @restaurant_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_restaurant(id):
-    """
-    Deletes a specific restaurant from the database.
-
-    Args:
-        id (int): The ID of the restaurant to be deleted.
-
-    Returns:
-        Response: A message indicating the success or failure of the deletion.
-    """
     restaurant = Restaurant.query.get(id)
 
-    # Check for the existence of the restaurant and authorization
     if not restaurant:
         return jsonify(error="Restaurant not found"), 404
     if current_user.id != restaurant.owner_id:
@@ -413,7 +426,11 @@ def delete_restaurant(id):
     try:
         db.session.delete(restaurant)
         db.session.commit()
-        return jsonify(message="Restaurant deleted successfully"), 200
+        return jsonify({
+            "message": "Restaurant deleted successfully",
+            "deletedRestaurantId": id  # Only send the deleted restaurant's ID
+        }), 200
+
     except OperationalError as oe:
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500
@@ -495,11 +512,22 @@ def get_reviews_by_restaurant_id(id):
                 joinedload(Review.user),
                 joinedload(Review.review_imgs)
             )
+            .order_by(Review.created_at.desc())
             .all()
         )
 
         if not reviews:
-            return jsonify({"Reviews": []})
+            return jsonify({
+                "entities": {
+                    "reviews": {"allIds": [], "byId": {}},
+                    "reviewImages": {"allIds": [], "byId": {}},
+                    "users": {"allIds": [], "byId": {}}
+                },
+                "metadata": {
+                    "totalReviews": 0
+                }
+            })
+
 
         # Extract review, user, and image details
         review_dicts, user_dicts, image_dicts = [], [], []
@@ -553,12 +581,15 @@ def create_review(id):
         data = request.get_json()
         if not data:
             return jsonify(errors="Invalid data"), 400
+        # Ensure user is authenticated
         if not current_user.is_authenticated:
             return jsonify(message="You need to be logged in"), 401
 
+        # Validate the incoming data with the form
         form = ReviewForm(data=data)
         form['csrf_token'].data = request.cookies['csrf_token']
 
+        # If the form validates, create the new menu item
         if form.validate_on_submit():
             new_review = Review()
             form.populate_obj(new_review)
@@ -568,10 +599,14 @@ def create_review(id):
             db.session.add(new_review)
             db.session.commit()
 
+            user_info = current_user.to_dict()
+
             return jsonify({
                 "message": "Review successfully created",
+                "reviewId": new_review.id,
                 "entities": {
-                    "reviews": hf.normalize_data([new_review.to_dict()], 'id')
+                    "reviews": hf.normalize_data([new_review.to_dict()], 'id'),
+                    "users": hf.normalize_data([user_info], 'id')
                 }
             }), 201
 
@@ -583,6 +618,7 @@ def create_review(id):
         print(f"Error creating review: {e}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while creating the review."}), 500
+
 
 # ***************************************************************
 # Endpoint to Fetch All Menu Items for a Restaurant by ID
@@ -599,35 +635,11 @@ def get_menu_items_by_restaurant_id(id):
         Response: A collection of menu items and associated images for the specified restaurant.
     """
     try:
-        menu_items = (
-            db.session.query(MenuItem)
-            .filter(MenuItem.restaurant_id == id)
-            .options(joinedload(MenuItem.menu_item_imgs))
-            .all()
-        )
+        # Use the helper function to fetch menu items for the restaurant
+        menu_data = hf.fetch_menu_items_for_restaurant(id)
 
-        if not menu_items:
-            return jsonify({"MenuItems": []})
+        return jsonify(menu_data)
 
-        # Extract menu items and their images
-        menu_items_list, images_list = [], []
-        for item in menu_items:
-            item_dict = item.to_dict()
-            item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
-            menu_items_list.append(item_dict)
-
-            for img in item.menu_item_imgs:
-                images_list.append(img.to_dict())
-
-        normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
-        normalized_images = hf.normalize_data(images_list, 'id')
-
-        return jsonify({
-            "entities": {
-                "menuItems": normalized_menu_items,
-                "menuItemImages": normalized_images
-            }
-        })
     except OperationalError as oe:
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500

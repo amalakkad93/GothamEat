@@ -1,0 +1,68 @@
+/* FormContainer.css */
+
+/* General container styles */
+
+
+.form-container {
+  width: 100%;
+  max-width: 600px; /* You can adjust this */
+  margin: 20px auto;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+/* Input styles */
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.form-input-file {
+  padding: 8px 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* Input error styles */
+.form-input.error-border,
+.form-textarea.error-border,
+.form-select.error-border {
+  border-color: red;
+}
+
+/* Error text */
+.error {
+  color: red;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Submit button */
+button[type="submit"] {
+  padding: 10px 20px;
+  background-color: #007BFF; /* Blue */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3; /* Darker Blue */
+}
+
+button[type="submit"]:disabled {
+  background-color: #ccc; /* Gray */
+  cursor: not-allowed;
+}

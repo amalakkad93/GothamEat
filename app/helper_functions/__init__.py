@@ -29,4 +29,7 @@ from .database_related_helper_function import (
     haversine_distance
 )
 
-from .restaurant_helper import aggregate_restaurant_data
+from .restaurant_helper import (
+    aggregate_restaurant_data,
+    fetch_menu_items_for_restaurant
+)

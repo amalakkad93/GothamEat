@@ -1,23 +1,54 @@
 import { csrfFetch } from "./csrf";
-// ************************************************
-//                   ****types****
-// ************************************************
+
+/**
+ * =========================================================
+ *                  FAVORITES REDUX MODULE
+ * =========================================================
+ * This module contains the Redux setup related to handling
+ * operations about user favorites for restaurants.
+ *
+ * Contains:
+ * - Action types
+ * - Action creators
+ * - Thunks (for asynchronous operations)
+ * - Reducer (to modify the state based on actions)
+ */
+
+// =========================================================
+//              ****action types****
+// =========================================================
+// Action types help in identifying which action is being dispatched.
+
+/** Action type to set all user favorites in the store */
 const SET_ALL_FAVORITES = "favorites/SET_ALL_FAVORITES";
-const GET_ALL_FAVORITES_RESTAURANTS =
-  "restaurants/GET_ALL_FAVORITES_RESTAURANTS";
+
+/** Action type to get all favorited restaurants for a user */
+const GET_ALL_FAVORITES_RESTAURANTS = "restaurants/GET_ALL_FAVORITES_RESTAURANTS";
+
+/** Action type to add a favorite for a user */
 const ADD_FAVORITE = "favorites/ADD_FAVORITE";
+
+/** Action type to remove a favorite for a user */
 const REMOVE_FAVORITE = "favorites/REMOVE_FAVORITE";
+
+/** Action type to remove a favorited restaurant for a user */
 const REMOVE_FAVORITE_RESTAURANT = "favorites/REMOVE_FAVORITE_RESTAURANT";
 
+/** Action type to handle errors related to favorite operations */
 const SET_FAVORITE_ERROR = "favorites/SET_FAVORITE_ERROR";
 
-// ************************************************
-//                   ****action creator****
-// ************************************************
+// =========================================================
+//            ****action creator****
+// =========================================================
+// Action creators return the actions that our reducer will handle.
+
+/** Creates an action to set all favorites in the store */
 const actionSetAllFavorites = (allFavorites) => ({
   type: SET_ALL_FAVORITES,
   allFavorites,
 });
+
+/** Creates an action to set all favorited restaurants in the store */
 const actionGetAllFavoritedRestaurants = (restaurants) => ({
   type: GET_ALL_FAVORITES_RESTAURANTS,
   payload: {
@@ -29,59 +60,58 @@ const actionGetAllFavoritedRestaurants = (restaurants) => ({
   },
 });
 
+/** Creates an action to add a restaurant to favorites */
 const actionAddFavorite = (favorite) => ({ type: ADD_FAVORITE, favorite });
+
+/** Creates an action to remove a restaurant from favorites */
 const actionRemoveFavorite = (favoriteId) => ({
   type: REMOVE_FAVORITE,
   favoriteId,
 });
+
+/** Creates an action to remove a restaurant's details from favorites */
 const actionRemoveFavoriteRestaurant = (restaurantId) => ({
   type: REMOVE_FAVORITE_RESTAURANT,
   restaurantId,
 });
 
+/** Creates an action to handle errors during favorite operations */
 const actionSetFavoriteError = (errorMessage) => ({
   type: SET_FAVORITE_ERROR,
   payload: errorMessage,
 });
 
-// ************************************************
+// =========================================================
 //                   ****Thunks****
-// ************************************************
-// export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
-//   try {
-//     if (!userId) {
-//       throw new Error("User ID is required to fetch favorites.");
-//     }
+// =========================================================
+// Thunks allow Redux to handle asynchronous operations.
 
-//     const response = await csrfFetch(`/api/favorites?user_id=${userId}`);
-//     if (response.ok) {
-//       const allFavorites = await response.json();
-//       dispatch(actionSetAllFavorites(allFavorites));
-//     } else {
-//       const errors = await response.json();
-//       dispatch(actionSetFavoriteError(errors.error || "Error fetching all favorites."));
-//     }
-//   } catch (error) {
-//     dispatch(actionSetFavoriteError("An error occurred while fetching all favorites."));
-//   }
-// };
+// ***************************************************************
+//  Thunk to Fetch All Favorites for a User
+// ***************************************************************
+/**
+ * Fetches all favorites for a user based on their user ID.
+ * Dispatches actions based on the result of the fetch operation.
+ */
 export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
-  try {
-    if (!userId) {
-      throw new Error("User ID is required to fetch favorites.");
-    }
+  // Check if the user's ID exists
+  if (!userId) {
+    throw new Error("User ID is required to fetch favorites.");
+  }
 
+  try {
     const response = await csrfFetch(`/api/favorites?user_id=${userId}`);
     if (response.ok) {
       const allFavorites = await response.json();
       dispatch(actionSetAllFavorites(allFavorites));
 
-      // Fetch the detailed data for each favorited restaurant
+      // Fetch detailed data for each favorited restaurant
       const restaurantIds = allFavorites.map((fav) => fav.restaurant_id);
       const restaurantDetails = await Promise.all(
         restaurantIds.map((id) => fetch(`/api/restaurants/${id}`))
       );
 
+      // Process the restaurant details for dispatch
       const allFavoriteRestaurants = await Promise.all(
         restaurantDetails.map((res) => res.json())
       );
@@ -92,9 +122,9 @@ export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
         .concat(...Object.values(allFavoriteRestaurantsData))
         .flat()
         .map((restaurant) => Object.values(restaurant)[0]);
-      console.log("Flat Restaurants Data:", flatRestaurants);
       dispatch(actionGetAllFavoritedRestaurants(flatRestaurants));
     } else {
+      // Handle response errors
       const errors = await response.json();
       dispatch(
         actionSetFavoriteError(errors.error || "Error fetching all favorites.")
@@ -107,48 +137,51 @@ export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
   }
 };
 
-export const thunkToggleFavorite =
-  (userId, restaurantId) => async (dispatch) => {
-    console.log(
-      `Toggling favorite for userId: ${userId}, restaurantId: ${restaurantId}`
-    );
-    try {
-      const response = await csrfFetch("/api/favorites/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, restaurant_id: restaurantId }),
-      });
+// ***************************************************************
+//  Thunk to Toggle Favorite Status for a Restaurant for a User
+// ***************************************************************
+/**
+ * Toggles the favorite status of a restaurant for a user.
+ * Dispatches actions based on the result of the operation.
+ */
+export const thunkToggleFavorite = (userId, restaurantId) => async (dispatch) => {
+  try {
+    // Make a post request to toggle the favorite status
+    const response = await csrfFetch("/api/favorites/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, restaurant_id: restaurantId }),
+    });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        if (responseData.action === "added") {
-          console.log("Added favorite:", responseData.favorite);
-          dispatch(actionAddFavorite(responseData.favorite));
-        } else if (responseData.action === "removed") {
-          console.log("Removed favorite:", responseData.favorite.id);
-          dispatch(actionRemoveFavorite(responseData.favorite.id));
-          dispatch(
-            actionRemoveFavoriteRestaurant(responseData.favorite.restaurant_id)
-          );
-        }
-      } else {
-        const errors = await response.json();
-        console.log("Error response:", errors);
+    if (response.ok) {
+      const responseData = await response.json();
+      if (responseData.action === "added") {
+        dispatch(actionAddFavorite(responseData.favorite));
+      } else if (responseData.action === "removed") {
+        dispatch(actionRemoveFavorite(responseData.favorite.id));
         dispatch(
-          actionSetFavoriteError(errors.error || "Error toggling favorite.")
+          actionRemoveFavoriteRestaurant(responseData.favorite.restaurant_id)
         );
       }
-    } catch (error) {
-      console.error("Error while toggling favorite:", error);
+    } else {
+      // Handle response errors
+      const errors = await response.json();
       dispatch(
-        actionSetFavoriteError("An error occurred while toggling favorite.")
+        actionSetFavoriteError(errors.error || "Error toggling favorite.")
       );
     }
-  };
+  } catch (error) {
+    dispatch(
+      actionSetFavoriteError("An error occurred while toggling favorite.")
+    );
+  }
+};
 
-// ************************************************
+// =========================================================
 //                   ****Reducer****
-// ************************************************
+// =========================================================
+// The reducer calculates the new state based on the previous state and the dispatched action.
+
 const initialFavoriteState = {
   byId: {},
   allIds: [],
@@ -156,6 +189,7 @@ const initialFavoriteState = {
   error: null,
 };
 
+/** Defines how the state should change for each action */
 export default function favoritesReducer(state = initialFavoriteState, action) {
   let newById = {};
   switch (action.type) {

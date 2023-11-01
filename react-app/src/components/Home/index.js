@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SearchBar from "../SearchBar";
-import './home.css';
+import SearchBar from "./SearchBar";
 import { useDispatch } from 'react-redux';
 import { thunkGetNearbyRestaurants }  from '../../store/restaurants';
+import './home.css';
 
 // The Home component represents the main page of our application.
 // It allows users to search for nearby restaurants either by manually entering a location or using their current location.
@@ -64,4 +64,3 @@ export default function Home() {
         </>
     );
 }
-

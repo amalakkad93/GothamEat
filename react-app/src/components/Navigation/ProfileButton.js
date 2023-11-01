@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { useNavigate, Link } from "react-router-dom";
-import SlidingModal from "../SlidingModal/SlidingModal";
+import SlidingModal from "../Modals/SlidingModal/SlidingModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faBars } from "@fortawesome/free-solid-svg-icons";
 
@@ -140,10 +140,7 @@ export default function ProfileButton(props) {
                         className="Manage-spot-button center-menu1"
                         onClick={(e) => {
                           closeMenu();
-                          navigate("/restaurants/new", {
-                            formType: "Create",
-                            userId: sessionUser.id,
-                          });
+                          navigate("/create-restaurant");
                         }}
                       >
                         Add your Restaurant

@@ -1,3 +1,146 @@
+# # ***************************************************************
+# # Endpoint to Get Details of a Restaurant by Id or Google Place Id
+# # ***************************************************************
+# @restaurant_routes.route('/<string:id>')
+# def get_restaurant_detail(id):
+#     """
+#     Fetches detailed information of a specific restaurant.
+#     If the restaurant is associated with UberEats, the function will fetch data from the UberEats API.
+#     Otherwise, it will fetch data from the local database.
+
+#     Args:
+#         id (str): The ID or Google Place ID of the restaurant.
+
+#     Returns:
+#         Response: Detailed information of the specified restaurant or an error message if not found.
+#     """
+#     try:
+#         # Attempt to fetch the restaurant from the database using primary key
+#         restaurant = Restaurant.query.get(id)
+
+#         # If not found by primary key, try using google_place_id
+#         if restaurant is None:
+#             restaurant = Restaurant.query.filter_by(google_place_id=id).first()
+
+#         # If found in the database and associated with an UberEats store_id
+#         if restaurant and hasattr(restaurant, 'ubereats_store_id') and restaurant.ubereats_store_id:
+#             access_token = hf.get_uber_access_token()
+#             ubereats_data = hf.fetch_from_ubereats_api_by_store_id(restaurant.ubereats_store_id, access_token)
+#             if ubereats_data:
+#                 return jsonify(ubereats_data)  # Return data directly from UberEats
+
+#         # If not available on UberEats or doesn't have a store_id, fetch data from the database
+#         if restaurant is None:
+#             return jsonify({"error": "Restaurant details not found."}), 404
+
+#         # Extracting menu items associated with the restaurant
+#         menu_items = (MenuItem.query
+#                       .options(joinedload(MenuItem.menu_item_imgs))
+#                       .filter_by(restaurant_id=restaurant.id)
+#                       .all())
+
+#         # Converting menu items to dictionary format for serialization
+#         menu_items_list = [item.to_dict() for item in menu_items]
+#         normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
+
+#         # Extracting images associated with the menu items
+#         images_list = [img.to_dict() for item in menu_items for img in item.menu_item_imgs]
+#         normalized_images = hf.normalize_data(images_list, 'id')
+
+#         # Extracting the owner of the restaurant
+#         owner = restaurant.owner.to_dict()
+#         restaurant_list = [restaurant.to_dict()]
+#         normalized_restaurant = hf.normalize_data(restaurant_list, 'id')
+
+#         normalized_data = {
+#             "entities": {
+#                 "restaurants": normalized_restaurant,
+#                 "menuItems": normalized_menu_items,
+#                 "menuItemImgs": normalized_images,
+#                 "owner": owner
+#             }
+#         }
+
+#         return jsonify(normalized_data)
+
+#     except OperationalError as oe:
+#         # Database operational errors (e.g., failed SQL query)
+#         print(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         # General errors (e.g., unexpected data issues)
+#         print(e)
+#         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
+
+
+
+# # ***************************************************************
+# # Endpoint to Fetch All Menu Items for a Restaurant by ID
+# # ***************************************************************
+# @restaurant_routes.route('/<int:id>/menu-items')
+# def get_menu_items_by_restaurant_id(id):
+#     """
+#     Retrieves all menu items for a specific restaurant.
+
+#     Args:
+#         id (int): The ID of the restaurant.
+
+#     Returns:
+#         Response: A collection of menu items and associated images for the specified restaurant.
+#     """
+#     try:
+#         menu_items = (
+#             db.session.query(MenuItem)
+#             .filter(MenuItem.restaurant_id == id)
+#             .options(joinedload(MenuItem.menu_item_imgs))
+#             .all()
+#         )
+
+#         if not menu_items:
+#             return jsonify({"MenuItems": []})
+
+#         # Extract menu items and their images
+#         menu_items_list, images_list = [], []
+#         for item in menu_items:
+#             item_dict = item.to_dict()
+#             item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
+#             menu_items_list.append(item_dict)
+
+#             for img in item.menu_item_imgs:
+#                 images_list.append(img.to_dict())
+
+#         normalized_menu_items = hf.normalize_data(menu_items_list, 'id')
+#         normalized_images = hf.normalize_data(images_list, 'id')
+
+#         return jsonify({
+#             "entities": {
+#                 "menuItems": normalized_menu_items,
+#                 "menuItemImages": normalized_images
+#             }
+#         })
+#     except OperationalError as oe:
+#         print(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # # *************************Final Restaurant Routes Draft*************************
 # from flask import Blueprint, jsonify, request, redirect, url_for, abort, current_app
 # import requests

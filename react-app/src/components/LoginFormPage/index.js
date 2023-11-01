@@ -3,7 +3,7 @@ import { login } from "../../store/session";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import FormContainer, {
-  validateCommonFields,
+  // validateCommonFields,
 } from "../CustomTags/FormContainer";
 import "./LoginForm.css";
 
@@ -65,7 +65,20 @@ function LoginFormPage() {
       },
     },
   ];
+  const validateCommonFields = (fields, validations) => {
+    let errors = {};
 
+    validations.forEach((validation) => {
+      const field = fields.find(f => f.name === validation.fieldName);
+      const value = field ? field.value : null;
+
+      if (value && validation.rule(value)) {
+        errors[validation.fieldName] = validation.message;
+      }
+    });
+
+    return errors;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
