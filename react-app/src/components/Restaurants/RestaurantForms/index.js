@@ -243,7 +243,7 @@ export default function RestaurantForm({
         .then((response) => {
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
             console.log("Attempting to navigate...");
-            navigate("/");
+            navigate("/owner/restaurants");
             // resetForm();
             alert("Restaurant successfully created!");
           } else {
@@ -274,12 +274,13 @@ export default function RestaurantForm({
         food_type: foodType,
       };
       console.log("Updated restaurant data:", updatedRestaurantData);
-      
+
 
       dispatch(thunkUpdateRestaurant(updatedRestaurantData))
         .then((response) => {
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
             alert("Restaurant successfully updated!");
+            navigate("/owner/restaurants");
           } else {
             alert("Failed to update restaurant. Please try again.");
           }

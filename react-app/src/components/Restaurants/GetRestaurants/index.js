@@ -4,7 +4,7 @@
  * This component is responsible for displaying a list of restaurants located near the user's location.
  * It showcases each restaurant's details, including name, address, rating, and favorite status.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -15,6 +15,7 @@ import {
   thunkGetNearbyRestaurants,
   thunkGetOwnerRestaurants,
 } from "../../../store/restaurants";
+import DeleteRestaurant from "../DeleteRestaurant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
@@ -25,20 +26,26 @@ export default function GetRestaurants({ ownerMode = false }) {
   const dispatch = useDispatch();
   // Hook to navigate programmatically with React Router
   const navigate = useNavigate();
+  const lastFetchedUserIdRef = useRef(null);
+
+
+
 
   // Component state to manage the user's selected location
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Extracting necessary data from the Redux state
   const favoritesById = useSelector((state) => state.favorites?.byId);
-  const ownerRestaurants = useSelector(
-    (state) => state.restaurants.owner || {}
-  );
+  // const ownerRestaurants = useSelector((state) => state.restaurants.owner || {});
+  const ownerRestaurants = useSelector((state) => state.restaurants.owner?.byId || {});
+
   const nearbyRestaurants = useSelector(
     (state) => state.restaurants.nearby?.byId || {}
   );
 
   const restaurantDetails = ownerMode ? ownerRestaurants : nearbyRestaurants;
+  console.log("Restaurant details:", restaurantDetails);
+
   const restaurantIds = Object.keys(restaurantDetails);
 
   const userId = useSelector((state) => state.session.user?.id);
@@ -50,6 +57,16 @@ export default function GetRestaurants({ ownerMode = false }) {
       dispatch(thunkFetchAllFavorites(userId));
     }
   }, [dispatch, userId]);
+//   useEffect(() => {
+//     // Check if the current userId is different from the last fetched user ID
+//     if (userId && userId !== lastFetchedUserIdRef.current) {
+//         dispatch(thunkFetchAllFavorites(userId));
+
+//         // Update the last fetched user ID
+//         lastFetchedUserIdRef.current = userId;
+//     }
+// }, [dispatch, userId]);
+
 
   // Effect to fetch nearby restaurants based on the user's selected location
   // useEffect(() => {
@@ -151,15 +168,15 @@ export default function GetRestaurants({ ownerMode = false }) {
                   >
                     Edit
                   </button>
-
-                  <button
+                  <DeleteRestaurant restaurantId={id} />
+                  {/* <button
                     onClick={(e) => {
                       e.stopPropagation();
                       // Add your delete function here
                     }}
                   >
                     Delete
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>

@@ -170,22 +170,51 @@ def get_nearby_restaurants():
 # ***************************************************************
 # Endpoint to Get Restaurants of Current User
 # ***************************************************************
+# @restaurant_routes.route('/owned')
+# def get_owned_restaurants():
+#     """
+#     Retrieves the restaurants owned by the currently logged-in user.
+
+#     Returns:
+#         Response: A dictionary of restaurants that the current user owns.
+#     """
+#     try:
+#         # Fetching all restaurants owned by the current user
+#         owned_restaurants = Restaurant.query.filter_by(owner_id=current_user.id).all()
+
+#         # Convert the restaurants to dictionary format
+#         restaurants_dict = {restaurant.id: restaurant.to_dict() for restaurant in owned_restaurants}
+
+#         return jsonify({"Restaurants": restaurants_dict})
+
+#     except OperationalError as oe:
+#         # Database operational errors (e.g., failed SQL query)
+#         print(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         # General errors (e.g., unexpected data issues)
+#         print(e)
+#         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+
 @restaurant_routes.route('/owned')
 def get_owned_restaurants():
     """
     Retrieves the restaurants owned by the currently logged-in user.
 
     Returns:
-        Response: A dictionary of restaurants that the current user owns.
+        Response: A dictionary of restaurants that the current user owns in a normalized structure.
     """
     try:
         # Fetching all restaurants owned by the current user
         owned_restaurants = Restaurant.query.filter_by(owner_id=current_user.id).all()
 
-        # Convert the restaurants to dictionary format
-        restaurants_dict = {restaurant.id: restaurant.to_dict() for restaurant in owned_restaurants}
+        # Convert the restaurants to a list of dictionaries
+        restaurants_list = [restaurant.to_dict() for restaurant in owned_restaurants]
 
-        return jsonify({"Restaurants": restaurants_dict})
+        # Normalize the list
+        normalized_results = hf.normalize_data(restaurants_list, 'id')
+        print("***********normalized_results: ", normalized_results)
+        return jsonify(normalized_results)
 
     except OperationalError as oe:
         # Database operational errors (e.g., failed SQL query)
@@ -195,6 +224,7 @@ def get_owned_restaurants():
         # General errors (e.g., unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
+
 
 
 
@@ -386,18 +416,8 @@ def create_restaurant():
 @restaurant_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_restaurant(id):
-    """
-    Deletes a specific restaurant from the database.
-
-    Args:
-        id (int): The ID of the restaurant to be deleted.
-
-    Returns:
-        Response: A message indicating the success or failure of the deletion.
-    """
     restaurant = Restaurant.query.get(id)
 
-    # Check for the existence of the restaurant and authorization
     if not restaurant:
         return jsonify(error="Restaurant not found"), 404
     if current_user.id != restaurant.owner_id:
@@ -406,7 +426,11 @@ def delete_restaurant(id):
     try:
         db.session.delete(restaurant)
         db.session.commit()
-        return jsonify(message="Restaurant deleted successfully"), 200
+        return jsonify({
+            "message": "Restaurant deleted successfully",
+            "deletedRestaurantId": id  # Only send the deleted restaurant's ID
+        }), 200
+
     except OperationalError as oe:
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500

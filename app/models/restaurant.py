@@ -48,7 +48,7 @@ class Restaurant(db.Model):
             .filter(MenuItem.restaurant_id == self.id)
             .all()
         )
-        print("*******************", order_delivery_times)
+        # print("*******************", order_delivery_times)
 
         # Extract the delivery times as a list of strings
         delivery_times = [time[0] for time in order_delivery_times]
@@ -98,8 +98,10 @@ class Restaurant(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'postal_code': self.postal_code,
-            'opening_time': self.opening_time.strftime('%I:%M %p'),
-            'closing_time': self.closing_time.strftime('%I:%M %p'),
+            'opening_time': self.opening_time.strftime('%H:%M'),
+            'closing_time': self.closing_time.strftime('%H:%M'),
+            # 'opening_time': self.opening_time.strftime('%I:%M %p'),
+            # 'closing_time': self.closing_time.strftime('%I:%M %p'),
             'food_type': self.food_type,
             'average_rating': self.average_rating,
             'num_reviews': self.get_num_reviews(),

@@ -12,6 +12,7 @@
  * - Reducer (to modify the state based on actions)
  */
 import { csrfFetch } from "./csrf";
+import {removeEntityFromSection} from '../assets/helpers/helpers'
 // =========================================================
 //                  ****action types****
 // =========================================================
@@ -35,6 +36,9 @@ const CREATE_RESTAURANT = "restaurants/CREATE_RESTAURANT";
 
 /** Action type to handle updating a restaurant */
 const UPDATE_RESTAURANT = "restaurants/UPDATE_RESTAURANT";
+
+/** Action type to handle deleting a restaurant */
+const DELETE_RESTAURANT = "restaurants/DELETE_RESTAURANT";
 
 /** Action type to handle errors related to restaurant actions */
 const SET_RESTAURANT_ERROR = "restaurants/SET_RESTAURANT_ERROR";
@@ -81,6 +85,13 @@ const actionUpdateRestaurant = (restaurant) => ({
   restaurant,
 });
 
+/** Creates an action to handle deleting a restaurant */
+const actionDeleteRestaurant = (restaurantId) => ({
+  type: DELETE_RESTAURANT,
+  restaurantId,
+});
+
+
 /** Creates an action to handle errors during restaurant operations */
 const actionSetRestaurantError = (errorMessage) => ({
   type: SET_RESTAURANT_ERROR,
@@ -102,14 +113,7 @@ const actionSetRestaurantError = (errorMessage) => ({
  */
 export const thunkGetNearbyRestaurants =
   (latitude, longitude, city, state, country) => async (dispatch) => {
-    console.log(
-      "Inside thunk with:",
-      latitude,
-      longitude,
-      city,
-      state,
-      country
-    );
+
     let url = `/api/restaurants/nearby`;
 
     if (latitude && longitude) {
@@ -184,54 +188,12 @@ export const thunkGetAllRestaurants = () => async (dispatch) => {
  * Fetches details for a specific restaurant by its unique ID.
  * Dispatches actions based on the result.
  */
-// export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
-//   console.log(`____Fetching details for restaurant with ID ${restaurantId}`);
-//   try {
-//     const response = await fetch(`/api/restaurants/${restaurantId}`);
-//     console.log("____Response from server:", response);
-
-//     if (response.ok) {
-//       const restaurant = await response.json();
-//       console.log("____Restaurant details:", restaurant);
-//       console.log("____Restaurant details structure:", Object.keys(restaurant));
-
-//       dispatch(actionGetSingleRestaurant(restaurant));
-//     } else {
-//       const errors = await response.json();
-//       console.error(
-//         `Error fetching details for restaurant with ID ${restaurantId}:`,
-//         errors
-//       );
-//       dispatch(
-//         actionSetRestaurantError(
-//           errors.message ||
-//             `Error fetching details for restaurant with ID ${restaurantId}.`
-//         )
-//       );
-//     }
-//   } catch (error) {
-//     console.error(
-//       `An error occurred while fetching details for restaurant with ID ${restaurantId}:`,
-//       error
-//     );
-//     dispatch(
-//       actionSetRestaurantError(
-//         `An error occurred while fetching details for restaurant with ID ${restaurantId}.`
-//       )
-//     );
-//   }
-// };
 export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
-  console.log(`____Fetching details for restaurant with ID ${restaurantId}`);
   try {
     const response = await fetch(`/api/restaurants/${restaurantId}`);
-    console.log("____Response from server:", response);
 
     if (response.ok) {
       const restaurant = await response.json();
-      console.log("____Restaurant details:", restaurant);
-      console.log("____Restaurant details structure:", Object.keys(restaurant));
-
       dispatch(actionGetSingleRestaurant(restaurant));
 
       // Return the fetched restaurant details.
@@ -263,14 +225,21 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
   }
 };
 
+// ***************************************************************
+//  Thunk to Fetch Restaurants Owned by a User
+// ***************************************************************
+/** Fetches restaurants owned by a user and dispatches actions based on the result */
 export const thunkGetOwnerRestaurants = () => async (dispatch) => {
   try {
-    const response = await fetch(`/api/restaurants/owned`);
+    const response = await csrfFetch(`/api/restaurants/owned`);
 
     if (response.ok) {
       const restaurants = await response.json();
-      dispatch(actionGetOwnerRestaurants(restaurants.Restaurants));
-      console.log("Fetched owner restaurants:", restaurants);
+      console.log("Fetched owner's restaurants:", restaurants);
+
+      // dispatch(actionGetOwnerRestaurants(restaurants.Restaurants));
+      dispatch(actionGetOwnerRestaurants(restaurants));
+
     } else {
       const errors = await response.json();
       dispatch(
@@ -288,6 +257,10 @@ export const thunkGetOwnerRestaurants = () => async (dispatch) => {
   }
 };
 
+// ***************************************************************
+//  Thunk to Create a New Restaurant
+// ***************************************************************
+/** Creates a new restaurant and dispatches actions based on the result */
 export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/restaurants`, {
@@ -299,13 +272,13 @@ export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
     if (response.ok) {
       const data = await response.json();
       dispatch(actionCreateRestaurant(data.entities.restaurants));
-      return { type: "SUCCESS", data }; // Added return
+      return { type: "SUCCESS", data };
     } else {
       const errors = await response.json();
       dispatch(
         actionSetRestaurantError(errors.error || "Error creating restaurant.")
       );
-      throw errors; // Added throw
+      throw errors;
     }
   } catch (error) {
     console.log("Entered catch block", error);
@@ -314,12 +287,15 @@ export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
         "An error occurred while creating the restaurant."
       )
     );
-    throw error; // Added throw
+    throw error;
   }
 };
 
-export const thunkUpdateRestaurant =
-  (updatedData) => async (dispatch) => {
+// ***************************************************************
+//  Thunk to Update a Restaurant
+// ***************************************************************
+/** Updates a restaurant and dispatches actions based on the result */
+export const thunkUpdateRestaurant = (updatedData) => async (dispatch) => {
     try {
       const response = await csrfFetch(`/api/restaurants/${updatedData.id}`, {
         method: "PUT",
@@ -330,7 +306,7 @@ export const thunkUpdateRestaurant =
       if (response.ok) {
         const data = await response.json();
         dispatch(actionUpdateRestaurant(data.entities.restaurants));
-        return { type: "SUCCESS", data }; // Added return
+        return { type: "SUCCESS", data };
       } else {
         const errors = await response.json();
         dispatch(
@@ -338,7 +314,7 @@ export const thunkUpdateRestaurant =
             errors.error || `Error updating restaurant with ID ${updatedData.id}.`
           )
         );
-        throw errors; // Added throw
+        throw errors;
       }
     } catch (error) {
       dispatch(
@@ -346,9 +322,44 @@ export const thunkUpdateRestaurant =
           `An error occurred while updating restaurant with ID ${updatedData.id}.`
         )
       );
-      throw error; // Added throw
+      throw error;
     }
   };
+
+// ***************************************************************
+//  Thunk to Delete a Restaurant
+// ***************************************************************
+/** Deletes a restaurant and dispatches actions based on the result */
+export const thunkDeleteRestaurant = (restaurantId) => async (dispatch) => {
+  try {
+      const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
+          method: "DELETE",
+      });
+
+      if (response.ok) {
+          const data = await response.json();
+
+          // Dispatch the action to update the Redux state after a successful deletion
+          dispatch(actionDeleteRestaurant(restaurantId));
+
+          return { type: "SUCCESS" };
+      } else {
+          const errors = await response.json();
+          dispatch(
+              actionSetRestaurantError(errors.error || "Error deleting restaurant.")
+          );
+          throw errors;
+      }
+  } catch (error) {
+      dispatch(
+          actionSetRestaurantError(
+              `An error occurred while deleting the restaurant with ID ${restaurantId}.`
+          )
+      );
+      throw error;
+  }
+};
+
 
 // =========================================================
 //                   ****Reducer****
@@ -369,7 +380,6 @@ export default function restaurantsReducer(state = initialState, action) {
   let newState;
   switch (action.type) {
     case GET_NEARBY_RESTAURANTS:
-      // return { ...state, nearby: action.restaurants };
       newState = { ...state, nearby: [] };
       newState.nearby = action.restaurants;
       return newState;
@@ -377,8 +387,6 @@ export default function restaurantsReducer(state = initialState, action) {
     case GET_ALL_RESTAURANTS:
       return { ...state, allRestaurants: action.restaurants };
 
-    // case GET_SINGLE_RESTAURANT:
-    //   return { ...state, singleRestaurant: action.restaurant };
     case GET_SINGLE_RESTAURANT:
       console.log("Processing GET_SINGLE_RESTAURANT:", action.restaurant);
       return {
@@ -386,12 +394,18 @@ export default function restaurantsReducer(state = initialState, action) {
           singleRestaurant: { ...state.singleRestaurant, ...action.restaurant.entities.restaurants }
       };
 
+      // case GET_OWNER_RESTAURANTS:
+      //   newState = { ...state, owner: [] };
+      //   newState.owner = action.restaurants;
+      //   return newState;
+      case GET_OWNER_RESTAURANTS:
+        newState = { ...state, owner: [] };
+        newState.owner = action.restaurants;
+        return newState;
 
 
-    case GET_OWNER_RESTAURANTS:
-      newState = { ...state, owner: [] };
-      newState.owner = action.restaurants;
-      return newState;
+
+
 
     case CREATE_RESTAURANT:
       return {
@@ -413,6 +427,70 @@ export default function restaurantsReducer(state = initialState, action) {
           ...action.restaurant,
         },
       };
+
+
+      case DELETE_RESTAURANT: {
+        console.log("DELETE_RESTAURANT action received. Current state:", state);
+        console.log("Restaurant ID to delete:", action.restaurantId);
+
+        const newState = { ...state };
+
+        // Logging and handling for allRestaurants slice
+        console.log("allRestaurants.byId before deletion:", newState.allRestaurants.byId);
+        console.log("allRestaurants.allIds before deletion:", newState.allRestaurants.allIds);
+
+        delete newState.allRestaurants.byId[action.restaurantId];
+
+        if (newState.allRestaurants.allIds && Array.isArray(newState.allRestaurants.allIds)) {
+            newState.allRestaurants.allIds = newState.allRestaurants.allIds.filter(
+                (id) => id !== action.restaurantId
+            );
+        } else {
+            console.error("allRestaurants.allIds is not an array or is undefined!");
+            newState.allRestaurants.allIds = [];
+        }
+
+        // Logging and handling for owner slice
+        console.log("owner.byId before deletion:", newState.owner.byId);
+        console.log("owner.allIds before deletion:", newState.owner.allIds);
+
+        if (newState.owner.byId) {
+            delete newState.owner.byId[action.restaurantId];
+        }
+
+        if (newState.owner.allIds && Array.isArray(newState.owner.allIds)) {
+            newState.owner.allIds = newState.owner.allIds.filter(
+                (id) => id !== action.restaurantId
+            );
+        } else {
+            console.error("owner.allIds is not an array or is undefined!");
+            newState.owner.allIds = [];
+        }
+
+        console.log("State after deletion:", newState);
+
+        return newState;
+    }
+
+
+
+
+
+
+
+
+
+
+      // case DELETE_RESTAURANT:
+      //   const { restaurantId } = action;
+
+      //   return {
+      //       ...state,
+      //       nearby: removeEntityFromSection(state.nearby, restaurantId),
+      //       owner: removeEntityFromSection(state.owner, restaurantId),
+      //       allRestaurants: removeEntityFromSection(state.allRestaurants, restaurantId),
+      //       singleRestaurant: removeEntityFromSection(state.singleRestaurant, restaurantId),
+      //   };
 
     case SET_RESTAURANT_ERROR:
       return { ...state, error: action.payload };
