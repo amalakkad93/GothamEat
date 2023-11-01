@@ -68,7 +68,6 @@ function MenuItemForm({ formType, restaurantId, setReloadPage, menuItemId }) {
       name: "image",
       placeholder: "Upload Image",
       setter: setImage,
-      // ref: imageInputRef,
       className: "",
       inputClassName: "form-input-file",
     },
@@ -136,6 +135,8 @@ function MenuItemForm({ formType, restaurantId, setReloadPage, menuItemId }) {
 
     if (image) {
       if (formType === "Create") {
+        console.log("Dispatching with image:", image);
+
         dispatch(thunkCreateMenuItem(restaurantId, menuItemData, image))
             .then(() => {
                 handleSuccess();

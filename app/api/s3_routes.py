@@ -8,17 +8,39 @@ def generate_presigned_url():
     s3_client = current_app.config['S3_CLIENT']
     s3_location = current_app.config['S3_LOCATION']
 
-    filename = get_unique_filename(request.args.get('filename'))
-    content_type = request.args.get('contentType')  # Capture the MIME type
-    
+    filename = request.args.get('filename')
+    content_type = request.args.get('contentType')
+
+    # Check if filename and content_type are provided
     if not filename or not content_type:
         return jsonify({'error': 'Filename or contentType missing'}), 400
 
+    # Now generate the unique filename
+    unique_filename = get_unique_filename(filename)
+
     presigned_url = s3_client.generate_presigned_url('put_object',
-                                                     Params={'Bucket': BUCKET_NAME, 'Key': filename, 'ContentType': content_type},
+                                                     Params={'Bucket': BUCKET_NAME, 'Key': unique_filename, 'ContentType': content_type},
                                                      ExpiresIn=3600)
 
-    return jsonify({'presigned_url': presigned_url, 'file_url': f"{s3_location}{filename}"})
+    return jsonify({'presigned_url': presigned_url, 'file_url': f"{s3_location}{unique_filename}"})
+
+
+# @s3_routes.route('/generate_presigned_url', methods=['GET'])
+# def generate_presigned_url():
+#     s3_client = current_app.config['S3_CLIENT']
+#     s3_location = current_app.config['S3_LOCATION']
+
+#     filename = get_unique_filename(request.args.get('filename'))
+#     content_type = request.args.get('contentType')  # Capture the MIME type
+
+#     if not filename or not content_type:
+#         return jsonify({'error': 'Filename or contentType missing'}), 400
+
+#     presigned_url = s3_client.generate_presigned_url('put_object',
+#                                                      Params={'Bucket': BUCKET_NAME, 'Key': filename, 'ContentType': content_type},
+#                                                      ExpiresIn=3600)
+
+#     return jsonify({'presigned_url': presigned_url, 'file_url': f"{s3_location}{filename}"})
 
 
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-// import { InputComponent } from "./InputComponent";
-// import { TextareaComponent } from "./TextareaComponent";
-// import { SelectComponent } from "./SelectComponent";
+import { InputComponent } from "./InputComponent";
+import { TextareaComponent } from "./TextareaComponent";
+import { SelectComponent } from "./SelectComponent";
 import "./FormContainer.css";
 
 export default function FormContainer(props) {
@@ -34,10 +34,32 @@ export default function FormContainer(props) {
 
     return errors;
   };
+  const clearValidationError = (fieldName) => {
+    setValidationErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[fieldName];
+        return newErrors;
+    });
+};
 
-  const handleInputChange = (setterFunction) => (e) => {
-    setterFunction(e.target.value);
-  };
+  // const handleInputChange = (setterFunction) => (e) => {
+  //   setterFunction(e.target.value);
+  // };
+//    Handler for input changes
+
+const handleInputChange = (setterFunction, fieldType) => (e) => {
+  const { name, type } = e.target;
+  let value;
+
+  if (fieldType === "file" && e.target.files && e.target.files.length > 0) {
+    value = e.target.files[0];
+  } else {
+    value = e.target.value;
+  }
+
+  setterFunction(value);
+  clearValidationError(name);
+};
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -76,14 +98,14 @@ export default function FormContainer(props) {
                 <label>{field.label}</label>
                 <input
                   type={field.type}
-                  value={field.value}
                   placeholder={field.placeholder}
-                  onChange={handleInputChange(field.setter)}
+                  onChange={handleInputChange(field.setter, "file")}
                   className={inputClassName}
                 />
                 {fieldError && <div className="error">{fieldError}</div>}
               </div>
             );
+
           case "textarea":
             return (
               <div key={index}>
@@ -153,15 +175,15 @@ export default function FormContainer(props) {
 // import "./FormContainer.css";
 
 // // Handler for input changes
-// const handleInputChange = (setterFunction, clearValidationError) => (e) => {
-//   const { name, type } = e.target;
-//   const value = type === "file" ? e.target.files[0] : e.target.value;
+// // const handleInputChange = (setterFunction, clearValidationError) => (e) => {
+// //   const { name, type } = e.target;
+// //   const value = type === "file" ? e.target.files[0] : e.target.value;
 
-//   // console.log(`Value for ${name}:`, value); // Debugging line
+// //   // console.log(`Value for ${name}:`, value); // Debugging line
 
-//   setterFunction(value);
-//   clearValidationError(name);
-// };
+// //   setterFunction(value);
+// //   clearValidationError(name);
+// // };
 
 // // Validates common form fields based on provided rules.
 // export const validateCommonFields = (fields, validations) => {
