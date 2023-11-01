@@ -1,0 +1,21 @@
+
+/* .post-delete-review-btn:hover{
+  background-color:  #FF5A5F;
+}
+.post-delete-review-btn {
+background-color: grey;
+border: black solid 1px;
+box-shadow: 1px 1px 1px black;
+margin-bottom: 20px;
+height: 30px;
+color: white;
+cursor: pointer;
+} */
+.more-info-text {
+  display: inline-block;
+  text-decoration: underline;
+  cursor: pointer;
+  color: black;
+  /* font-weight: bold; */
+  font-family: 'Roboto', sans-serif;
+}

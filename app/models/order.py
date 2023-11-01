@@ -17,6 +17,7 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
     total_price = db.Column(db.Float)
     status = db.Column(db.String(50), default='Pending')
+    delivery_time = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -31,6 +32,7 @@ class Order(db.Model):
             'user_id': self.user_id,
             'total_price': self.total_price,
             'status': self.status,
+            'delivery_time': self.delivery_time,
             'created_at': format_review_date(self.created_at),
             'updated_at': format_review_date(self.updated_at),
             # 'orderItems': [item.to_dict() for item in self.items]

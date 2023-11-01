@@ -1,7 +1,21 @@
 from random import randint, choice
 from sqlalchemy import text
+from datetime import timedelta
 from ..models import db, User, MenuItem, MenuItemImg, Order, OrderItem, ShoppingCartItem, ShoppingCart, environment, SCHEMA
 
+# Function to generate a random delivery time in the format "10-25 min"
+def generate_random_delivery_time():
+    # Generate a random number between 10 and 40
+    delivery_time_minutes = randint(10, 40)
+
+    # Generate a random additional time between 15 and 30 minutes
+    additional_minutes = randint(15, 30)
+
+    # Calculate the upper bound of the delivery time
+    upper_bound_minutes = delivery_time_minutes + additional_minutes
+
+    # Format the delivery time as a string like "10-25 min"
+    return f"{delivery_time_minutes}-{upper_bound_minutes} min"
 
 def seed_orders_and_order_items():
     all_orders = []
@@ -25,10 +39,18 @@ def seed_orders_and_order_items():
                     menu_item = MenuItem.query.get(cart_item.menu_item_id)
                     total_price += menu_item.price * cart_item.quantity
 
-                    temp_order_item = OrderItem(menu_item_id=cart_item.menu_item_id, quantity=cart_item.quantity)
+                    temp_order_item = OrderItem(
+                        menu_item_id=cart_item.menu_item_id,
+                        quantity=cart_item.quantity,
+                    )
                     temp_order_items.append(temp_order_item)
 
-            order = Order(user_id=user.id, status="completed", total_price=total_price)
+            order = Order(
+                user_id=user.id,
+                status="completed",
+                total_price=total_price,
+                delivery_time=generate_random_delivery_time(),
+            )
             db.session.add(order)
             db.session.flush()  # This will assign an ID to the order without committing the transaction
 

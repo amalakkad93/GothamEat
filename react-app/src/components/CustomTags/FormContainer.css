@@ -28,8 +28,8 @@
   border-color: transparent;
 }
 /* Placeholder styles */
-.form-container input::placeholder,
+/* .form-container input::placeholder,
 .form-container textarea::placeholder {
   color: grey;
   font-style: italic;
-}
+} */

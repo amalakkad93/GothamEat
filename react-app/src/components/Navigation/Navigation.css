@@ -59,6 +59,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* background-color: #000000;
+  color: white; */
 }
 
 /* Login Button */
@@ -129,9 +131,10 @@
 
 /* Cart Button */
 .cart-btn {
-  background-color:#E2E2E2;
-  color: #000;
+  background-color: black;
+  color: white;
   border: none;
+  transition: background-color 0.3s;
 }
 
 .cart-btn:hover {
@@ -242,6 +245,7 @@
     font-size: 1rem;
     width: 100px;
     height: 40px;
+
   }
 }
 

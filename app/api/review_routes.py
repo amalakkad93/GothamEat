@@ -1,10 +1,11 @@
 
-from flask import Blueprint, jsonify, request,redirect, url_for, abort, send_file
+from flask import Blueprint, jsonify, request,redirect, url_for, abort, send_file, current_app
 from sqlalchemy import func, distinct, or_, desc
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 import app, json
 import traceback
+import time
 from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Review, ReviewImg, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, upload_file, allowed_file, ALLOWED_EXTENSIONS
@@ -181,37 +182,105 @@ def delete_review(id):
 # ***************************************************************
 # Endpoint to Upload a Review Image to AWS
 # ***************************************************************
-@review_routes.route("/<int:review_id>/image", methods=["POST"])
+# @review_routes.route("/<int:review_id>/image", methods=["POST"])
+# def upload_review_image(review_id):
+#     """
+#     Uploads an image for a specified review to AWS.
+
+#     Args:
+#         review_id (int): The ID of the review to which the image will be associated.
+
+#     Returns:
+#         Response: A message indicating the success or failure of the image upload.
+#     """
+#     try:
+#         # Initialize and set up the form for image upload
+#         form = ReviewImgForm()
+#         form['csrf_token'].data = request.cookies['csrf_token']
+
+#         # If form data is valid, proceed to upload the image
+#         if form.validate_on_submit():
+#             return upload_image(form.image.data, form.image_url.data, ReviewImg, review_id, db)
+#         else:
+#             # Return validation errors
+#             return jsonify({"errors": form.errors}), 400
+#     except Exception as e:
+#         print("Error uploading image:", traceback.format_exc())
+#         # Handle unexpected errors during image upload
+#         return jsonify({"error": "An error occurred while uploading the image."}), 500
+@review_routes.route("/<int:review_id>/images", methods=["POST"])
 def upload_review_image(review_id):
     """
-    Uploads an image for a specified review to AWS.
-
-    Args:
-        review_id (int): The ID of the review to which the image will be associated.
-
-    Returns:
-        Response: A message indicating the success or failure of the image upload.
+    Stores the image URL for a specified review.
     """
     try:
-        # Initialize and set up the form for image upload
-        form = ReviewImgForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        data = request.get_json()
+        image_url = data.get("image_url")
+        if not image_url:
+            return jsonify({"error": "Image URL is required."}), 400
 
-        # If form data is valid, proceed to upload the image
-        if form.validate_on_submit():
-            return upload_image(form.image.data, form.image_url.data, ReviewImg, review_id, db)
-        else:
-            # Return validation errors
-            return jsonify({"errors": form.errors}), 400
+        new_image = ReviewImg(review_id=review_id, image_path=image_url)
+        db.session.add(new_image)
+        db.session.commit()
+
+        return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
+
     except Exception as e:
-        print("Error uploading image:", traceback.format_exc())
-        # Handle unexpected errors during image upload
-        return jsonify({"error": "An error occurred while uploading the image."}), 500
+        db.session.rollback()
+        current_app.logger.error(f"Unexpected error in upload_review_image: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while storing the image URL."}), 500
+
+# @review_routes.route("/<int:review_id>/image", methods=["POST"])
+# def upload_review_image(review_id):
+#     """
+#     Uploads an image for a specified review to AWS.
+
+#     Args:
+#         review_id (int): The ID of the review to which the image will be associated.
+
+#     Returns:
+#         Response: A message indicating the success or failure of the image upload.
+#     """
+#     start_time = time.time()
+
+#     try:
+#         # Initialize and set up the form for image upload
+#         form_start_time = time.time()
+#         form = ReviewImgForm()
+#         form['csrf_token'].data = request.cookies['csrf_token']
+#         form_end_time = time.time()
+#         current_app.logger.info(f"Time taken for form initialization: {form_end_time - form_start_time} seconds")
+
+#         validation_start_time = time.time()
+#         if form.validate_on_submit():
+#             validation_end_time = time.time()
+#             current_app.logger.info(f"Time taken for form validation: {validation_end_time - validation_start_time} seconds")
+
+#             upload_start_time = time.time()
+#             response = upload_image(form.image.data, form.image_url.data, ReviewImg, review_id, db)
+#             upload_end_time = time.time()
+#             current_app.logger.info(f"Time taken for image upload: {upload_end_time - upload_start_time} seconds")
+
+#             return response
+#         else:
+#             validation_end_time = time.time()
+#             current_app.logger.info(f"Time taken for form validation: {validation_end_time - validation_start_time} seconds")
+
+#             # Return validation errors
+#             return jsonify({"errors": form.errors}), 400
+
+#     except Exception as e:
+#         print("Error uploading image:", traceback.format_exc())
+#         # Handle unexpected errors during image upload
+#         return jsonify({"error": "An error occurred while uploading the image."}), 500
+#     finally:
+#         end_time = time.time()
+#         current_app.logger.info(f"Total time for upload_review_image: {end_time - start_time} seconds")
 
 # ***************************************************************
 # Endpoint to Retrieve a Review Image from AWS by Review ID
 # ***************************************************************
-@review_routes.route("/<int:review_id>/image")
+@review_routes.route("/<int:review_id>/images")
 def get_review_image(review_id):
     """
     Fetches the image associated with a specific review from AWS.

@@ -13,15 +13,14 @@
 
 import React from 'react';
 
-export default function SelectComponent({ options, onChange, ...props }) {
+export function SelectComponent({ options, onChange, ...props }) {
     return (
         <select onChange={onChange} {...props}>
             {options.map((option, index) => (
-                <option key={index} value={option.value}>
+                <option key={index} value={option.value} style={{color: 'black', backgroundColor: 'white'}}>
                     {option.label}
                 </option>
             ))}
         </select>
     );
 }
-
