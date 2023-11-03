@@ -11,7 +11,7 @@ import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
 import FavoritesRestaurants from "./components/Restaurants/FavoritesRestaurants";
 import CreateRestaurantForm from "./components/Restaurants/RestaurantForms/CreateRestaurantForm";
 import EditRestaurantForm from "./components/Restaurants/RestaurantForms/EditRestaurantForm";
-import MenuItemOverview from "./components/MenuItems/MenuItemOverview";
+import MenuItemOverview from "./components/MenuItems/GetMenuItems/MenuItemOverview";
 import CreateMenuItemForm from "./components/MenuItems/MenuItemForm/CreateMenuItemForm";
 import EditMenuItemForm from "./components/MenuItems/MenuItemForm/EditMenuItemForm";
 import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";

@@ -7,17 +7,17 @@
  */
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import MoreInfoModal from "./MoreInfoModal";
 import OpenModalButton from "../../Modals/OpenModalButton/index";
-import MenuSection from "../../MenuItems";
+import MenuSection from "../../MenuItems/GetMenuItems";
+import CreateMenuItemForm from "../../MenuItems/MenuItemForm/CreateMenuItemForm";
 import GetReviews from "../../Reviews/GetReviews";
 import CreateReview from "../../Reviews/CreateReview";
 import DeleteReview from "../../Reviews/DeleteReview";
-import CreateMenuItemForm from "../../MenuItems/MenuItemForm/CreateMenuItemForm";
 import { thunkGetRestaurantDetails } from "../../../store/restaurants";
 import { thunkGetMenuItemsByRestaurantId } from "../../../store/menuItems";
 import {
@@ -25,6 +25,8 @@ import {
   thunkFetchAllFavorites,
 } from "../../../store/favorites";
 import "./RestaurantDetail.css";
+
+
 
 export default function RestaurantDetail() {
   // Extract the restaurant ID from the URL using React Router's useParams
@@ -36,37 +38,32 @@ export default function RestaurantDetail() {
   // Reference to track if the component is still mounted - useful to prevent state updates on unmounted components
   const isMountedRef = useRef(true);
   // Redux state selectors to extract necessary data from the Redux store
-  const currentUser = useSelector((state) => state.session?.user);
-  const restaurantData = useSelector(
-    (state) => state.restaurants?.singleRestaurant
-  );
-  console.log("Restaurant Data:", restaurantData);
-  const menuItemsByRestaurant = useSelector(
-    (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {}
-  );
-  const menuItemImages = useSelector(
-    (state) => state.menuItems.menuItemImages || {}
-  );
+  const currentUser = useSelector((state) => state.session?.user, shallowEqual);
+  const restaurantData = useSelector((state) => state.restaurants?.singleRestaurant, shallowEqual);
+  // console.log("Restaurant Data:", restaurantData);
+  const menuItemsByRestaurant = useSelector((state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {}, shallowEqual);
+  const menuItemImages = useSelector((state) => state.menuItems.menuItemImages || {}, shallowEqual);
+  const reviewImages = useSelector((state) => state.reviews.reviewImages || {}, shallowEqual);
 
-  console.log("Full menuItemsByRestaurant:", menuItemsByRestaurant);
+  // console.log("Full menuItemsByRestaurant:", menuItemsByRestaurant);
 
-  console.log("Menu item images:", menuItemImages);
+  // console.log("Menu item images:", menuItemImages);
 
-  const userId = useSelector((state) => state.session.user?.id);
-  const favoritesById = useSelector((state) => state.favorites?.byId);
-  const restaurantError = useSelector((state) => state.restaurants.error);
-  const menuItemsTypes = useSelector((state) => state.menuItems?.types || {});
-  console.log("Menu item types:", menuItemsTypes);
+  const userId = useSelector((state) => state.session.user?.id, shallowEqual);
+  const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
+  const restaurantError = useSelector((state) => state.restaurants.error, shallowEqual);
+  const menuItemsTypes = useSelector((state) => state.menuItems?.types || {}, shallowEqual);
+  // console.log("Menu item types:", menuItemsTypes);
 
-  const reviews = useSelector((state) => state.reviews?.reviews || {});
-  const reviewError = useSelector((state) => state.reviews.error);
+  const reviews = useSelector((state) => state.reviews?.reviews || {}, shallowEqual);
+  const reviewError = useSelector((state) => state.reviews.error, shallowEqual);
   // const userHasReview = useSelector((state) => state.reviews.userHasReview);
   // const userHasReview = currentUser && Object.values(reviews).some((review) => review.user_id === currentUser.id);
   const userHasReview = currentUser
     ? Object.values(reviews).some((review) => review.user_id === currentUser.id)
     : false;
 
-  console.log("*********userHasReview:", userHasReview);
+  // console.log("*********userHasReview:", userHasReview);
   // Component state definitions:
   // State to manage the loading status or Track data loading status
   const [loading, setLoading] = useState(true);
@@ -80,7 +77,7 @@ export default function RestaurantDetail() {
 
   // Extract restaurant and owner details
   const restaurant = restaurantData?.byId[restaurantId] || null;
-  console.log("Restaurant:", restaurant);
+  // console.log("Restaurant:", restaurant);
 
   // const restaurant =
   //   restaurantData?.entities?.restaurants?.byId?.[restaurantId] || null;
@@ -91,8 +88,8 @@ export default function RestaurantDetail() {
   // const owner = useSelector(
   //   (state) => state.restaurants.owner || {}
   // );
-  console.log("Owner: ",owner)
-  console.log("currentUser : ",currentUser.id )
+  // console.log("Owner: ",owner)
+  // console.log("currentUser : ",currentUser.id )
   // Determine if the logged-in user has already posted a review for the displayed restaurant
   // const userHasReview = Object.values(reviews).some((review) => review.user_id === currentUser.id);
 
@@ -220,8 +217,10 @@ export default function RestaurantDetail() {
         {Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
           const itemsOfType = itemIds
             .map((id) => {
-              const item = menuItemsByRestaurant?.byId[id];
-              console.log(`Item for ID ${id}:`, item);
+              console.log("****menuItemsByRestaurant: ", menuItemsByRestaurant);
+              const item = menuItemsByRestaurant?.byId ? menuItemsByRestaurant.byId[id] : undefined;
+
+              // console.log(`Item for ID ${id}:`, item);
               return item;
             })
             .filter((item) => {
@@ -235,7 +234,8 @@ export default function RestaurantDetail() {
               key={type}
               type={type}
               items={itemsOfType}
-              menuItemImgs={menuItemImages}
+              menuItemImages={menuItemImages}
+              setReloadPage={setReloadPage}
             />
           );
         })}
@@ -272,7 +272,7 @@ export default function RestaurantDetail() {
         )}
 
         {/* Display all the reviews for the restaurant */}
-        <GetReviews restaurantId={restaurantId} setReloadPage={setReloadPage} />
+        <GetReviews restaurantId={restaurantId} reviewImages={reviewImages} setReloadPage={setReloadPage} />
       </div>
     </div>
   );

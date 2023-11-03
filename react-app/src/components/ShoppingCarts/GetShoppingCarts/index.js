@@ -6,7 +6,7 @@
  * a DeleteShoppingCart component to allow item deletion.
  */
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { thunkFetchCurrentCart } from "../../../store/shoppingCarts";
 import DeleteShoppingCart from '../DeleteShoppingCart';
 import "./ShoppingCart.css";
@@ -16,9 +16,9 @@ export default function ShoppingCart() {
     const dispatch = useDispatch();
 
     // Redux state selectors to extract necessary data from the Redux store
-    const cartItems = useSelector((state) => state.shoppingCarts.items);
-    const menuItemNames = useSelector((state) => state.shoppingCarts.menuItemNames);
-    const error = useSelector((state) => state.shoppingCarts.error);
+    const cartItems = useSelector((state) => state.shoppingCarts.items, shallowEqual);
+    const menuItemNames = useSelector((state) => state.shoppingCarts.menuItemNames, shallowEqual);
+    const error = useSelector((state) => state.shoppingCarts.error, shallowEqual);
 
     // Effect to fetch the current shopping cart when the component is mounted
     useEffect(() => {

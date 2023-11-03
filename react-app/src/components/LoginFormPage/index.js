@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { login } from "../../store/session";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import FormContainer, {
   // validateCommonFields,
@@ -10,7 +10,7 @@ import "./LoginForm.css";
 function LoginFormPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const sessionUser = useSelector((state) => state.session.user);
+  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);

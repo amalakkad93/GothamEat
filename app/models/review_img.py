@@ -15,7 +15,9 @@ class ReviewImg(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    review_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('reviews.id')))
+    # review_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('reviews.id')))
+    review_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('reviews.id'), ondelete='CASCADE'))
+    
     image_path = db.Column(db.String(500))
 
     def to_dict(self):

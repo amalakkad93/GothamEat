@@ -9,13 +9,13 @@
  * and add it to their cart.
  */
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { thunkGetMenuItemDetails } from "../../store/menuItems";
-import { thunkCreateOrder } from "../../store/orders";
-import { thunkAddItemToCart, addToCart } from "../../store/shoppingCarts";
+import { thunkGetMenuItemDetails } from "../../../store/menuItems";
+import { thunkCreateOrder } from "../../../store/orders";
+import { thunkAddItemToCart, addToCart } from "../../../store/shoppingCarts";
 import ReactImageMagnify from "react-image-magnify";
-import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
+import ShoppingCart from "../../ShoppingCarts/GetShoppingCarts";
 import "./MenuItemOverview.css";
 
 export default function MenuItemOverview() {
@@ -29,13 +29,13 @@ export default function MenuItemOverview() {
   const navigate = useNavigate();
 
   // User data from Redux state
-  const userId = useSelector((state) => state.session.user.id);
+  const userId = useSelector((state) => state.session.user.id, shallowEqual);
 
   // Menu item data from Redux state
-  const allIds = useSelector((state) => state.menuItems.singleMenuItem.allIds);
-  const byId = useSelector((state) => state.menuItems.singleMenuItem.byId);
+  const allIds = useSelector((state) => state.menuItems.singleMenuItem.allIds, shallowEqual);
+  const byId = useSelector((state) => state.menuItems.singleMenuItem.byId, shallowEqual);
   const menuItemImgs = useSelector(
-    (state) => state.menuItems?.menuItemImages?.byId || {}
+    (state) => state.menuItems?.menuItemImages?.byId || {}, shallowEqual
   );
 
   // Derive menu item details based on fetched data
@@ -44,12 +44,12 @@ export default function MenuItemOverview() {
 
   // Get the most recent state for the menu item using its ID
   const currentMenuItem = useSelector(
-    (state) => state.menuItems.singleMenuItem.byId[menuItemId]
+    (state) => state.menuItems.singleMenuItem.byId[menuItemId], shallowEqual
   );
 
   // Redux state: Loading and error statuses
-  const isLoading = useSelector((state) => state.menuItems?.isLoading);
-  const error = useSelector((state) => state.menuItems?.error);
+  const isLoading = useSelector((state) => state.menuItems?.isLoading, shallowEqual);
+  const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
   const [quantity, setQuantity] = useState(1);

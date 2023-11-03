@@ -50,7 +50,7 @@
 /* Submit button */
 button[type="submit"] {
   padding: 10px 20px;
-  background-color: #007BFF; /* Blue */
+  background-color: #007BFF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -59,10 +59,10 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background-color: #0056b3; /* Darker Blue */
+  background-color: #0056b3;
 }
 
-button[type="submit"]:disabled {
-  background-color: #ccc; /* Gray */
+/* button[type="submit"]:disabled {
+  background-color: #ccc;
   cursor: not-allowed;
-}
+} */

@@ -6,7 +6,7 @@
  * remove a restaurant from the favorites list.
  */
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import {
   thunkFetchAllFavorites,
   thunkToggleFavorite,
@@ -15,19 +15,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHeart as solidHeart,
   faArrowLeft,
-} from "@fortawesome/free-solid-svg-icons"; 
+} from "@fortawesome/free-solid-svg-icons";
 import "../GetRestaurants/GetRestaurants.css";
 
 export default function FavoritesRestaurants() {
   const dispatch = useDispatch();
 
   // Extract the user ID from the Redux store
-  const userId = useSelector((state) => state.session.user?.id);
+  const userId = useSelector((state) => state.session.user?.id, shallowEqual);
 
   // Extract favorite restaurants and all restaurant details from the Redux store
-  const favoritesById = useSelector((state) => state.favorites?.byId);
+  const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
   const allRestaurants = useSelector(
-    (state) => state.favorites.allRestaurants?.byId
+    (state) => state.favorites.allRestaurants?.byId, shallowEqual
   );
 
   // Extract all restaurants that are marked as favorites

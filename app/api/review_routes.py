@@ -10,7 +10,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from ..models import User, Review, ReviewImg, db, MenuItem, MenuItemImg
 from ..s3 import get_unique_filename, upload_file_to_s3, remove_file_from_s3, upload_file, allowed_file, ALLOWED_EXTENSIONS
 from ..forms import ReviewForm, ReviewImgForm
-from ..helper_functions import normalize_data, upload_image, delete_image
+from .. import helper_functions as hf
 
 review_routes = Blueprint('review', __name__)
 
@@ -78,6 +78,47 @@ def get_reviews_of_current_user():
         print("Error:", e)
         # Return a generalized error message for unexpected issues
         return jsonify({"error": "An error occurred while fetching the reviews."}), 500
+
+
+# ***************************************************************
+# Endpoint to Get Details of a Review by Id
+# ***************************************************************
+@review_routes.route('/<int:id>', methods=["GET"])
+def get_review(id):
+    """
+    Retrieve the details of a specific review.
+
+    Args:
+        id (int): The ID of the review to fetch.
+
+    Returns:
+        Response: The review details or an error message in JSON format.
+    """
+    try:
+        review = Review.query.get(id)
+        if not review:
+            return jsonify({"error": "Review not found."}), 404
+
+        # Fetching related images
+        review_images = ReviewImg.query.filter_by(review_id=id).all()
+        image_paths = [img.image_path for img in review_images]
+
+        # Convert the review to a dictionary and add image paths
+        data_review = review.to_dict()
+        data_review['image_paths'] = image_paths
+
+        # Wrap the data review in a list for normalization
+        data_list = [data_review]
+
+        # Normalize the data
+        normalized_data = hf.normalize_data(data_list, 'id')
+
+        return jsonify(normalized_data), 200
+
+    except Exception as e:
+        app.logger.error(f"An error occurred while fetching review with ID {id}: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while fetching the review."}), 500
+
 
 # ***************************************************************
 # Endpoint to Update a Specific Review by ID
@@ -219,11 +260,29 @@ def upload_review_image(review_id):
         if not image_url:
             return jsonify({"error": "Image URL is required."}), 400
 
+        # Assuming you might want to delete existing images for the review as in Code 1
+        existing_images = ReviewImg.query.filter_by(review_id=review_id).all()
+        for img in existing_images:
+            db.session.delete(img)
+
         new_image = ReviewImg(review_id=review_id, image_path=image_url)
         db.session.add(new_image)
         db.session.commit()
 
-        return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
+        # Log the success and include the image ID in the response
+        print("Sending image data:", {"status": "success", "image_url": image_url, "id": new_image.id})
+        return jsonify({
+            "status": "success",
+            "image_url": image_url,
+            "id": new_image.id,  # Include this line to return the ID
+            "code": 201
+        }), 201
+
+        # new_image = ReviewImg(review_id=review_id, image_path=image_url)
+        # db.session.add(new_image)
+        # db.session.commit()
+
+        # return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
 
     except Exception as e:
         db.session.rollback()

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app
-from ..s3 import get_unique_filename,  BUCKET_NAME
+from ..s3 import get_unique_filename, BUCKET_NAME, remove_file_from_s3
 
 s3_routes = Blueprint('s3_routes', __name__)
 
@@ -24,6 +24,17 @@ def generate_presigned_url():
 
     return jsonify({'presigned_url': presigned_url, 'file_url': f"{s3_location}{unique_filename}"})
 
+@s3_routes.route('/delete-image', methods=['POST'])
+def delete_image():
+    image_url = request.json.get('image_url')
+    if not image_url:
+        return jsonify({"error": "Image URL not provided."}), 400
+
+    deletion_result = remove_file_from_s3(image_url)
+    if deletion_result:
+        return jsonify({"message": "Image deleted successfully."}), 200
+    else:
+        return jsonify({"error": "Failed to delete the image."}), 500
 
 # @s3_routes.route('/generate_presigned_url', methods=['GET'])
 # def generate_presigned_url():

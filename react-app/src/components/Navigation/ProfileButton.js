@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { useNavigate, Link } from "react-router-dom";
 import SlidingModal from "../Modals/SlidingModal/SlidingModal";
@@ -12,7 +12,7 @@ import "./ProfileButton.css";
 export default function ProfileButton(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const sessionUser = useSelector((state) => state.session.user);
+  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
 

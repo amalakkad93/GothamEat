@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InputComponent } from "./InputComponent";
 import { TextareaComponent } from "./TextareaComponent";
 import { SelectComponent } from "./SelectComponent";
@@ -8,7 +8,8 @@ export default function FormContainer(props) {
   const {
     fields,
     onSubmit,
-    isSubmitDisabled,
+    // isSubmitDisabled,
+    isSubmitDisabled = false,
     errors,
     validations,
     className = "",
@@ -16,9 +17,31 @@ export default function FormContainer(props) {
     submitLabel = "Submit",
     submitButtonClass = "",
     formTitle = "",
+
+    name,
+    description,
+    type,
+    price,
+    image
   } = props;
 
+  // console.log("isSubmitDisabled:", isSubmitDisabled);
+
+  useEffect(() => {
+    // console.log("Initial field values:");
+    // console.log("Name:", name);
+    // console.log("Description:", description);
+    // console.log("Type:", type);
+    // console.log("Price:", price);
+    // console.log("Image:", image);
+    // console.log("Initial validation errors:", validationErrors);
+  }, []);
+
   const [validationErrors, setValidationErrors] = useState({});
+  // console.log("validationErrors:", validationErrors);
+
+
+
 
   const validateCommonFields = (fields, validations) => {
     let errors = {};
@@ -31,7 +54,7 @@ export default function FormContainer(props) {
         errors[validation.fieldName] = validation.message;
       }
     });
-
+    // console.log("Validation Errors after checking:", errors); // Logging
     return errors;
   };
   const clearValidationError = (fieldName) => {
@@ -61,12 +84,17 @@ const handleInputChange = (setterFunction, fieldType) => (e) => {
   clearValidationError(name);
 };
 
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    // console.log("Form is being submitted.");
     const errors = validateCommonFields(fields, validations);
     setValidationErrors(errors);
     if (Object.keys(errors).length === 0 && onSubmit) {
+      // console.log("No validation errors. Proceeding with submit."); // Logging
       onSubmit(e);
+    } else {
+      // console.log("Validation errors detected. Not proceeding."); // Logging
     }
   };
 
@@ -83,6 +111,7 @@ const handleInputChange = (setterFunction, fieldType) => (e) => {
   const isButtonDisabled =
     isSubmitDisabled || Object.keys(validationErrors).length > 0;
 
+    // console.log("Is Button Disabled:", isButtonDisabled);
   return (
     <form onSubmit={handleFormSubmit} className={`form-container ${className}`}>
       {formTitle && <h1>{formTitle}</h1>}
@@ -99,6 +128,7 @@ const handleInputChange = (setterFunction, fieldType) => (e) => {
                 <input
                   type={field.type}
                   placeholder={field.placeholder}
+                  value={field.value}
                   onChange={handleInputChange(field.setter, "file")}
                   className={inputClassName}
                 />
@@ -153,12 +183,21 @@ const handleInputChange = (setterFunction, fieldType) => (e) => {
         }
       })}
       <button
+    disabled={isSubmitDisabled}
+    // onClick={() => console.log("Button was clicked!")}
+    type="submit"
+    style={{ opacity: 1, cursor: 'pointer' }}
+>
+    {submitLabel}
+</button>
+
+      {/* <button
         className={submitButtonClass}
         type="submit"
-        disabled={isButtonDisabled}
+        // disabled={isButtonDisabled === true}
       >
         {submitLabel}
-      </button>
+      </button> */}
     </form>
   );
 }
