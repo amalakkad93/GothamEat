@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { signUp } from "../../store/session";
 import FormContainer, {
@@ -11,7 +11,7 @@ function SignupFormPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const sessionUser = useSelector((state) => state.session.user);
+  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");

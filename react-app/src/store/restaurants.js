@@ -235,7 +235,7 @@ export const thunkGetOwnerRestaurants = () => async (dispatch) => {
 
     if (response.ok) {
       const restaurants = await response.json();
-      console.log("Fetched owner's restaurants:", restaurants);
+      // console.log("Fetched owner's restaurants:", restaurants);
 
       // dispatch(actionGetOwnerRestaurants(restaurants.Restaurants));
       dispatch(actionGetOwnerRestaurants(restaurants));
@@ -281,7 +281,7 @@ export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
       throw errors;
     }
   } catch (error) {
-    console.log("Entered catch block", error);
+    // console.log("Entered catch block", error);
     dispatch(
       actionSetRestaurantError(
         "An error occurred while creating the restaurant."
@@ -388,7 +388,7 @@ export default function restaurantsReducer(state = initialState, action) {
       return { ...state, allRestaurants: action.restaurants };
 
     case GET_SINGLE_RESTAURANT:
-      console.log("Processing GET_SINGLE_RESTAURANT:", action.restaurant);
+      // console.log("Processing GET_SINGLE_RESTAURANT:", action.restaurant);
       return {
           ...state,
           singleRestaurant: { ...state.singleRestaurant, ...action.restaurant.entities.restaurants }
@@ -430,14 +430,14 @@ export default function restaurantsReducer(state = initialState, action) {
 
 
       case DELETE_RESTAURANT: {
-        console.log("DELETE_RESTAURANT action received. Current state:", state);
-        console.log("Restaurant ID to delete:", action.restaurantId);
+        // console.log("DELETE_RESTAURANT action received. Current state:", state);
+        // console.log("Restaurant ID to delete:", action.restaurantId);
 
         const newState = { ...state };
 
         // Logging and handling for allRestaurants slice
-        console.log("allRestaurants.byId before deletion:", newState.allRestaurants.byId);
-        console.log("allRestaurants.allIds before deletion:", newState.allRestaurants.allIds);
+        // console.log("allRestaurants.byId before deletion:", newState.allRestaurants.byId);
+        // console.log("allRestaurants.allIds before deletion:", newState.allRestaurants.allIds);
 
         delete newState.allRestaurants.byId[action.restaurantId];
 
@@ -451,8 +451,8 @@ export default function restaurantsReducer(state = initialState, action) {
         }
 
         // Logging and handling for owner slice
-        console.log("owner.byId before deletion:", newState.owner.byId);
-        console.log("owner.allIds before deletion:", newState.owner.allIds);
+        // console.log("owner.byId before deletion:", newState.owner.byId);
+        // console.log("owner.allIds before deletion:", newState.owner.allIds);
 
         if (newState.owner.byId) {
             delete newState.owner.byId[action.restaurantId];
@@ -467,7 +467,7 @@ export default function restaurantsReducer(state = initialState, action) {
             newState.owner.allIds = [];
         }
 
-        console.log("State after deletion:", newState);
+        // console.log("State after deletion:", newState);
 
         return newState;
     }

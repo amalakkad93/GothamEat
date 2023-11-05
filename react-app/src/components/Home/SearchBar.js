@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { LoadScript, StandaloneSearchBox } from "@react-google-maps/api";
 import { getKey } from "../../store/maps";
 import './home.css';
@@ -11,7 +11,7 @@ import './home.css';
 function SearchBar({ onPlaceSelected }) {
   const dispatch = useDispatch();
   const searchBoxRef = useRef(null);
-  const apiKey = useSelector((state) => state.maps.key);
+  const apiKey = useSelector((state) => state.maps.key, shallowEqual);
 
   // Fetch the Google Maps API key from the Redux store when the component mounts.
   useEffect(() => {

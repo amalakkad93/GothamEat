@@ -29,7 +29,8 @@ def get_cart():
     try:
         # Query the database for the current user's shopping cart
         cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
-
+        if cart:
+            total_price = cart.calculate_total_price()
         # If the cart is not found, return a structured response indicating there's no cart
         if not cart:
             return jsonify({
@@ -40,7 +41,8 @@ def get_cart():
                     }
                 },
                 "metadata": {
-                    "totalItems": 0
+                    "totalItems": 0,
+                    "totalPrice": 0.0
                 }
             }), 404
 
@@ -58,7 +60,8 @@ def get_cart():
                 "shoppingCartItems": normalized_items
             },
             "metadata": {
-                "totalItems": len(normalized_items["allIds"])
+                "totalItems": len(normalized_items["allIds"]),
+                "totalPrice": total_price
             }
         })
 
@@ -144,6 +147,66 @@ def add_item_to_cart(id):
     except Exception as e:
         current_app.logger.error(f"Unexpected error in add_item_to_cart: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while adding item to the cart."}), 500
+@login_required
+@shopping_cart_routes.route('/items', methods=['POST'])
+def add_items_to_cart():
+    """
+    Adds new items to the current user's shopping cart based on the provided menu item IDs and quantities.
+
+    Returns:
+        Response: A message indicating the success or failure of the addition.
+                  On success, also returns the details of the added items.
+    """
+    try:
+        # Parse the JSON payload
+        data = request.get_json()
+        if not isinstance(data, list):
+            return jsonify({"error": "Expected a list of items"}), 400
+
+        # Find or create a shopping cart for the current user
+        cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+        if not cart:
+            cart = ShoppingCart(user_id=current_user.id)
+            db.session.add(cart)
+
+        # Process each item in the payload
+        new_items = []
+        for item_data in data:
+            # You could also use a form or a schema to validate the item_data
+            menu_item_id = item_data.get('menu_item_id')
+            quantity = item_data.get('quantity')
+            if not menu_item_id or not quantity:
+                return jsonify({"error": "menu_item_id and quantity are required for each item"}), 400
+
+            # Validate the menu item exists
+            item = MenuItem.query.get(menu_item_id)
+            if not item:
+                return jsonify({"error": f"Invalid menu_item_id {menu_item_id}. This item does not exist."}), 400
+
+            # Add the item to the cart
+            cart_item = ShoppingCartItem(
+                menu_item_id=menu_item_id,
+                quantity=quantity,
+                shopping_cart_id=cart.id
+            )
+            db.session.add(cart_item)
+            new_items.append(cart_item)
+
+        # Commit the new items to the database
+        db.session.commit()
+
+        # Return a success message with the details of the added items
+        return jsonify({
+            "message": "Items added to cart successfully",
+            "entities": {
+                "shoppingCartItems": normalize_data([item.to_dict() for item in new_items], 'id')
+            }
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Unexpected error in add_items_to_cart: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while adding items to the cart."}), 500
 
 # ***************************************************************
 # Endpoint to Update a Specific Item in the Current User's Shopping Cart
@@ -179,12 +242,16 @@ def update_cart_item(item_id):
             cart_item.quantity = form.quantity.data
             db.session.commit()
 
+
+            shopping_cart = ShoppingCart.query.get(cart_item.shopping_cart_id)
+            db.session.refresh(shopping_cart)
             # Return a success message along with the updated item details
             return jsonify({
-                "message": "Item updated successfully",
-                "entities": {
-                    "shoppingCartItems": normalize_data([cart_item.to_dict()], 'id')
-                }
+               "message": "Item updated successfully",
+               "entities": {
+                   "shoppingCartItems": normalize_data([cart_item.to_dict()], 'id')
+               },
+               "totalPrice": shopping_cart.calculate_total_price() 
             }), 200
 
         # If the form doesn't validate, return the form errors
@@ -222,6 +289,10 @@ def delete_cart_item(item_id):
         # If the cart item is not found, return an error message
         if not cart_item:
             return jsonify({"error": "Cart item not found."}), 404
+
+        # Check if the cart_item is associated with a cart
+        if not cart_item.cart:
+            return jsonify({"error": "Cart item is not associated with a valid cart."}), 400
 
         # Ensure that the current user is the owner of the cart item
         if cart_item.cart.user_id != current_user.id:

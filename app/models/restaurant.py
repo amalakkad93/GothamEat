@@ -39,7 +39,23 @@ class Restaurant(db.Model):
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True, cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='restaurant', lazy=True)
 
-    # Add the get_delivery_times method to retrieve delivery times for this restaurant
+    # # Add the get_delivery_times method to retrieve delivery times for this restaurant
+    # def get_delivery_times(self):
+    #     order_delivery_times = (
+    #         db.session.query(Order.delivery_time)
+    #         .join(OrderItem, Order.id == OrderItem.order_id)
+    #         .join(MenuItem, OrderItem.menu_item_id == MenuItem.id)
+    #         .filter(MenuItem.restaurant_id == self.id)
+    #         .all()
+    #     )
+    #     # print("*******************", order_delivery_times)
+
+    #     # Extract the delivery times as a list of strings
+    #     delivery_times = [time[0] for time in order_delivery_times]
+
+    #     # return delivery_times
+    #     # Join the delivery times into a single string separated by commas
+    #     return ", ".join(delivery_times)
     def get_delivery_times(self):
         order_delivery_times = (
             db.session.query(Order.delivery_time)
@@ -48,12 +64,10 @@ class Restaurant(db.Model):
             .filter(MenuItem.restaurant_id == self.id)
             .all()
         )
-        # print("*******************", order_delivery_times)
 
-        # Extract the delivery times as a list of strings
-        delivery_times = [time[0] for time in order_delivery_times]
+        # Ensure that delivery times are non-None and convert them to strings
+        delivery_times = [str(time[0]) for time in order_delivery_times if time[0] is not None]
 
-        # return delivery_times
         # Join the delivery times into a single string separated by commas
         return ", ".join(delivery_times)
 
@@ -98,12 +112,15 @@ class Restaurant(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'postal_code': self.postal_code,
-            'opening_time': self.opening_time.strftime('%H:%M'),
-            'closing_time': self.closing_time.strftime('%H:%M'),
+            # 'opening_time': self.opening_time.strftime('%H:%M'),
+            # 'closing_time': self.closing_time.strftime('%H:%M'),
+            'opening_time': self.opening_time.strftime('%H:%M') if self.opening_time else None,
+            'closing_time': self.closing_time.strftime('%H:%M') if self.closing_time else None,
             # 'opening_time': self.opening_time.strftime('%I:%M %p'),
             # 'closing_time': self.closing_time.strftime('%I:%M %p'),
             'food_type': self.food_type,
             'average_rating': self.average_rating,
             'num_reviews': self.get_num_reviews(),
-            'delivery_times': self.get_delivery_times(),  # Include delivery times in the dictionary
+            'delivery_times': self.get_delivery_times(),
+
         }

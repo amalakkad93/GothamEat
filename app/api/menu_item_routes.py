@@ -42,6 +42,7 @@ def get_menu_item(id):
             'id': menu_item.id,
             'name': menu_item.name,
             'description': menu_item.description,
+            'type': menu_item.type,
             'price': menu_item.price,
             'image_paths': image_paths,
         }
@@ -152,6 +153,37 @@ def delete_menu_item(id):
 # ***************************************************************
 # Endpoint to Upload Menu Item Images
 # ***************************************************************
+# @menu_item_routes.route("/<int:menu_item_id>/images", methods=["POST"])
+# @login_required
+# def upload_menu_item_image(menu_item_id):
+#     """
+#     Stores the image URL for a specified menu item.
+#     """
+#     try:
+#         # Get data from the incoming request
+#         data = request.get_json()
+#         image_url = data.get("image_url")
+
+#         # Check if image_url is present in the payload
+#         if not image_url:
+#             return jsonify({"error": "Image URL is required."}), 400
+
+#         # Create a new MenuItemImg instance and store the image URL
+#         new_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
+#         db.session.add(new_image)
+#         db.session.commit()
+
+#         return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
+
+#     except Exception as e:
+#         db.session.rollback()
+#         current_app.logger.error(f"Unexpected error in upload_menu_item_image: {str(e)}")
+#         return jsonify({"error": "An unexpected error occurred while storing the image URL."}), 500
+
+#         # # Log the error for debugging purposes
+#         # print("Error uploading image:", traceback.format_exc())
+#         # return jsonify({"error": "An error occurred while uploading the image."}), 500
+
 @menu_item_routes.route("/<int:menu_item_id>/images", methods=["POST"])
 @login_required
 def upload_menu_item_image(menu_item_id):
@@ -167,21 +199,35 @@ def upload_menu_item_image(menu_item_id):
         if not image_url:
             return jsonify({"error": "Image URL is required."}), 400
 
+        # First, delete all existing images associated with this menu item
+        existing_images = MenuItemImg.query.filter_by(menu_item_id=menu_item_id).all()
+        for img in existing_images:
+            db.session.delete(img)
+
         # Create a new MenuItemImg instance and store the image URL
         new_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
         db.session.add(new_image)
         db.session.commit()
+        
+        print("Sending image data:", {"status": "success", "image_url": image_url, "id": new_image.id})
+        # Return the ID of the new image along with the other data
+        return jsonify({
+            "status": "success",
+            "image_url": image_url,
+            "id": new_image.id,  # Include this line to return the ID
+            "code": 201
+        }), 201
+        # # Create a new MenuItemImg instance and store the image URL
+        # new_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
+        # db.session.add(new_image)
+        # db.session.commit()
 
-        return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
+        # return jsonify({"status": "success", "image_url": image_url, "code": 201}), 201
 
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Unexpected error in upload_menu_item_image: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while storing the image URL."}), 500
-
-        # # Log the error for debugging purposes
-        # print("Error uploading image:", traceback.format_exc())
-        # return jsonify({"error": "An error occurred while uploading the image."}), 500
 
 
 # ***************************************************************

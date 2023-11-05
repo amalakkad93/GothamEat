@@ -113,6 +113,7 @@ def fetch_menu_items_for_restaurant(restaurant_id):
 
     for item in menu_items:
         item_dict = item.to_dict()
+        print("+++++++++++++++++++item_dic: ",item_dict)
         item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
         menu_items_list.append(item_dict)
 

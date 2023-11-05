@@ -13,10 +13,11 @@ import React from "react";
 import MenuItem from "./ MenuItem"
 import './MenuItem.css'
 
-export default function MenuSection({ type, items, menuItemImgs }) {
+export default function MenuSection({ type, items, menuItemImages, setReloadPage }) {
   // Check to ensure the items prop is an array
-  console.log(".........Rendering MenuSection for type:", type);
-  console.log(".........Items in MenuSection for type:", type, items);
+  // console.log("+++menuItemImgs: ", menuItemImgs);
+  // console.log(".........Rendering MenuSection for type:", type);
+  // console.log(".........Items in MenuSection for type:", type, items);
 
   if (!Array.isArray(items)) {
     console.error("Items is not an array:", items);
@@ -31,7 +32,11 @@ export default function MenuSection({ type, items, menuItemImgs }) {
       {/* List all menu items under this section */}
       <ul>
         {items.map(item => (
-          <MenuItem key={item.id} item={item} menuItemImgs={menuItemImgs} />
+          // <MenuItem key={item.id} item={item} menuItemImgs={menuItemImgs} />
+          // <MenuItem key={item.id + Date.now()} item={item} menuItemImgs={menuItemImgs} />
+          <MenuItem key={item.id} item={item} menuItemImages={menuItemImages} setReloadPage={setReloadPage} />
+
+
         ))}
       </ul>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import './SlidingModal.css';
+import './SlidingModalLeft.css';
 
-export default function SlidingModal({ isVisible, onClose, children }) {
+export default function SlidingModalLeft({ isVisible, onClose, children }) {
   return (
       <div className={`sliding-modal ${isVisible ? 'visible' : ''}`}>
           <div className="sliding-modal-backdrop" onClick={onClose}></div>

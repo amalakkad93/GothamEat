@@ -5,7 +5,7 @@
  * It showcases each restaurant's details, including name, address, rating, and favorite status.
  */
 import React, { useEffect, useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
   thunkToggleFavorite,
@@ -35,12 +35,12 @@ export default function GetRestaurants({ ownerMode = false }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Extracting necessary data from the Redux state
-  const favoritesById = useSelector((state) => state.favorites?.byId);
+  const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
   // const ownerRestaurants = useSelector((state) => state.restaurants.owner || {});
-  const ownerRestaurants = useSelector((state) => state.restaurants.owner?.byId || {});
+  const ownerRestaurants = useSelector((state) => state.restaurants.owner?.byId || {}, shallowEqual);
 
   const nearbyRestaurants = useSelector(
-    (state) => state.restaurants.nearby?.byId || {}
+    (state) => state.restaurants.nearby?.byId || {}, shallowEqual
   );
 
   const restaurantDetails = ownerMode ? ownerRestaurants : nearbyRestaurants;
@@ -48,7 +48,7 @@ export default function GetRestaurants({ ownerMode = false }) {
 
   const restaurantIds = Object.keys(restaurantDetails);
 
-  const userId = useSelector((state) => state.session.user?.id);
+  const userId = useSelector((state) => state.session.user?.id, shallowEqual);
 
   // Effect to initialize user location and fetch favorites if user is logged in
   useEffect(() => {
