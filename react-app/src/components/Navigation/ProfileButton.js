@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { useNavigate, Link } from "react-router-dom";
-import SlidingModal from "../Modals/SlidingModal/SlidingModal";
+import SlidingModalLeft from "../Modals/SlidingModal/SlidingModalLeft";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faBars } from "@fortawesome/free-solid-svg-icons";
 
@@ -77,7 +77,7 @@ export default function ProfileButton(props) {
         </div>
         <div className="menu-drop-down">
           {/* SlidingModal start here */}
-          <SlidingModal isVisible={showMenu} onClose={closeMenu}>
+          <SlidingModalLeft isVisible={showMenu} onClose={closeMenu}>
             <ul
               className={ulClassName}
               ref={ulRef}
@@ -191,7 +191,7 @@ export default function ProfileButton(props) {
                 </>
               )}
             </ul>
-          </SlidingModal>
+          </SlidingModalLeft>
         </div>
       </div>
     </>

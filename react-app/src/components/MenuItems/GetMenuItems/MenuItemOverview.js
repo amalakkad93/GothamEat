@@ -21,6 +21,7 @@ import "./MenuItemOverview.css";
 export default function MenuItemOverview() {
   // Route parameters
   const { itemId, restaurantId } = useParams();
+  const [isCartVisible, setIsCartVisible] = useState(false);
 
   // Redux dispatch for action invocations
   const dispatch = useDispatch();
@@ -32,10 +33,17 @@ export default function MenuItemOverview() {
   const userId = useSelector((state) => state.session.user.id, shallowEqual);
 
   // Menu item data from Redux state
-  const allIds = useSelector((state) => state.menuItems.singleMenuItem.allIds, shallowEqual);
-  const byId = useSelector((state) => state.menuItems.singleMenuItem.byId, shallowEqual);
+  const allIds = useSelector(
+    (state) => state.menuItems.singleMenuItem.allIds,
+    shallowEqual
+  );
+  const byId = useSelector(
+    (state) => state.menuItems.singleMenuItem.byId,
+    shallowEqual
+  );
   const menuItemImgs = useSelector(
-    (state) => state.menuItems?.menuItemImages?.byId || {}, shallowEqual
+    (state) => state.menuItems?.menuItemImages?.byId || {},
+    shallowEqual
   );
 
   // Derive menu item details based on fetched data
@@ -44,11 +52,15 @@ export default function MenuItemOverview() {
 
   // Get the most recent state for the menu item using its ID
   const currentMenuItem = useSelector(
-    (state) => state.menuItems.singleMenuItem.byId[menuItemId], shallowEqual
+    (state) => state.menuItems.singleMenuItem.byId[menuItemId],
+    shallowEqual
   );
 
   // Redux state: Loading and error statuses
-  const isLoading = useSelector((state) => state.menuItems?.isLoading, shallowEqual);
+  const isLoading = useSelector(
+    (state) => state.menuItems?.isLoading,
+    shallowEqual
+  );
   const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
@@ -78,9 +90,9 @@ export default function MenuItemOverview() {
     height: 1800,
   };
 
-  // const handleQuantityChange = (e) => {
-  //   setQuantity(e.target.value);
-  // };
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+  };
 
   // const handleOrderSubmission = () => {
   //   // Dispatch the thunk action to create an order
@@ -99,16 +111,24 @@ export default function MenuItemOverview() {
       console.error("Menu item data not yet available.");
       return;
     }
-
+    console.log(
+      `Attempting to add to cart: menuItemId=${menuItemId}, quantity=${quantity}, restaurantId=${restaurantId}`
+    );
     try {
-      const message = await dispatch(thunkAddItemToCart(menuItemId, quantity));
+      // const message = await dispatch(thunkAddItemToCart(menuItemId, quantity));
+      const message = await dispatch(
+        thunkAddItemToCart(menuItemId, quantity, restaurantId)
+      );
+      console.log("==restaurantId in MenuItemOverview: ", restaurantId);
       if (message) {
         alert(message);
       }
+      // Convert quantity to a number before dispatching the action
+      const numericQuantity = Number(quantity);
 
       // Update the cart state in Redux
-      dispatch(addToCart(menuItemId, quantity, menuItem.name));
-
+      dispatch(addToCart(menuItemId, numericQuantity, menuItem)); 
+      setIsCartVisible(true);
       // Navigate back to the restaurant page after adding the item to the cart
       navigate(`/restaurants/${restaurantId}`);
     } catch (error) {
@@ -158,7 +178,7 @@ export default function MenuItemOverview() {
           <select
             value={quantity}
             // onChange handler commented out
-            // onChange={handleQuantityChange}
+            onChange={handleQuantityChange}
           >
             {
               // Generate options for quantity from 1 to 10

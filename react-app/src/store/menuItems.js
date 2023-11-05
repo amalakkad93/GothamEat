@@ -138,7 +138,7 @@ export const thunkGetMenuItemDetails = (itemId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/menu-items/${itemId}`);
     const data = await response.json();
-    // console.log("Server response:", data);
+    console.log("+++++++++++++++++++++++Fetched details:", data);
     if (response.ok) {
       const { byId, allIds } = data;
 
@@ -405,11 +405,14 @@ export const thunkUpdateMenuItem = (
       }
 
       // Update menu item details
-      const menuItemResponse = await csrfFetch(`/api/menu-items/${menuItemId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
+      const menuItemResponse = await csrfFetch(
+        `/api/menu-items/${menuItemId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        }
+      );
 
       if (!menuItemResponse.ok) {
         const data = await menuItemResponse.json();
@@ -422,7 +425,11 @@ export const thunkUpdateMenuItem = (
       // If there's a new image to upload
       if (newImage) {
         // Get presigned URL from the server
-        const presignedResponse = await csrfFetch(`/s3/generate_presigned_url?filename=${encodeURIComponent(newImage.name)}&contentType=${encodeURIComponent(newImage.type)}`);
+        const presignedResponse = await csrfFetch(
+          `/s3/generate_presigned_url?filename=${encodeURIComponent(
+            newImage.name
+          )}&contentType=${encodeURIComponent(newImage.type)}`
+        );
 
         if (!presignedResponse.ok) {
           const data = await presignedResponse.json();
@@ -447,11 +454,14 @@ export const thunkUpdateMenuItem = (
         }
 
         // Update the image URL in your application's backend
-        const updateImageResponse = await csrfFetch(`/api/menu-items/${menuItemId}/images`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_url: file_url }),
-        });
+        const updateImageResponse = await csrfFetch(
+          `/api/menu-items/${menuItemId}/images`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_url: file_url }),
+          }
+        );
 
         if (!updateImageResponse.ok) {
           const errorData = await updateImageResponse.json();
@@ -460,9 +470,20 @@ export const thunkUpdateMenuItem = (
         }
 
         const updateImageData = await updateImageResponse.json();
-        console.log("**********Dispatching image upload action:", updateImageData.id, file_url, menuItemId);
-        if (updateImageData.status === 'success') {
-          dispatch(actionUploadMenuItemImage(updateImageData.id, updateImageData.image_url, menuItemId));
+        console.log(
+          "**********Dispatching image upload action:",
+          updateImageData.id,
+          file_url,
+          menuItemId
+        );
+        if (updateImageData.status === "success") {
+          dispatch(
+            actionUploadMenuItemImage(
+              updateImageData.id,
+              updateImageData.image_url,
+              menuItemId
+            )
+          );
           // dispatch(actionUploadMenuItemImage(updateImageData.id, file_url, menuItemId));
         }
         // Dispatch the action to update the Redux state with the new image info
@@ -471,12 +492,16 @@ export const thunkUpdateMenuItem = (
       // Return a success message
       return { message: "Menu item updated successfully" };
     } catch (error) {
-      dispatch(actionSetMenuItemError(error.message || "An unexpected error occurred while updating the menu item."));
+      dispatch(
+        actionSetMenuItemError(
+          error.message ||
+            "An unexpected error occurred while updating the menu item."
+        )
+      );
       throw error;
     }
   };
 };
-
 
 // ***************************************************************
 //  Thunk to Delete a Menu Item
@@ -521,7 +546,7 @@ const menuItemInitialState = {
   singleMenuItem: { byId: {}, allIds: [] },
   menuItemsByRestaurant: {},
   // menuItemImages: {},
-  menuItemImages: {byId: {}, allIds: []},
+  menuItemImages: { byId: {}, allIds: [] },
   types: {},
   error: null,
   isLoading: false,
@@ -529,6 +554,8 @@ const menuItemInitialState = {
 
 /** Defines how the state should change for each menu item action */
 export default function menuItemsReducer(state = menuItemInitialState, action) {
+  console.log('++Action received', action);
+  console.log('Current state', state);
   switch (action.type) {
     case GET_SINGLE_MENU_ITEM:
       return {
@@ -539,14 +566,29 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         },
       };
 
+
+
+
+
     case GET_MENU_ITEMS_BY_RESTAURANT:
-      return {
-        ...state,
-        menuItemsByRestaurant: {
-          ...state.menuItemsByRestaurant,
-          [action.restaurantId]: action.menuItems,
-        },
-      };
+        // Check if the action has defined menuItems before attempting to set them in the state
+        if (!action.menuItems) {
+          console.error("No menu items provided for restaurant with id:", action.restaurantId);
+          return {
+            ...state,
+            error: `No menu items provided for restaurant with id: ${action.restaurantId}`
+          };
+        }
+
+        // Proceed with updating the state if menuItems are present
+        return {
+          ...state,
+          menuItemsByRestaurant: {
+            ...state.menuItemsByRestaurant,
+            [action.restaurantId]: action.menuItems,
+          },
+        };
+
     case SET_MENU_ITEM_IMAGES:
       return {
         ...state,
@@ -559,11 +601,11 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         types: action.types,
       };
 
-    case CREATE_MENU_ITEM:
-      const restaurantId = action.menuItem.restaurant_id; // Assuming this is how you get the restaurant ID
+    case CREATE_MENU_ITEM: {
+      const restaurantId = action.menuItem.restaurant_id;
       const updatedMenuItems = state.menuItemsByRestaurant[restaurantId]
-        ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem.id]
-        : [action.menuItem.id];
+        ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem]
+        : [action.menuItem];
 
       return {
         ...state,
@@ -579,84 +621,105 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
           [restaurantId]: updatedMenuItems,
         },
       };
-    // case UPLOAD_MENU_ITEM_IMAGE: {
-    //   return {
-    //     ...state,
-    //     menuItemImages: {
-    //       ...state.menuItemImages,
-    //       [action.menuItemId]: action.imageUrl,
-    //     },
-    //   };
-    // }
-    //******************************************************* */
-    // case UPLOAD_MENU_ITEM_IMAGE: {
-    //   return {
-    //     ...state,
-    //     menuItemImages: {
-    //       ...state.menuItemImages,
-    //       byId: {
-    //         ...state.menuItemImages.byId,
-    //         [action.menuItemId]: {
-    //           ...state.menuItemImages.byId[action.menuItemId], // Preserve any other existing properties
-    //           image_path: action.imageUrl
-    //         }
-    //       },
-    //       allIds: state.menuItemImages.allIds.includes(action.menuItemId)
-    //       ? [...state.menuItemImages.allIds]
-    //       : [...state.menuItemImages.allIds, action.menuItemId]
-    //     }
-    //   };
-    // }
+    }
+
     case UPLOAD_MENU_ITEM_IMAGE: {
-      const { image_id, image_path, menu_item_id, restaurant_id } = action.payload;
+      const { id, image_path, menu_item_id, restaurant_id } = action.payload;
+
+      // Initialize the restaurant's menu items if it doesn't exist
+      if (!state.menuItemsByRestaurant[restaurant_id]) {
+        state.menuItemsByRestaurant[restaurant_id] = [];
+      }
+
+      // Initialize the menuItemImages.byId if it doesn't exist
+      if (!state.menuItemImages.byId) {
+        state.menuItemImages.byId = {};
+      }
+
+      // Initialize the menuItemImages.allIds if it doesn't exist
+      if (!state.menuItemImages.allIds) {
+        state.menuItemImages.allIds = [];
+      }
 
       // Update menuItemImages state
       const newMenuItemImages = {
         ...state.menuItemImages,
         byId: {
           ...state.menuItemImages.byId,
-          [image_id]: { image_path, menu_item_id },
+          [id]: { image_path, menu_item_id },
         },
-        allIds: [...state.menuItemImages.allIds, image_id],
+        allIds: [...state.menuItemImages.allIds, id],
       };
 
-      // Update the specific menu item's image in menuItemsByRestaurant
-      const restaurantMenuItems = state.menuItemsByRestaurant[restaurant_id];
-      if (restaurantMenuItems && restaurantMenuItems.byId[menu_item_id]) {
-        const updatedMenuItem = {
-          ...restaurantMenuItems.byId[menu_item_id],
-          image_id: image_id // Assuming you want to replace it with the new image ID
-        };
-
-        // Update the state with the new menu item details
-        const updatedMenuItemsByRestaurant = {
-          ...state.menuItemsByRestaurant,
-          [restaurant_id]: {
-            ...restaurantMenuItems,
-            byId: {
-              ...restaurantMenuItems.byId,
-              [menu_item_id]: updatedMenuItem
-            }
-          }
-        };
-
-        return {
-          ...state,
-          menuItemImages: newMenuItemImages,
-          menuItemsByRestaurant: updatedMenuItemsByRestaurant,
-        };
-      } else {
-        // Handle the case where the menu item doesn't exist
-        return state;
-      }
+      return {
+        ...state,
+        menuItemImages: newMenuItemImages,
+      };
     }
+        // case CREATE_MENU_ITEM:
+    //   const restaurantId = action.menuItem.restaurant_id; // Assuming this is how you get the restaurant ID
+    //   const updatedMenuItems = state.menuItemsByRestaurant[restaurantId]
+    //     ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem.id]
+    //     : [action.menuItem.id];
 
+    //   return {
+    //     ...state,
+    //     singleMenuItem: {
+    //       byId: {
+    //         ...state.singleMenuItem.byId,
+    //         [action.menuItem.id]: action.menuItem,
+    //       },
+    //       allIds: [...state.singleMenuItem.allIds, action.menuItem.id],
+    //     },
+    //     menuItemsByRestaurant: {
+    //       ...state.menuItemsByRestaurant,
+    //       [restaurantId]: updatedMenuItems,
+    //     },
+    //   };
+    // case UPLOAD_MENU_ITEM_IMAGE: {
+    //   const { image_id, image_path, menu_item_id, restaurant_id } =
+    //     action.payload;
 
+    //   // Update menuItemImages state
+    //   const newMenuItemImages = {
+    //     ...state.menuItemImages,
+    //     byId: {
+    //       ...state.menuItemImages.byId,
+    //       [image_id]: { image_path, menu_item_id },
+    //     },
+    //     allIds: [...state.menuItemImages.allIds, image_id],
+    //   };
 
+    //   // Update the specific menu item's image in menuItemsByRestaurant
+    //   const restaurantMenuItems = state.menuItemsByRestaurant[restaurant_id];
+    //   if (restaurantMenuItems && restaurantMenuItems?.byId[menu_item_id]) {
+    //     const updatedMenuItem = {
+    //       ...restaurantMenuItems.byId[menu_item_id],
+    //       image_id: image_id, // Assuming you want to replace it with the new image ID
+    //     };
 
+    //     // Update the state with the new menu item details
+    //     const updatedMenuItemsByRestaurant = {
+    //       ...state.menuItemsByRestaurant,
+    //       [restaurant_id]: {
+    //         ...restaurantMenuItems,
+    //         byId: {
+    //           ...restaurantMenuItems.byId,
+    //           [menu_item_id]: updatedMenuItem,
+    //         },
+    //       },
+    //     };
 
-
-
+    //     return {
+    //       ...state,
+    //       menuItemImages: newMenuItemImages,
+    //       menuItemsByRestaurant: updatedMenuItemsByRestaurant,
+    //     };
+    //   } else {
+    //     // Handle the case where the menu item doesn't exist
+    //     return state;
+    //   }
+    // }
 
     //******************************************************* */
 

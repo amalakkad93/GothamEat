@@ -20,8 +20,29 @@ class ShoppingCart(db.Model):
 
     items = db.relationship("ShoppingCartItem", backref='cart')
 
+    def calculate_total_price(self):
+        # This method calculates the total price of all items in the shopping cart.
+
+        # Check if the items relationship is a dynamic loader, if so, load all items.
+        # This is to ensure that we're working with the actual list of items
+        # and not an unloaded SQL query or relationship.
+        items = self.items.all() if hasattr(self.items, 'all') else self.items
+
+        # Compute the total price by iterating over each item in the cart.
+        # We use a generator expression to sum up the price multiplied by the quantity.
+        # The 'or 0' part ensures that if either the price or quantity is None (which shouldn't happen),
+        # it is treated as 0 to avoid type errors during the calculation.
+        total_price = sum((item.menu_item.price or 0) * (item.quantity or 0) for item in items)
+
+        # The total price is rounded to 2 decimal places before being returned.
+        # This is a common practice when dealing with currency to avoid
+        # floating-point arithmetic issues and to ensure the price is in a standard currency format.
+        return round(total_price, 2)
+
+
     def to_dict(self):
         return {
            'id': self.id,
-           'user_id': self.user_id
+           'user_id': self.user_id,
+           'total_price': self.calculate_total_price(),
         }

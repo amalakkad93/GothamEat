@@ -19,30 +19,44 @@ export default function EditReview({
   const dispatch = useDispatch();
   const { closeModal } = useModal();
 
-  const [reviewText, setReviewText] = useState('');
+  const [review, setReview] = useState('');
   const [stars, setStars] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState('');
   const [message, setMessage] = useState('');
+  const [initialReview, setInitialReview] = useState({});
+
+  console.log("🚀 ~ file: index.js:29 ~   reviewId:",   reviewId)
+
+  console.log("🚀 ~ file: index.js:30 ~  restaurantId:",  restaurantId)
+
+  console.log("🚀 ~ file: index.js:31 ~ imageId:", imageId)
+
 
   useEffect(() => {
     dispatch(thunkGetReviewDetails(reviewId))
       .then((data) => {
-        setReviewText(data.review);
-        setStars(data.rating);
-        setExistingImageUrl(data.imageUrl);
+        console.log('Fetched review data:', data);
+        if (data) {
+          setReview(data.review || '');
+          setStars(data.rating || 0);
+          // setExistingImageUrl(data.imageUrl || '');
+          setInitialReview(data);
+        }
       })
       .catch((error) => {
-        console.error(error);
+        console.error('Failed to load review details:', error);
         setMessage('Failed to load review details.');
       });
   }, [dispatch, reviewId]);
+
 
   const handleUpdateReview = async (e) => {
     e.preventDefault();
 
     let updatedReviewData = {
-      review: reviewText,
+      ...initialReview,
+      review,
       stars,
     };
 
@@ -72,8 +86,8 @@ export default function EditReview({
         {message && <div className='error'>{message}</div>}
         <textarea
           placeholder='Edit your review here...'
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
+          value={review}
+          onChange={(e) => setReview(e.target.value)}
         />
         <StarRatingInput rating={stars} onChange={setStars} />
         <input type='file' onChange={(e) => setSelectedImage(e.target.files[0])} />

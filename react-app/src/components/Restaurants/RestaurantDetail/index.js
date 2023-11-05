@@ -77,7 +77,7 @@ export default function RestaurantDetail() {
 
   // Extract restaurant and owner details
   const restaurant = restaurantData?.byId[restaurantId] || null;
-  // console.log("Restaurant:", restaurant);
+  console.log("Restaurant:", restaurant);
 
   // const restaurant =
   //   restaurantData?.entities?.restaurants?.byId?.[restaurantId] || null;

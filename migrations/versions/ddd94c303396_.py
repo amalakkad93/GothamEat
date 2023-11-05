@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0dabf2796354
+Revision ID: ddd94c303396
 Revises: 
-Create Date: 2023-10-31 23:57:05.475430
+Create Date: 2023-11-04 14:04:29.198410
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0dabf2796354'
+revision = 'ddd94c303396'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,6 +37,7 @@ def upgrade():
     sa.Column('delivery_time', sa.String(length=20), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -118,7 +119,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('menu_item_id', sa.Integer(), nullable=True),
     sa.Column('image_path', sa.String(length=500), nullable=True),
-    sa.ForeignKeyConstraint(['menu_item_id'], ['menu_items.id'], ),
+    sa.ForeignKeyConstraint(['menu_item_id'], ['menu_items.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('order_items',
@@ -134,7 +135,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('review_id', sa.Integer(), nullable=True),
     sa.Column('image_path', sa.String(length=500), nullable=True),
-    sa.ForeignKeyConstraint(['review_id'], ['reviews.id'], ),
+    sa.ForeignKeyConstraint(['review_id'], ['reviews.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('shopping_cart_items',

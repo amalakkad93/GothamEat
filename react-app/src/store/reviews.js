@@ -67,6 +67,7 @@ export const thunkGetReviewDetails = (reviewId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/reviews/${reviewId}`);
     const data = await response.json();
+    console.log('********************data', data);
     if (response.ok) {
       const { byId, allIds } = data;
 

@@ -27,8 +27,10 @@ const [description, setDescription] = useState(initialData?.description || "");
 const [type, setType] = useState(initialData?.type || "");
 const [price, setPrice] = useState(initialData?.price || "");
   const [image, setImage] = useState(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
 
   useEffect(() => {
     if (initialData) {
@@ -169,7 +171,7 @@ const handleSubmit = (e) => {
       return;
     }
     // console.log("Dispatching with image:", image);
-
+    setImageLoading(true);
     dispatch(thunkCreateMenuItem(restaurantId, menuItemData, image))
       .then(() => {
         handleSuccess();
@@ -202,6 +204,8 @@ const handleSubmit = (e) => {
         }
       });
   }
+
+
 };
 
   // console.log("Name state:", name);

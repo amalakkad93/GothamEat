@@ -60,10 +60,10 @@ def get_reviews_of_current_user():
                 image_dicts.append(img.to_dict())
 
         # Normalize the data for the response
-        normalized_reviews = normalize_data(review_dicts, 'id')
-        normalized_restaurants = normalize_data(restaurant_dicts, 'id')
-        normalized_images = normalize_data(image_dicts, 'id')
-        normalized_users = normalize_data(user_dicts, 'id')
+        normalized_reviews = hf.normalize_data(review_dicts, 'id')
+        normalized_restaurants = hf.normalize_data(restaurant_dicts, 'id')
+        normalized_images = hf.normalize_data(image_dicts, 'id')
+        normalized_users = hf.normalize_data(user_dicts, 'id')
 
         return jsonify({
             "entities": {
