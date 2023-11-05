@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 import ProfileButton from "./ProfileButton";
+import SlidingModalRight from "../Modals/SlidingModal/SlidingModalRight";
+import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import "./Navigation.css";
 
 function Navigation({ isLoaded }) {
-  const sessionUser = useSelector((state) => state.session.user);
+  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const navigate = useNavigate();
   const [navVisible, setNavVisible] = useState(true);
+  const [cartVisible, setCartVisible] = useState(false);
 
   const handleModalVisibilityChange = (isVisible) => {
     setNavVisible(!isVisible);
+  };
+
+  const toggleCartModal = () => {
+    setCartVisible(!cartVisible);
   };
 
   return (
@@ -41,7 +48,7 @@ function Navigation({ isLoaded }) {
             <button
               className="cart-btn"
               type="button"
-              onClick={() => navigate("/shopping-cart")}
+              onClick={toggleCartModal} // This will toggle the visibility of the modal
             >
               <FontAwesomeIcon
                 icon={faShoppingCart}
@@ -49,6 +56,10 @@ function Navigation({ isLoaded }) {
               />
               Cart
             </button>
+            {/* Sliding Modal for Shopping Cart */}
+            <SlidingModalRight isVisible={cartVisible} onClose={toggleCartModal}>
+              <ShoppingCart onClose={toggleCartModal} />
+            </SlidingModalRight>
           </>
         ) : (
           <>

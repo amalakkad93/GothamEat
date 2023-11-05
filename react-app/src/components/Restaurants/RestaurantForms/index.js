@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 // import { navigate } from "@reach/router";
 
@@ -42,7 +42,7 @@ export default function RestaurantForm({
     if (restaurantId && formType === "Edit") {
         dispatch(thunkGetRestaurantDetails(restaurantId))
             .then(responseData => {
-              console.log("responseData: ",responseData)
+              // console.log("responseData: ",responseData)
               const data = responseData?.entities?.restaurants?.byId[restaurantId];
                 if (data) {
                     setName(data.name);
@@ -242,7 +242,7 @@ export default function RestaurantForm({
       dispatch(thunkCreateRestaurant(restaurantData))
         .then((response) => {
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
-            console.log("Attempting to navigate...");
+            // console.log("Attempting to navigate...");
             navigate("/owner/restaurants");
             // resetForm();
             alert("Restaurant successfully created!");
@@ -273,7 +273,7 @@ export default function RestaurantForm({
         closing_time: closingTime,
         food_type: foodType,
       };
-      console.log("Updated restaurant data:", updatedRestaurantData);
+      // console.log("Updated restaurant data:", updatedRestaurantData);
 
 
       dispatch(thunkUpdateRestaurant(updatedRestaurantData))

@@ -27,6 +27,10 @@ def delete_menu_item_image(id):
     Returns:
         Response: A success or error message in JSON format.
     """
+    # Check if the menu item image exists
+    image = MenuItemImg.query.get(id)
+    if not image:
+        return jsonify({"error": f"Menu item image with ID {id} not found."}), 404
     # Callback to check if the current user (restaurant owner)
     # has permission to delete the specified image.
     def has_permission(owner):
@@ -46,4 +50,3 @@ def delete_menu_item_image(id):
         return jsonify(message=result["message"]), result["code"]
     else:
         return jsonify({"error": result["message"]}), result["code"]
-

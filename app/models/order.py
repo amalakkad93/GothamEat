@@ -21,6 +21,8 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+
     # items = db.relationship("OrderItem", backref='order')
     items = db.relationship("OrderItem", backref='order', cascade="all, delete-orphan")
 
@@ -35,5 +37,6 @@ class Order(db.Model):
             'delivery_time': self.delivery_time,
             'created_at': format_review_date(self.created_at),
             'updated_at': format_review_date(self.updated_at),
+            'is_deleted': self.is_deleted,
             # 'orderItems': [item.to_dict() for item in self.items]
         }

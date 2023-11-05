@@ -11,8 +11,18 @@ from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, re
 from .seeds import seed_commands
 from .config import Config, cache
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 # app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
 app = Flask(__name__, static_folder='../react-app/public', static_url_path='/')
+
+
+# Configure logger for Flask app
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+handler.setLevel(logging.INFO)
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
 
 csrf = CSRFProtect()
 csrf.init_app(app)

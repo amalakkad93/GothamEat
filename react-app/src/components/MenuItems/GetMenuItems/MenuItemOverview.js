@@ -9,18 +9,19 @@
  * and add it to their cart.
  */
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { thunkGetMenuItemDetails } from "../../store/menuItems";
-import { thunkCreateOrder } from "../../store/orders";
-import { thunkAddItemToCart, addToCart } from "../../store/shoppingCarts";
+import { thunkGetMenuItemDetails } from "../../../store/menuItems";
+import { thunkCreateOrder } from "../../../store/orders";
+import { thunkAddItemToCart, addToCart } from "../../../store/shoppingCarts";
 import ReactImageMagnify from "react-image-magnify";
-import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
+import ShoppingCart from "../../ShoppingCarts/GetShoppingCarts";
 import "./MenuItemOverview.css";
 
 export default function MenuItemOverview() {
   // Route parameters
   const { itemId, restaurantId } = useParams();
+  const [isCartVisible, setIsCartVisible] = useState(false);
 
   // Redux dispatch for action invocations
   const dispatch = useDispatch();
@@ -29,13 +30,20 @@ export default function MenuItemOverview() {
   const navigate = useNavigate();
 
   // User data from Redux state
-  const userId = useSelector((state) => state.session.user.id);
+  const userId = useSelector((state) => state.session.user.id, shallowEqual);
 
   // Menu item data from Redux state
-  const allIds = useSelector((state) => state.menuItems.singleMenuItem.allIds);
-  const byId = useSelector((state) => state.menuItems.singleMenuItem.byId);
+  const allIds = useSelector(
+    (state) => state.menuItems.singleMenuItem.allIds,
+    shallowEqual
+  );
+  const byId = useSelector(
+    (state) => state.menuItems.singleMenuItem.byId,
+    shallowEqual
+  );
   const menuItemImgs = useSelector(
-    (state) => state.menuItems?.menuItemImages?.byId || {}
+    (state) => state.menuItems?.menuItemImages?.byId || {},
+    shallowEqual
   );
 
   // Derive menu item details based on fetched data
@@ -44,12 +52,16 @@ export default function MenuItemOverview() {
 
   // Get the most recent state for the menu item using its ID
   const currentMenuItem = useSelector(
-    (state) => state.menuItems.singleMenuItem.byId[menuItemId]
+    (state) => state.menuItems.singleMenuItem.byId[menuItemId],
+    shallowEqual
   );
 
   // Redux state: Loading and error statuses
-  const isLoading = useSelector((state) => state.menuItems?.isLoading);
-  const error = useSelector((state) => state.menuItems?.error);
+  const isLoading = useSelector(
+    (state) => state.menuItems?.isLoading,
+    shallowEqual
+  );
+  const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
   const [quantity, setQuantity] = useState(1);
@@ -78,9 +90,9 @@ export default function MenuItemOverview() {
     height: 1800,
   };
 
-  // const handleQuantityChange = (e) => {
-  //   setQuantity(e.target.value);
-  // };
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+  };
 
   // const handleOrderSubmission = () => {
   //   // Dispatch the thunk action to create an order
@@ -99,16 +111,24 @@ export default function MenuItemOverview() {
       console.error("Menu item data not yet available.");
       return;
     }
-
+    console.log(
+      `Attempting to add to cart: menuItemId=${menuItemId}, quantity=${quantity}, restaurantId=${restaurantId}`
+    );
     try {
-      const message = await dispatch(thunkAddItemToCart(menuItemId, quantity));
+      // const message = await dispatch(thunkAddItemToCart(menuItemId, quantity));
+      const message = await dispatch(
+        thunkAddItemToCart(menuItemId, quantity, restaurantId)
+      );
+      console.log("==restaurantId in MenuItemOverview: ", restaurantId);
       if (message) {
         alert(message);
       }
+      // Convert quantity to a number before dispatching the action
+      const numericQuantity = Number(quantity);
 
       // Update the cart state in Redux
-      dispatch(addToCart(menuItemId, quantity, menuItem.name));
-
+      dispatch(addToCart(menuItemId, numericQuantity, menuItem)); 
+      setIsCartVisible(true);
       // Navigate back to the restaurant page after adding the item to the cart
       navigate(`/restaurants/${restaurantId}`);
     } catch (error) {
@@ -158,7 +178,7 @@ export default function MenuItemOverview() {
           <select
             value={quantity}
             // onChange handler commented out
-            // onChange={handleQuantityChange}
+            onChange={handleQuantityChange}
           >
             {
               // Generate options for quantity from 1 to 10

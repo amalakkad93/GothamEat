@@ -1,9 +1,9 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 import './UserProfile.css';
 
 export default function UserProfile() {
-    const user = useSelector((state) => state.session.user);
+    const user = useSelector((state) => state.session.user, shallowEqual);
     if (!user) return null;
 
     return (

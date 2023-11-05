@@ -17,10 +17,22 @@ s3 = boto3.client(
 )
 
 
+# def get_unique_filename(filename):
+#     ext = filename.rsplit(".", 1)[1].lower()
+#     unique_filename = uuid.uuid4().hex
+#     return f"{unique_filename}.{ext}"
 def get_unique_filename(filename):
-    ext = filename.rsplit(".", 1)[1].lower()
+    if not filename:
+        raise ValueError("Invalid filename provided")
+
+    parts = filename.rsplit(".", 1)
+    if len(parts) < 2:
+        raise ValueError("Filename doesn't have a valid extension")
+
+    ext = parts[1].lower()
     unique_filename = uuid.uuid4().hex
     return f"{unique_filename}.{ext}"
+
 
 
 def upload_file_to_s3(file, acl="public-read"):

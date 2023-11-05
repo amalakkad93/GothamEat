@@ -30,11 +30,20 @@ const SET_MENU_ITEM_IMAGES = "menuItems/SET_MENU_ITEM_IMAGES";
 /** Action type for setting menu item types in the store */
 const SET_MENU_ITEM_TYPES = "menuItems/SET_MENU_ITEM_TYPES";
 
-// Action type to handle creating a menu item
+/** Action type for creating a menu item type in the store */
 const CREATE_MENU_ITEM = "menuItems/CREATE_MENU_ITEM";
 
-// Action type to handle uploading a menu item image
+/** Action type for uploading a menu item image in the store */
 const UPLOAD_MENU_ITEM_IMAGE = "menuItems/UPLOAD_MENU_ITEM_IMAGE";
+
+/** Action type for updating a menu item in the store */
+const UPDATE_MENU_ITEM = "menuItems/UPDATE_MENU_ITEM";
+
+/** Action type for deleting a menu item in the store */
+const DELETE_MENU_ITEM = "DELETE_MENU_ITEM";
+
+/** Action type for deleting a menu item image in the store */
+const DELETE_MENU_ITEM_IMAGE = "DELETE_MENU_ITEM_IMAGE";
 
 /** Action type to handle errors related to menu item actions */
 const SET_MENU_ITEM_ERROR = "menuItems/SET_MENU_ITEM_ERROR";
@@ -70,17 +79,43 @@ const actionSetMenuItemTypes = (types) => ({
   types,
 });
 
-// Action creator for creating a menu item
+/** Creates an action to create a menu item types in the store */
 const actionCreateMenuItem = (menuItem) => ({
   type: CREATE_MENU_ITEM,
   menuItem,
 });
 
-// Action creator for uploading a menu item image
-const actionUploadMenuItemImage = (menuItemId, imageUrl) => ({
+/** Creates an action to upload a menu item image types in the store */
+// const actionUploadMenuItemImage = (menuItemId, imageUrl) => ({
+//   type: UPLOAD_MENU_ITEM_IMAGE,
+//   menuItemId,
+//   imageUrl,
+// });
+const actionUploadMenuItemImage = (imageId, imagePath, menuItemId) => ({
   type: UPLOAD_MENU_ITEM_IMAGE,
+  payload: {
+    id: imageId,
+    image_path: imagePath,
+    menu_item_id: menuItemId,
+  },
+});
+
+/** Creates an action to update a menu item types in the store */
+const actionUpdateMenuItem = (updatedMenuItem) => ({
+  type: UPDATE_MENU_ITEM,
+  updatedMenuItem,
+});
+
+/** Creates an action to delete a menu item types in the store */
+export const actionDeleteMenuItem = (menuItemId) => ({
+  type: DELETE_MENU_ITEM,
   menuItemId,
-  imageUrl,
+});
+
+/** Creates an action to delete a menu item image types in the store */
+export const actionDeleteMenuItemImage = (imageId) => ({
+  type: DELETE_MENU_ITEM_IMAGE,
+  imageId,
 });
 
 /** Creates an action to handle errors during menu item operations */
@@ -99,16 +134,16 @@ const actionSetMenuItemError = (errorMessage) => ({
 //  Thunk to Fetch Details of a Specific Menu Item
 // ***************************************************************
 export const thunkGetMenuItemDetails = (itemId) => async (dispatch) => {
-  console.log(`Fetching details for menu item with ID ${itemId}`);
+  // console.log(`Fetching details for menu item with ID ${itemId}`);
   try {
     const response = await fetch(`/api/menu-items/${itemId}`);
     const data = await response.json();
-    console.log("Server response:", data);
+    console.log("+++++++++++++++++++++++Fetched details:", data);
     if (response.ok) {
       const { byId, allIds } = data;
 
       const menuItem = byId[allIds[0]];
-      console.log("Extracted Menu Item:", menuItem);
+      // console.log("Extracted Menu Item:", menuItem);
 
       dispatch(actionGetSingleMenuItem(menuItem));
     } else {
@@ -146,7 +181,7 @@ export const thunkGetMenuItemDetails = (itemId) => async (dispatch) => {
  */
 export const thunkGetMenuItemsByRestaurantId =
   (restaurantId) => async (dispatch) => {
-    console.log(`Fetching menu items for restaurant with ID ${restaurantId}`);
+    // console.log(`Fetching menu items for restaurant with ID ${restaurantId}`);
     try {
       const response = await fetch(
         `/api/restaurants/${restaurantId}/menu-items`
@@ -154,10 +189,10 @@ export const thunkGetMenuItemsByRestaurantId =
       const menuItems = await response.json();
       // console.log("Server Response:", menuItems);
       if (response.ok) {
-        console.log(
-          `Menu items for restaurant ID ${restaurantId}:`,
-          menuItems.entities.menuItems
-        );
+        // console.log(
+        //   `Menu items for restaurant ID ${restaurantId}:`,
+        //   menuItems.entities.menuItems
+        // );
         dispatch(
           actionGetMenuItemsByRestaurant(
             restaurantId,
@@ -189,120 +224,317 @@ export const thunkGetMenuItemsByRestaurantId =
     }
   };
 
-  export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
-    console.log('Received image in thunk:', image);
+// ***************************************************************
+//  Thunk to Create a Menu Item
+// ***************************************************************
+/**
+ * Creates a new menu item for a specific restaurant.
+ * Dispatches actions based on the result of the fetch operation.
+ * @param {number} restaurantId - The ID of the restaurant for which the menu item is being created
+ * @param {object} menuItemData - The data for the menu item being created
+ * @param {object} image - The image for the menu item being created
+ * @returns {Promise} A promise that resolves to an object containing the message and ID of the created menu item
+ * @throws {Error} An error is thrown if the fetch operation fails
+ * @throws {Error} An error is thrown if the server responds with an error
+ * @throws {Error} An error is thrown if the server doesn't respond with JSON
+ * @throws {Error} An error is thrown if the server doesn't respond with a presigned URL
+ * @throws {Error} An error is thrown if the server doesn't respond with a file URL
+ * @throws {Error} An error is thrown if the server doesn't respond with a menu item ID
+ * @throws {Error} An error is thrown if the server doesn't respond with a menu item image URL
+ * @throws {Error} An error is thrown if the server doesn't respond with a menu item image ID
+ *  */
+export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
+  // console.log("Received image in thunk:", image);
 
-    return async (dispatch) => {
-      return new Promise(async (resolve, reject) => {
-        try {
-          // 1. Submit the menu item
-          const menuItemResponse = await csrfFetch(
-            `/api/restaurants/${restaurantId}/menu-items`,
+  return async (dispatch) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 1. Submit the menu item
+        const menuItemResponse = await csrfFetch(
+          `/api/restaurants/${restaurantId}/menu-items`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(menuItemData),
+          }
+        );
+
+        if (!menuItemResponse.ok) {
+          const data = await menuItemResponse.json();
+          dispatch(actionSetMenuItemError(data.error));
+          return reject(new Error(data.error));
+        }
+
+        const menuItemDataResult = await menuItemResponse.json();
+
+        let menuItemId;
+        if (
+          menuItemDataResult.entities.MenuItem.allIds &&
+          menuItemDataResult.entities.MenuItem.allIds.length > 0
+        ) {
+          menuItemId = menuItemDataResult.entities.MenuItem.allIds[0];
+          // console.log("Extracted Menu item ID:", menuItemId);
+        }
+
+        // console.log("Image:", image);
+        // console.log("Menu item data result:", menuItemDataResult);
+        // console.log(
+        //   "Menu item ID:",
+        //   menuItemDataResult.entities && menuItemDataResult.entities.MenuItem
+        //     ? menuItemDataResult.entities.MenuItem.id
+        //     : undefined
+        // );
+
+        dispatch(actionCreateMenuItem(menuItemDataResult.entities.MenuItem));
+
+        if (image && menuItemId) {
+          // console.log("Image object:", image);
+          // console.log("Image name:", image.name);
+          // console.log("Image type:", image.type);
+
+          // 2. Fetch the presigned URL for menu item image
+          const presignedResponse = await csrfFetch(
+            `/s3/generate_presigned_url?filename=${image.name}&contentType=${image.type}`
+          );
+
+          if (
+            !presignedResponse.headers
+              .get("content-type")
+              .includes("application/json")
+          ) {
+            throw new Error(
+              "Server didn't respond with JSON. Check the server's response."
+            );
+          }
+
+          const presignedData = await presignedResponse.json();
+          console.log("Presigned data:", presignedData);
+
+          const { presigned_url } = presignedData;
+
+          // 3. Upload the menu item image directly to S3 using the presigned URL
+          await fetch(presigned_url, {
+            method: "PUT",
+            body: image,
+            headers: {
+              "Content-Type": image.type,
+            },
+          });
+
+          // // 4. Send the image URL to the backend to store it
+          // await csrfFetch(`/api/menu-items/${menuItemId}/images`, {
+          //   method: "POST",
+          //   headers: { "Content-Type": "application/json" },
+          //   body: JSON.stringify({ image_url: presignedData.file_url }),
+          // });
+
+          // // dispatch(actionUploadMenuItemImage(menuItemId, presignedData.file_url));
+          // dispatch(actionUploadMenuItemImage({id: menuItemId, image_path: presignedData.file_url, menu_item_id: menuItemId}));
+          //*********************************************************** */
+          // 4. Send the image URL to the backend to store it and get the image record
+          const imageResponse = await csrfFetch(
+            `/api/menu-items/${menuItemId}/images`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(menuItemData),
+              body: JSON.stringify({ image_url: presignedData.file_url }),
             }
           );
 
-          if (!menuItemResponse.ok) {
-            const data = await menuItemResponse.json();
-            dispatch(actionSetMenuItemError(data.error));
-            return reject(new Error(data.error));
+          if (!imageResponse.ok) {
+            const errorData = await imageResponse.json();
+            dispatch(actionSetMenuItemError(errorData.error));
+            return reject(new Error(errorData.error));
           }
 
-          const menuItemDataResult = await menuItemResponse.json();
+          const imageData = await imageResponse.json();
 
-          let menuItemId;
-          if (
-            menuItemDataResult.entities.MenuItem.allIds &&
-            menuItemDataResult.entities.MenuItem.allIds.length > 0
-          ) {
-            menuItemId = menuItemDataResult.entities.MenuItem.allIds[0];
-            console.log("Extracted Menu item ID:", menuItemId);
-          }
-
-          console.log("Image:", image);
-          console.log("Menu item data result:", menuItemDataResult);
-          console.log("Menu item ID:", menuItemDataResult.entities && menuItemDataResult.entities.MenuItem ? menuItemDataResult.entities.MenuItem.id : undefined);
-
-          dispatch(actionCreateMenuItem(menuItemDataResult.entities.MenuItem));
-
-          if (image && menuItemId) {
-            console.log("Image object:", image);
-            console.log("Image name:", image.name);
-            console.log("Image type:", image.type);
-
-            // 2. Fetch the presigned URL for menu item image
-            const presignedResponse = await csrfFetch(
-              `/s3/generate_presigned_url?filename=${image.name}&contentType=${image.type}`
-            );
-
-            if (
-              !presignedResponse.headers
-                .get("content-type")
-                .includes("application/json")
-            ) {
-              throw new Error(
-                "Server didn't respond with JSON. Check the server's response."
-              );
-            }
-
-            const presignedData = await presignedResponse.json();
-            console.log("Presigned data:", presignedData);
-
-            const { presigned_url } = presignedData;
-
-            // 3. Upload the menu item image directly to S3 using the presigned URL
-            await fetch(presigned_url, {
-              method: "PUT",
-              body: image,
-              headers: {
-                "Content-Type": image.type,
-              },
-            });
-
-            // 4. Send the image URL to the backend to store it
-            await csrfFetch(
-              `/api/menu-items/${menuItemId}/images`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image_url: presignedData.file_url }),
-              }
-            );
-            console.log(
-              "About to dispatch image:",
-              menuItemDataResult.menuItemId,
-              presignedData.file_url
-            );
-            dispatch(
-              actionUploadMenuItemImage(
-                menuItemId,
-                presignedData.file_url
-              )
-            );
-
-            console.log("Menu item image action dispatched");
-          }
-
-          resolve({
-            message: menuItemDataResult.message,
-            menuItemId: menuItemDataResult.menuItemId,
-          });
-        } catch (error) {
+          // Now dispatch the action with the image data including the ID
           dispatch(
-            actionSetMenuItemError(
-              error.message ||
-                "An unexpected error occurred while creating the menu item."
+            actionUploadMenuItemImage(
+              imageData.id,
+              presignedData.file_url,
+              menuItemId
             )
           );
-          reject(error);
-        }
-      });
-    };
-  };
 
+          //*********************************************************** */
+        }
+
+        resolve({
+          message: menuItemDataResult.message,
+          menuItemId: menuItemDataResult.menuItemId,
+        });
+      } catch (error) {
+        dispatch(
+          actionSetMenuItemError(
+            error.message ||
+              "An unexpected error occurred while creating the menu item."
+          )
+        );
+        reject(error);
+      }
+    });
+  };
+};
+
+// ***************************************************************
+//  Thunk to Update a Menu Item
+// ***************************************************************
+export const thunkUpdateMenuItem = (
+  menuItemId,
+  updatedData,
+  newImage,
+  existingImageUrl
+) => {
+  return async (dispatch) => {
+    try {
+      // Optional: Delete existing image
+      if (existingImageUrl) {
+        const deleteResponse = await csrfFetch("/s3/delete-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_url: existingImageUrl }),
+        });
+
+        if (!deleteResponse.ok) {
+          const data = await deleteResponse.json();
+          dispatch(actionSetMenuItemError(data.error));
+          throw new Error(data.error);
+        }
+      }
+
+      // Update menu item details
+      const menuItemResponse = await csrfFetch(
+        `/api/menu-items/${menuItemId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      if (!menuItemResponse.ok) {
+        const data = await menuItemResponse.json();
+        dispatch(actionSetMenuItemError(data.error));
+        throw new Error(data.error);
+      }
+
+      const updatedMenuItemData = await menuItemResponse.json();
+
+      // If there's a new image to upload
+      if (newImage) {
+        // Get presigned URL from the server
+        const presignedResponse = await csrfFetch(
+          `/s3/generate_presigned_url?filename=${encodeURIComponent(
+            newImage.name
+          )}&contentType=${encodeURIComponent(newImage.type)}`
+        );
+
+        if (!presignedResponse.ok) {
+          const data = await presignedResponse.json();
+          dispatch(actionSetMenuItemError(data.error));
+          throw new Error(data.error);
+        }
+
+        const presignedData = await presignedResponse.json();
+        const { presigned_url, file_url } = presignedData;
+
+        // Upload the image to S3
+        const s3Response = await fetch(presigned_url, {
+          method: "PUT",
+          body: newImage,
+          headers: {
+            "Content-Type": newImage.type,
+          },
+        });
+
+        if (!s3Response.ok) {
+          throw new Error("Failed to upload image to S3.");
+        }
+
+        // Update the image URL in your application's backend
+        const updateImageResponse = await csrfFetch(
+          `/api/menu-items/${menuItemId}/images`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_url: file_url }),
+          }
+        );
+
+        if (!updateImageResponse.ok) {
+          const errorData = await updateImageResponse.json();
+          dispatch(actionSetMenuItemError(errorData.error));
+          throw new Error(errorData.error);
+        }
+
+        const updateImageData = await updateImageResponse.json();
+        console.log(
+          "**********Dispatching image upload action:",
+          updateImageData.id,
+          file_url,
+          menuItemId
+        );
+        if (updateImageData.status === "success") {
+          dispatch(
+            actionUploadMenuItemImage(
+              updateImageData.id,
+              updateImageData.image_url,
+              menuItemId
+            )
+          );
+          // dispatch(actionUploadMenuItemImage(updateImageData.id, file_url, menuItemId));
+        }
+        // Dispatch the action to update the Redux state with the new image info
+      }
+
+      // Return a success message
+      return { message: "Menu item updated successfully" };
+    } catch (error) {
+      dispatch(
+        actionSetMenuItemError(
+          error.message ||
+            "An unexpected error occurred while updating the menu item."
+        )
+      );
+      throw error;
+    }
+  };
+};
+
+// ***************************************************************
+//  Thunk to Delete a Menu Item
+// ***************************************************************
+export const thunkDeleteMenuItem =
+  (menuItemId, imageId) => async (dispatch) => {
+    try {
+      // Delete the menu item
+      if (menuItemId) {
+        const menuItemResponse = await csrfFetch(
+          `/api/menu-items/${menuItemId}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!menuItemResponse.ok) {
+          const data = await menuItemResponse.json();
+          dispatch(actionSetMenuItemError(data.error));
+          throw new Error(data.error);
+        }
+        dispatch(actionDeleteMenuItem(menuItemId));
+      }
+
+      return { message: "Menu item and its image deleted successfully" };
+    } catch (error) {
+      dispatch(
+        actionSetMenuItemError(
+          "An unexpected error occurred while deleting the menu item and its image."
+        )
+      );
+      throw error;
+    }
+  };
 
 // =========================================================
 //                   ****Reducer****
@@ -313,8 +545,8 @@ export const thunkGetMenuItemsByRestaurantId =
 const menuItemInitialState = {
   singleMenuItem: { byId: {}, allIds: [] },
   menuItemsByRestaurant: {},
-  menuItemImages: {},
   // menuItemImages: {},
+  menuItemImages: { byId: {}, allIds: [] },
   types: {},
   error: null,
   isLoading: false,
@@ -322,6 +554,8 @@ const menuItemInitialState = {
 
 /** Defines how the state should change for each menu item action */
 export default function menuItemsReducer(state = menuItemInitialState, action) {
+  console.log('++Action received', action);
+  console.log('Current state', state);
   switch (action.type) {
     case GET_SINGLE_MENU_ITEM:
       return {
@@ -332,14 +566,29 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         },
       };
 
+
+
+
+
     case GET_MENU_ITEMS_BY_RESTAURANT:
-      return {
-        ...state,
-        menuItemsByRestaurant: {
-          ...state.menuItemsByRestaurant,
-          [action.restaurantId]: action.menuItems,
-        },
-      };
+        // Check if the action has defined menuItems before attempting to set them in the state
+        if (!action.menuItems) {
+          console.error("No menu items provided for restaurant with id:", action.restaurantId);
+          return {
+            ...state,
+            error: `No menu items provided for restaurant with id: ${action.restaurantId}`
+          };
+        }
+
+        // Proceed with updating the state if menuItems are present
+        return {
+          ...state,
+          menuItemsByRestaurant: {
+            ...state.menuItemsByRestaurant,
+            [action.restaurantId]: action.menuItems,
+          },
+        };
+
     case SET_MENU_ITEM_IMAGES:
       return {
         ...state,
@@ -352,11 +601,11 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         types: action.types,
       };
 
-    case CREATE_MENU_ITEM:
-      const restaurantId = action.menuItem.restaurant_id; // Assuming this is how you get the restaurant ID
+    case CREATE_MENU_ITEM: {
+      const restaurantId = action.menuItem.restaurant_id;
       const updatedMenuItems = state.menuItemsByRestaurant[restaurantId]
-        ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem.id]
-        : [action.menuItem.id];
+        ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem]
+        : [action.menuItem];
 
       return {
         ...state,
@@ -372,30 +621,157 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
           [restaurantId]: updatedMenuItems,
         },
       };
-      case UPLOAD_MENU_ITEM_IMAGE: {
-        return {
-            ...state,
-            menuItemImages: {
-                ...state.menuItemImages,
-                [action.menuItemId]: action.imageUrl
-            }
-        };
     }
 
+    case UPLOAD_MENU_ITEM_IMAGE: {
+      const { id, image_path, menu_item_id, restaurant_id } = action.payload;
 
-    // case UPLOAD_MENU_ITEM_IMAGE: {
-    //   console.log("++++++++Payload received:", action);
+      // Initialize the restaurant's menu items if it doesn't exist
+      if (!state.menuItemsByRestaurant[restaurant_id]) {
+        state.menuItemsByRestaurant[restaurant_id] = [];
+      }
 
-    //   const newMenuItemImages = {
-    //     ...state.menuItemImages,
-    //     [action.menuItemId]: action.imageUrl,
-    //   };
+      // Initialize the menuItemImages.byId if it doesn't exist
+      if (!state.menuItemImages.byId) {
+        state.menuItemImages.byId = {};
+      }
+
+      // Initialize the menuItemImages.allIds if it doesn't exist
+      if (!state.menuItemImages.allIds) {
+        state.menuItemImages.allIds = [];
+      }
+
+      // Update menuItemImages state
+      const newMenuItemImages = {
+        ...state.menuItemImages,
+        byId: {
+          ...state.menuItemImages.byId,
+          [id]: { image_path, menu_item_id },
+        },
+        allIds: [...state.menuItemImages.allIds, id],
+      };
+
+      return {
+        ...state,
+        menuItemImages: newMenuItemImages,
+      };
+    }
+        // case CREATE_MENU_ITEM:
+    //   const restaurantId = action.menuItem.restaurant_id; // Assuming this is how you get the restaurant ID
+    //   const updatedMenuItems = state.menuItemsByRestaurant[restaurantId]
+    //     ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem.id]
+    //     : [action.menuItem.id];
+
     //   return {
     //     ...state,
-    //     menuItemImages: newMenuItemImages,
+    //     singleMenuItem: {
+    //       byId: {
+    //         ...state.singleMenuItem.byId,
+    //         [action.menuItem.id]: action.menuItem,
+    //       },
+    //       allIds: [...state.singleMenuItem.allIds, action.menuItem.id],
+    //     },
+    //     menuItemsByRestaurant: {
+    //       ...state.menuItemsByRestaurant,
+    //       [restaurantId]: updatedMenuItems,
+    //     },
     //   };
+    // case UPLOAD_MENU_ITEM_IMAGE: {
+    //   const { image_id, image_path, menu_item_id, restaurant_id } =
+    //     action.payload;
+
+    //   // Update menuItemImages state
+    //   const newMenuItemImages = {
+    //     ...state.menuItemImages,
+    //     byId: {
+    //       ...state.menuItemImages.byId,
+    //       [image_id]: { image_path, menu_item_id },
+    //     },
+    //     allIds: [...state.menuItemImages.allIds, image_id],
+    //   };
+
+    //   // Update the specific menu item's image in menuItemsByRestaurant
+    //   const restaurantMenuItems = state.menuItemsByRestaurant[restaurant_id];
+    //   if (restaurantMenuItems && restaurantMenuItems?.byId[menu_item_id]) {
+    //     const updatedMenuItem = {
+    //       ...restaurantMenuItems.byId[menu_item_id],
+    //       image_id: image_id, // Assuming you want to replace it with the new image ID
+    //     };
+
+    //     // Update the state with the new menu item details
+    //     const updatedMenuItemsByRestaurant = {
+    //       ...state.menuItemsByRestaurant,
+    //       [restaurant_id]: {
+    //         ...restaurantMenuItems,
+    //         byId: {
+    //           ...restaurantMenuItems.byId,
+    //           [menu_item_id]: updatedMenuItem,
+    //         },
+    //       },
+    //     };
+
+    //     return {
+    //       ...state,
+    //       menuItemImages: newMenuItemImages,
+    //       menuItemsByRestaurant: updatedMenuItemsByRestaurant,
+    //     };
+    //   } else {
+    //     // Handle the case where the menu item doesn't exist
+    //     return state;
+    //   }
     // }
 
+    //******************************************************* */
+
+    case UPDATE_MENU_ITEM: {
+      if (!action.updatedMenuItem || !action.updatedMenuItem.id) {
+        console.error("UPDATE_MENU_ITEM action payload is not as expected.");
+        return state; // Don't update the state if the payload is not as expected
+      }
+
+      const { id } = action.updatedMenuItem;
+      let updatedMenuItemsByRestaurant = { ...state.menuItemsByRestaurant };
+
+      if (
+        action.updatedMenuItem.restaurant_id &&
+        state.menuItemsByRestaurant[action.updatedMenuItem.restaurant_id]
+      ) {
+        updatedMenuItemsByRestaurant[action.updatedMenuItem.restaurant_id] =
+          state.menuItemsByRestaurant[action.updatedMenuItem.restaurant_id].map(
+            (item) => (item.id === id ? action.updatedMenuItem : item)
+          );
+      }
+
+      return {
+        ...state,
+        singleMenuItem: {
+          ...state.singleMenuItem,
+          byId: {
+            ...state.singleMenuItem.byId,
+            [id]: action.updatedMenuItem,
+          },
+        },
+        menuItemsByRestaurant: updatedMenuItemsByRestaurant,
+      };
+    }
+
+    case DELETE_MENU_ITEM: {
+      const newMenuItems = { ...state.menuItems };
+      delete newMenuItems[action.menuItemId];
+      return {
+        ...state,
+        menuItems: newMenuItems,
+        userHasMenuItem: false,
+      };
+    }
+    case DELETE_MENU_ITEM_IMAGE: {
+      const newMenuItemImages = { ...state.menuItemImages };
+      delete newMenuItemImages[action.imageId];
+      return {
+        ...state,
+        menuItemImages: newMenuItemImages,
+      };
+    }
     case SET_MENU_ITEM_ERROR:
       return { ...state, error: action.payload };
 

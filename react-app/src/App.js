@@ -11,7 +11,7 @@ import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
 import FavoritesRestaurants from "./components/Restaurants/FavoritesRestaurants";
 import CreateRestaurantForm from "./components/Restaurants/RestaurantForms/CreateRestaurantForm";
 import EditRestaurantForm from "./components/Restaurants/RestaurantForms/EditRestaurantForm";
-import MenuItemOverview from "./components/MenuItems/MenuItemOverview";
+import MenuItemOverview from "./components/MenuItems/GetMenuItems/MenuItemOverview";
 import CreateMenuItemForm from "./components/MenuItems/MenuItemForm/CreateMenuItemForm";
 import EditMenuItemForm from "./components/MenuItems/MenuItemForm/EditMenuItemForm";
 import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";
@@ -60,7 +60,7 @@ function App() {
         document.documentElement.style.backgroundImage = `url(${images[newIndex]})`;
         return newIndex;
       });
-    }, 10 * 60 * 1000);
+    }, 1 * 60 * 1000);
     // }, 10 * 1000);
     return () => clearInterval(interval);
   }, [images]);
@@ -115,7 +115,7 @@ function App() {
           <Route path="/signup" element={<SignupFormPage />} />
           <Route path="/users/show" element={<UserProfile />} />
           <Route path="/favorites" element={<FavoritesRestaurants />} />
-          <Route path="/shopping-cart" element={<ShoppingCart />} />
+          {/* <Route path="/shopping-cart" element={<ShoppingCart />} /> */}
 
           {/* Restaurant Routes */}
           <Route path="/restaurants/nearby" element={<GetRestaurants />} />
