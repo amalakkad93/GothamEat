@@ -1,38 +1,35 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { thunkGetUserOrders, thunkCancelOrder, thunkReorderPastOrder } from '../../../store/orders';
-import OrderDetails from '../OrderDetail';
-import CancelButton from '../CancelButton';
+import { thunkGetUserOrders } from '../../../store/orders';
+import OrderDetail from '../OrderDetail';
+import CancelOrderButton from '../CancelOredrButton';
 
 const OrderList = ({ userId }) => {
   const dispatch = useDispatch();
-  const orders = useSelector((state) => state.orders);
+  const orders = useSelector(state => Object.values(state.orders.orders));
+  const error = useSelector(state => state.orders.error);
 
   useEffect(() => {
-    dispatch(thunkGetUserOrders(userId));
-  }, [dispatch, userId]);
+    if (!orders.length && !error) {
+      dispatch(thunkGetUserOrders(userId));
+    }
+  }, [dispatch, userId, orders, error]);
 
-  const handleCancelOrder = (orderId) => {
-    dispatch(thunkCancelOrder(orderId));
-  };
+  if (error) {
+    return <div>Error loading orders: {error}</div>;
+  }
 
-  const handleReorder = (orderId) => {
-    dispatch(thunkReorderPastOrder(orderId));
-  };
-
-  if (!orders) {
+  if (!orders.length) {
     return <div>Loading orders...</div>;
   }
 
   return (
     <div>
-      {Object.values(orders).map((order) => (
+      {orders.map((order) => (
         <div key={order.id}>
           <h2>Order #{order.id}</h2>
-          <button onClick={() => handleReorder(order.id)}>Reorder</button>
-          <OrderDetails orderId={order.id} />
-          <CancelButton orderId={order.id} />
-          {/* Add more details and actions as needed */}
+          <OrderDetail orderId={order.id} />
+          <CancelOrderButton orderId={order.id} />
         </div>
       ))}
     </div>

@@ -40,3 +40,10 @@ npm install @fortawesome/free-regular-svg-icons
 
 ****Magnifying Glass****
 npm install react-image-magnify --legacy-peer-deps
+
+****** for Install react persist ******
+npm install redux-persist
+
+
+npm install react-toastify
+npm install react-spinners

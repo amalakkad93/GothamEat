@@ -8,7 +8,7 @@ import ClearShoppingCart from "../ClearShoppingCart";
 
 import "./ShoppingCart.css";
 
-export default function ShoppingCart({ onClose }) {
+export default function GetShoppingCart({ onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const ulRef = useRef();
@@ -43,20 +43,10 @@ export default function ShoppingCart({ onClose }) {
     error: state.shoppingCarts.error,
   }));
 
-  console.log("🚀 ~ -file: index.js:57 ~ cartTotalPrice:", cartTotalPrice);
-  console.log("🚀 ~ -file: index.js:58 ~ cartItemIds:", cartItemIds);
-  console.log("🚀 ~ -file: index.js:59 ~ cartItemsById:", cartItemsById);
-  console.log("🚀 ~ -file: index.js:60 ~ menuItem:", menuItem);
-  console.log("🚀 ~ -file: index.js:61 ~ restaurantId:", restaurantId);
-  console.log("🚀 ~ -file: index.js:62 ~ restaurantData:", restaurantData);
-
   const menuItemImagesById = useSelector(
     (state) => state.menuItems.menuItemImages.byId
   );
-  console.log(
-    "🚀**************** ~ file: index.js:37 ~ ShoppingCart ~ menuItemImagesById:",
-    menuItemImagesById
-  );
+
   // Fetch current cart when the component mounts
   const mounted = useRef(false);
   useEffect(() => {
@@ -72,7 +62,10 @@ export default function ShoppingCart({ onClose }) {
       dispatch(thunkCreateOrderFromCart())
         .then((order) => {
           console.log("Order created successfully", order);
-          // Navigate to success page or reset cart here
+          navigate(`/orders/${order.id}`);
+          if (onClose) {
+            onClose();
+          }
         })
         .catch((error) => {
           console.error("Error creating the order", error);
@@ -94,10 +87,12 @@ export default function ShoppingCart({ onClose }) {
       console.log("Please wait, cart items are loading.");
     }
   };
+  console.log('Cart Item IDs:', cartItemIds);
+  console.log('Cart Items by ID:', cartItemsById);
 
   return (
     <div className="shopping-cart-container">
-      {cartItemIds.length > 0 ? (
+      {cartItemIds?.length > 0 ? (
         <>
           <div className="shopping-cart-header">
             <h1 className="shopping-cart-header-h1">{`${restaurantData?.name} (${restaurantData?.street_address})`}</h1>

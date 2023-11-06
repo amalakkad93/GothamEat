@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from app.models import db, Order, OrderItem, MenuItem, ShoppingCart, ShoppingCartItem, Payment
 from app.forms import OrderForm, OrderItemForm
 from ..helper_functions import normalize_data, is_authorized_to_access_order
-
+import traceback
 # Blueprint for routes related to Orders
 order_routes = Blueprint('orders', __name__)
 
@@ -229,7 +229,6 @@ def get_order_details(order_id):
                   and menu items, or an error message.
     """
     try:
-
         # Fetch the order with eager loading of items and menu items
         order = Order.query.options(
             joinedload(Order.items).joinedload(OrderItem.menu_item)
@@ -239,17 +238,22 @@ def get_order_details(order_id):
         if not order:
             abort(404, description="Order not found or you don't have permission to view it.")
 
-        # Prepare the order details including the items and their menu item details
-        order_details = order.to_dict()
-        order_details['items'] = [
-            {
-                **item.to_dict(),
-                'menu_item': item.menu_item.to_dict()
-            } for item in order.items
-        ]
+        # Normalize the order items and menu items
+        order_items_data = [item.to_dict() for item in order.items]
+        menu_items_data = [item.menu_item.to_dict() for item in order.items]
 
-        # Return the order details
-        return jsonify(order_details)
+        normalized_order_items = normalize_data(order_items_data, 'id')
+        normalized_menu_items = normalize_data(menu_items_data, 'id')
+
+        # Prepare the normalized order details
+        normalized_order_details = {
+            'order': order.to_dict(),
+            'orderItems': normalized_order_items,
+            'menuItems': normalized_menu_items
+        }
+
+        # Return the normalized order details
+        return jsonify(normalized_order_details)
 
     except ValueError as ve:
         return error_response(str(ve), 404)
@@ -258,6 +262,54 @@ def get_order_details(order_id):
     except Exception as e:
         return error_response("An unexpected error occurred.", 500)
 
+    # try:
+
+    #     # Fetch the order with eager loading of items and menu items
+    #     order = Order.query.options(
+    #         joinedload(Order.items).joinedload(OrderItem.menu_item)
+    #     ).get(order_id)
+
+    #     # Check if the order exists and belongs to the current user
+    #     if not order:
+    #         abort(404, description="Order not found or you don't have permission to view it.")
+
+    #     # Prepare the order details including the items and their menu item details
+    #     order_details = order.to_dict()
+    #     order_details['items'] = [
+    #         {
+    #             **item.to_dict(),
+    #             'menu_item': item.menu_item.to_dict()
+    #         } for item in order.items
+    #     ]
+
+    #     # Return the order details
+    #     return jsonify(order_details)
+
+    # except ValueError as ve:
+    #     # You can use logging here instead of print
+    #     print(f'ValueError: {str(ve)}')
+    #     traceback.print_exc()
+    #     return error_response(str(ve), 404)
+
+    # except PermissionError as pe:
+    #     # You can use logging here instead of print
+    #     print(f'PermissionError: {str(pe)}')
+    #     traceback.print_exc()
+    #     return error_response(str(pe), 403)
+
+    # except Exception as e:
+    #     # You can use logging here instead of print
+    #     print(f'Unexpected Exception: {str(e)}')
+    #     traceback.print_exc()  # This will print the stack trace
+    #     return error_response("An unexpected error occurred.", 500)
+
+    # except ValueError as ve:
+    #     return error_response(str(ve), 404)
+    # except PermissionError as pe:
+    #     return error_response(str(pe), 403)
+    # except Exception as e:
+    #     return error_response("An unexpected error occurred.", 500)
+# **************************************************************************************
     # except HTTPException as http_ex:
     #     # Return the HTTP error raised by abort
     #     return jsonify({"error": http_ex.description}), http_ex.code

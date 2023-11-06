@@ -207,7 +207,7 @@ export const thunkUpdateItemInCart = (itemId, quantity) => async (dispatch) => {
     if (response.ok) {
       const data = await response.json();
       dispatch(actionUpdateItemInCart(itemId, quantity, data.totalPrice));
-     
+
       return data.message;
     } else {
       const data = await response.json();
@@ -417,8 +417,9 @@ export default function shoppingCartReducer(state = initialState, action) {
         ...state,
         items: { byId: {}, allIds: [] },
         cartItems: { byId: {}, allIds: [] },
-        menuItemData: { byId: {}, allIds: [] },
+        menuItemsInfo: { byId: {}, allIds: [] },
         totalPrice: 0,
+        // restaurantId: null,
       };
       // return {
       //   ...initialState, // Reset to initialState which will also reset the restaurantId

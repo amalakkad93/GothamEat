@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, jsonify
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -136,3 +136,11 @@ def not_found(e):
         return app.send_static_file('index.html')
     except NotFound:
         return "Page not found", 404
+
+
+@app.route('/api/version')
+def data_version():
+    """
+    Endpoint to provide the current data version for the frontend to check.
+    """
+    return {"version": Config.DATA_VERSION}

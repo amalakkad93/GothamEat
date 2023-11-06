@@ -1,2 +1,153 @@
-Distance to restaurant Harley's Hysterical Diner: 0.8744608140882028 km
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.136025600000004 to 39.1360256
+Bounding box for longitude: -122.6693145 to -112.6693145
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8746730268986951 km
+Distance to restaurant Alfred's Fine Eats: 0.8746730268986951 km
+Distance to restaurant Harley's Circus Grill: 0.8746730268986951 km
+Distance to restaurant Harley's Hysterical Diner: 0.8746730268986951 km
 Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.136025600000004 to 39.1360256
+Bounding box for longitude: -122.6693145 to -112.6693145
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8746730268986951 km
+Distance to restaurant Alfred's Fine Eats: 0.8746730268986951 km
+Distance to restaurant Harley's Circus Grill: 0.8746730268986951 km
+Distance to restaurant Harley's Hysterical Diner: 0.8746730268986951 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.135877999999998 to 39.135878
+Bounding box for longitude: -122.6692575 to -112.6692575
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8718838239946468 km
+Distance to restaurant Alfred's Fine Eats: 0.8718838239946468 km
+Distance to restaurant Harley's Circus Grill: 0.8718838239946468 km
+Distance to restaurant Harley's Hysterical Diner: 0.8718838239946468 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.135877999999998 to 39.135878
+Bounding box for longitude: -122.6692575 to -112.6692575
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8718838239946468 km
+Distance to restaurant Alfred's Fine Eats: 0.8718838239946468 km
+Distance to restaurant Harley's Circus Grill: 0.8718838239946468 km
+Distance to restaurant Harley's Hysterical Diner: 0.8718838239946468 km
+Filtered restaurants count (after haversine check): 4
+Unexpected error in clear_cart: 'AnonymousUserMixin' object has no attribute 'id'
+ValueError in clear_cart: ('No cart found for the user.', 404)
+ValueError in clear_cart: ('No cart found for the user.', 404)
+ValueError in clear_cart: ('No cart found for the user.', 404)
+ValueError in clear_cart: ('No cart found for the user.', 404)
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.135824000000007 to 39.13582400000001
+Bounding box for longitude: -122.6696902 to -112.6696902
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.9121574793903678 km
+Distance to restaurant Alfred's Fine Eats: 0.9121574793903678 km
+Distance to restaurant Harley's Circus Grill: 0.9121574793903678 km
+Distance to restaurant Harley's Hysterical Diner: 0.9121574793903678 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.135824000000007 to 39.13582400000001
+Bounding box for longitude: -122.6696902 to -112.6696902
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.9121574793903678 km
+Distance to restaurant Alfred's Fine Eats: 0.9121574793903678 km
+Distance to restaurant Harley's Circus Grill: 0.9121574793903678 km
+Distance to restaurant Harley's Hysterical Diner: 0.9121574793903678 km
+Filtered restaurants count (after haversine check): 4
+Unexpected error in add_item_to_cart: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+Unexpected error in add_item_to_cart: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+Unexpected error in add_item_to_cart: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1359037 to 39.1359037
+Bounding box for longitude: -122.6692707 to -112.6692707
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8726435643745242 km
+Distance to restaurant Alfred's Fine Eats: 0.8726435643745242 km
+Distance to restaurant Harley's Circus Grill: 0.8726435643745242 km
+Distance to restaurant Harley's Hysterical Diner: 0.8726435643745242 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1359037 to 39.1359037
+Bounding box for longitude: -122.6692707 to -112.6692707
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8726435643745242 km
+Distance to restaurant Alfred's Fine Eats: 0.8726435643745242 km
+Distance to restaurant Harley's Circus Grill: 0.8726435643745242 km
+Distance to restaurant Harley's Hysterical Diner: 0.8726435643745242 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1359037 to 39.1359037
+Bounding box for longitude: -122.6692707 to -112.6692707
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8726435643745242 km
+Distance to restaurant Alfred's Fine Eats: 0.8726435643745242 km
+Distance to restaurant Harley's Circus Grill: 0.8726435643745242 km
+Distance to restaurant Harley's Hysterical Diner: 0.8726435643745242 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1359037 to 39.1359037
+Bounding box for longitude: -122.6692707 to -112.6692707
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8726435643745242 km
+Distance to restaurant Alfred's Fine Eats: 0.8726435643745242 km
+Distance to restaurant Harley's Circus Grill: 0.8726435643745242 km
+Distance to restaurant Harley's Hysterical Diner: 0.8726435643745242 km
+Filtered restaurants count (after haversine check): 4
+*****************Order created with total price Before Commit:: 2.5
+*****************Order created with total price After Commit: 2.5
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1360228 to 39.1360228
+Bounding box for longitude: -122.6693127 to -112.6693127
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8745515163764376 km
+Distance to restaurant Alfred's Fine Eats: 0.8745515163764376 km
+Distance to restaurant Harley's Circus Grill: 0.8745515163764376 km
+Distance to restaurant Harley's Hysterical Diner: 0.8745515163764376 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1360228 to 39.1360228
+Bounding box for longitude: -122.6693127 to -112.6693127
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8745515163764376 km
+Distance to restaurant Alfred's Fine Eats: 0.8745515163764376 km
+Distance to restaurant Harley's Circus Grill: 0.8745515163764376 km
+Distance to restaurant Harley's Hysterical Diner: 0.8745515163764376 km
+Filtered restaurants count (after haversine check): 4
+*****************Order created with total price Before Commit:: 4.49
+*****************Order created with total price After Commit: 4.49
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1360272 to 39.1360272
+Bounding box for longitude: -122.669315 to -112.669315
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8746943244808135 km
+Distance to restaurant Alfred's Fine Eats: 0.8746943244808135 km
+Distance to restaurant Harley's Circus Grill: 0.8746943244808135 km
+Distance to restaurant Harley's Hysterical Diner: 0.8746943244808135 km
+Filtered restaurants count (after haversine check): 4
+Received request to fetch nearby restaurants.
+Parameters received - city_name: None, state_name: None, country_name: None
+Bounding box for latitude: 29.1360272 to 39.1360272
+Bounding box for longitude: -122.669315 to -112.669315
+Nearby restaurants count: 4
+Distance to restaurant Alfred's Gourmet Dining: 0.8746943244808135 km
+Distance to restaurant Alfred's Fine Eats: 0.8746943244808135 km
+Distance to restaurant Harley's Circus Grill: 0.8746943244808135 km
+Distance to restaurant Harley's Hysterical Diner: 0.8746943244808135 km
+Filtered restaurants count (after haversine check): 4
+*****************Order created with total price Before Commit:: 2.5
+*****************Order created with total price After Commit: 2.5

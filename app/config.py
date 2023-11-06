@@ -11,7 +11,7 @@ class Config:
     S3_SECRET = os.environ.get('S3_SECRET')
     S3_LOCATION = f"https://{S3_BUCKET}.s3.amazonaws.com/"
     S3_CLIENT = boto3.client("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
-    
+
     MAPS_API_KEY = os.environ.get('MAPS_API_KEY')
 
     UBER_CLIENT_ID = os.environ.get('UBER_CLIENT_ID')
@@ -29,6 +29,6 @@ class Config:
 
     # Cache Configuration
     CACHE_TYPE = 'simple'
-
+    DATA_VERSION = 2
 # Initialize the cache
 cache = Cache(config={'CACHE_TYPE': 'simple'})

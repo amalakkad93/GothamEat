@@ -249,8 +249,9 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
 
     if (response.ok) {
       const orderDetails = await response.json();
+      console.log('Order Details:', orderDetails);
       dispatch(actionSetOrderDetails(orderDetails));
-      // Optionally, return the fetched order details.
+
       return orderDetails;
     } else {
       const errors = await response.json();
@@ -268,12 +269,19 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
 
 // Initial state
 const initialState = {
-  orders: {},
-  orderItems: {},
-  menuItems: {},
+  orders: { byId: {}, allIds: [] },
+  orderItems: { byId: {}, allIds: [] },
+  menuItems: { byId: {}, allIds: [] },
 };
 
-// Reducer
+
+// Helper function to merge normalized items into state
+const mergeNormalizedItems = (state, entity, items) => ({
+  ...state[entity],
+  ...items.byId,
+  allIds: Array.from(new Set([...(state[entity].allIds || []), ...items.allIds])),
+});
+
 export default function ordersReducer(state = initialState, action) {
   switch (action.type) {
     case ADD_ORDER: {
@@ -291,18 +299,9 @@ export default function ordersReducer(state = initialState, action) {
       const { orders } = action;
       return {
         ...state,
-        orders: {
-          ...state.orders,
-          ...orders.byId,
-        },
-        orderItems: {
-          ...state.orderItems,
-          ...orders.orderItems.byId,
-        },
-        menuItems: {
-          ...state.menuItems,
-          ...orders.menuItems.byId,
-        },
+        orders: mergeNormalizedItems(state, 'orders', orders),
+        orderItems: mergeNormalizedItems(state, 'orderItems', orders.orderItems),
+        menuItems: mergeNormalizedItems(state, 'menuItems', orders.menuItems),
       };
     }
     case SET_CREATED_ORDER:
@@ -337,28 +336,20 @@ export default function ordersReducer(state = initialState, action) {
       const { orders } = action;
       return {
         ...state,
-        orders: {
-          ...state.orders,
-          ...orders.entities.orders.byId,
-        },
+        orders: mergeNormalizedItems(state, 'orders', orders),
       };
     }
     case SET_ORDER_DETAILS: {
       const { orderDetails } = action;
+      console.log('Reducer - Order Details:', orderDetails);
       return {
         ...state,
         orders: {
           ...state.orders,
           [orderDetails.order.id]: orderDetails.order,
         },
-        orderItems: {
-          ...state.orderItems,
-          ...orderDetails.orderItems.byId,
-        },
-        menuItems: {
-          ...state.menuItems,
-          ...orderDetails.menuItems.byId,
-        },
+        orderItems: mergeNormalizedItems(state, 'orderItems', orderDetails.orderItems),
+        menuItems: mergeNormalizedItems(state, 'menuItems', orderDetails.menuItems),
       };
     }
     case REORDER_PAST_ORDER: {
@@ -375,10 +366,7 @@ export default function ordersReducer(state = initialState, action) {
       const { orderItems } = action;
       return {
         ...state,
-        orderItems: {
-          ...state.orderItems,
-          ...orderItems.byId,
-        },
+        orderItems: mergeNormalizedItems(state, 'orderItems', orderItems),
       };
     }
     case CANCEL_ORDER: {
@@ -399,3 +387,130 @@ export default function ordersReducer(state = initialState, action) {
       return state;
   }
 }
+// Reducer
+// export default function ordersReducer(state = initialState, action) {
+//   switch (action.type) {
+//     case ADD_ORDER: {
+//       const { order } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [order.id]: order,
+//         },
+//       };
+//     }
+
+//     case SET_ORDERS: {
+//       const { orders } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           ...orders.byId,
+//         },
+//         orderItems: {
+//           ...state.orderItems,
+//           ...orders.orderItems.byId,
+//         },
+//         menuItems: {
+//           ...state.menuItems,
+//           ...orders.menuItems.byId,
+//         },
+//       };
+//     }
+//     case SET_CREATED_ORDER:
+//       return {
+//         ...state,
+//         createdOrder: action.payload,
+//       };
+//     case REMOVE_ORDER: {
+//       const { orderId } = action;
+//       const newOrders = { ...state.orders };
+//       delete newOrders[orderId];
+//       return {
+//         ...state,
+//         orders: newOrders,
+//       };
+//     }
+
+//     case UPDATE_ORDER: {
+//       const { orderId, status } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderId]: {
+//             ...state.orders[orderId],
+//             status,
+//           },
+//         },
+//       };
+//     }
+//     case SET_USER_ORDERS: {
+//       const { orders } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           ...orders.entities.orders.byId,
+//         },
+//       };
+//     }
+//     case SET_ORDER_DETAILS: {
+//       const { orderDetails } = action;
+//       console.log('Reducer - Order Details:', orderDetails);
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderDetails.order.id]: orderDetails.order,
+//         },
+//         orderItems: {
+//           ...state.orderItems,
+//           ...orderDetails.orderItems.byId,
+//         },
+//         menuItems: {
+//           ...state.menuItems,
+//           ...orderDetails.menuItems.byId,
+//         },
+//       };
+//     }
+//     case REORDER_PAST_ORDER: {
+//       const { order } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [order.id]: order,
+//         },
+//       };
+//     }
+//     case SET_ORDER_ITEMS: {
+//       const { orderItems } = action;
+//       return {
+//         ...state,
+//         orderItems: {
+//           ...state.orderItems,
+//           ...orderItems.byId,
+//         },
+//       };
+//     }
+//     case CANCEL_ORDER: {
+//       const { orderId } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderId]: {
+//             ...state.orders[orderId],
+//             status: "Cancelled",
+//           },
+//         },
+//       };
+//     }
+
+//     default:
+//       return state;
+//   }
+// }
