@@ -97,12 +97,12 @@ export default function ShoppingCart({ onClose }) {
 
   return (
     <div className="shopping-cart-container">
-      <div className="shopping-cart-header">
-        <h1>{`${restaurantData?.name} (${restaurantData?.street_address})`}</h1>
-        <ClearShoppingCart />
-      </div>
       {cartItemIds.length > 0 ? (
         <>
+          <div className="shopping-cart-header">
+            <h1 className="shopping-cart-header-h1">{`${restaurantData?.name} (${restaurantData?.street_address})`}</h1>
+            <ClearShoppingCart handleAddItems={handleAddItems} />
+          </div>
           <div className="shopping-cart-summary">
             <span>{cartItemIds.length} item(s)</span>
             <span>Total: ${cartTotalPrice.toFixed(2)}</span>
@@ -117,22 +117,35 @@ export default function ShoppingCart({ onClose }) {
 
               const menuItemDetails = menuItem[item.menu_item_id];
               if (!menuItemDetails) {
-                console.error(`No menu item details found for menu item id ${item.menu_item_id}`, menuItem);
+                console.error(
+                  `No menu item details found for menu item id ${item.menu_item_id}`,
+                  menuItem
+                );
                 return null;
               }
 
               const itemName = menuItemDetails.name;
-              const itemImage = menuItemDetails.image_paths ? menuItemDetails.image_paths[0] : '';
+              const itemImage = menuItemDetails.image_paths
+                ? menuItemDetails.image_paths[0]
+                : "";
 
               return (
                 <li key={itemId} className="cart-item">
                   <div className="cart-item-name">
-                    {itemImage && <img src={itemImage} alt={itemName} style={{ width: '50px', height: '50px' }} />}
+                    {itemImage && (
+                      <img
+                        src={itemImage}
+                        alt={itemName}
+                        style={{ width: "50px", height: "50px" }}
+                      />
+                    )}
                     <span>{itemName}</span>
                   </div>
                   <div className="cart-item-details">
                     <EditShoppingCart itemId={itemId} />
-                    <span>${(menuItemDetails.price * item.quantity).toFixed(2)}</span>
+                    <span>
+                      ${(menuItemDetails.price * item.quantity).toFixed(2)}
+                    </span>
                   </div>
                 </li>
               );
@@ -150,7 +163,7 @@ export default function ShoppingCart({ onClose }) {
           </button>
         </>
       ) : (
-        <p>Your cart is empty.</p>
+        <p className="message-empty-cart-p">Your cart is empty.</p>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import './SlidingModalRight.css'; // Ensure you're using the correct CSS file
+import './SlidingModalRight.css';
 
 export default function SlidingModalRight({ isVisible, onClose, children }) {
   return (

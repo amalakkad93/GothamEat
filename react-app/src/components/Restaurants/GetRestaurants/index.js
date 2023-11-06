@@ -50,13 +50,33 @@ export default function GetRestaurants({ ownerMode = false }) {
 
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
 
-  // Effect to initialize user location and fetch favorites if user is logged in
+  //********************************************************************************************** */
+  // // Effect to initialize user location and fetch favorites if user is logged in
+  // useEffect(() => {
+  //   setSelectedLocation(JSON.parse(localStorage.getItem("userLocation")));
+  //   if (userId) {
+  //     dispatch(thunkFetchAllFavorites(userId));
+  //   }
+  // }, [dispatch, userId]);
+
   useEffect(() => {
-    setSelectedLocation(JSON.parse(localStorage.getItem("userLocation")));
+    try {
+      const location = JSON.parse(localStorage.getItem("userLocation"));
+      if (location && location.lat && location.lng) {
+        setSelectedLocation(location);
+      } else {
+        console.log("No valid userLocation found in localStorage.");
+      }
+    } catch (error) {
+      console.error("Error parsing userLocation from localStorage:", error);
+    }
+
     if (userId) {
       dispatch(thunkFetchAllFavorites(userId));
     }
   }, [dispatch, userId]);
+
+  //********************************************************************************************** */
 //   useEffect(() => {
 //     // Check if the current userId is different from the last fetched user ID
 //     if (userId && userId !== lastFetchedUserIdRef.current) {
@@ -100,6 +120,14 @@ export default function GetRestaurants({ ownerMode = false }) {
       dispatch(thunkToggleFavorite(userId, restaurantId));
     }
   };
+  console.log("*********************************",{
+    userId,
+    selectedLocation,
+    favoritesById,
+    ownerRestaurants,
+    nearbyRestaurants,
+    restaurantIds,
+  });
 
   // Render the list of nearby restaurants
   return (

@@ -1,0 +1,60 @@
+.sliding-modal-Right {
+  position: fixed;
+  top: 0;
+  right: -300%; /* Start off-screen */
+  width: 300px;
+  height: 100%;
+  background-color: #fff;
+  transition: right 0.5s cubic-bezier(0.77, 0, 0.175, 1); 
+  border-radius: 8px 0 0 8px; /* Smooth corners */
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Elegant shadow */
+  padding: 20px; /* Inner spacing */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sliding-modal-Right.visible {
+  right: 0; /* Slide in to show */
+}
+
+.sliding-modal-backdrop-Right {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: -300px; /* adjust to not cover the modal */
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  display: none;
+
+}
+
+.sliding-modal-Right.visible .sliding-modal-backdrop-Right {
+  display: block;
+  right: 300px;
+  /* opacity: 1;  */
+}
+
+/* Styling for the close button */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #ff6b6b; /* Interactive color change */
+}
+
+/* Typography within the modal */
+.sliding-modal-content {
+  font-family: 'Open Sans', sans-serif; /* Example font */
+  color: #333;
+  line-height: 1.6;
+}
