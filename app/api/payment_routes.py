@@ -1,8 +1,9 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
+from sqlite3 import OperationalError
 from flask_login import login_required, current_user
 from app.models import db, Order, OrderItem, MenuItem, Payment
-from app.forms import OrderForm, OrderItemForm
+from ..forms import PaymentForm
 from ..helper_functions import normalize_data, is_valid_payment_data
 
 payment_routes = Blueprint('payments', __name__)
@@ -44,6 +45,29 @@ def get_payment(id):
 # ***************************************************************
 # Endpoint to Create a Payment
 # ***************************************************************
+# @login_required
+# @payment_routes.route('/', methods=['POST'])
+# def create_payment():
+#     """
+#     Creates a new payment record in the database.
+
+#     Returns:
+#         Response: The newly created payment record or an error message if validation fails.
+#     """
+#     data = request.json
+#     valid, error_message = is_valid_payment_data(data)
+#     if not valid:
+#         return jsonify({"error": error_message}), 400
+
+#     payment = Payment(
+#         order_id=data['order_id'],
+#         gateway=data['gateway'],
+#         amount=data['amount'],
+#         status=data['status']
+#     )
+#     db.session.add(payment)
+#     db.session.commit()
+#     return jsonify(payment.to_dict())
 @login_required
 @payment_routes.route('/', methods=['POST'])
 def create_payment():
@@ -53,20 +77,30 @@ def create_payment():
     Returns:
         Response: The newly created payment record or an error message if validation fails.
     """
-    data = request.json
-    valid, error_message = is_valid_payment_data(data)
-    if not valid:
-        return jsonify({"error": error_message}), 400
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid data"}), 400
 
-    payment = Payment(
-        order_id=data['order_id'],
-        gateway=data['gateway'],
-        amount=data['amount'],
-        status=data['status']
-    )
-    db.session.add(payment)
-    db.session.commit()
-    return jsonify(payment.to_dict())
+        # You would replace this with actual form validation
+        form = PaymentForm(data=data)
+        form['csrf_token'].data = request.cookies['csrf_token']
+
+        if form.validate():
+            payment = Payment(**form.data)
+            db.session.add(payment)
+            db.session.commit()
+            return jsonify(payment.to_dict()), 201
+        return jsonify({"error": form.errors}), 400
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+
+    except Exception as e:
+        print(f"Error creating payment record: {e}")
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while creating the payment record."}), 500
 
 # ***************************************************************
 # Endpoint to Update a Payment

@@ -14,6 +14,7 @@ import ordersReducer from './orders';
 import shoppingCartReducer from './shoppingCarts';
 import reviewsReducer from './reviews';
 import paymentReducer from './payments';
+import shippingReducer from './shippings';
 
 const rootReducer = combineReducers({
   session,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   shoppingCarts: shoppingCartReducer,
   reviews: reviewsReducer,
   payments: paymentReducer,
+  shipping: shippingReducer,
 });
 
 const migrations = {
@@ -33,7 +35,7 @@ const migrations = {
 
 const persistConfig = {
   key: 'root',
-  version: 2, // The version number should match the version in your backend
+  version: 3, // The version number should match the version in your backend
   storage,
   whitelist: ['shoppingCarts'], // Add other reducers you want to persist here
   migrate: createMigrate(migrations, { debug: false }), // Set to true if you want to debug migrations

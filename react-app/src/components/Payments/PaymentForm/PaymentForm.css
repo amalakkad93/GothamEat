@@ -1,0 +1,82 @@
+.PaymentForm {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.PaymentForm form {
+  display: flex;
+  flex-direction: column;
+}
+
+.PaymentForm select,
+.PaymentForm input {
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.PaymentForm input::placeholder {
+  color: #c0c4cc;
+}
+
+.PaymentForm button {
+  padding: 1rem;
+  border: none;
+  background-color: black;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.PaymentForm button:hover {
+  background-color: #0056b3;
+}
+
+.PaymentForm .AmountDisplay {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.amounts-div {
+  background: #f9f9f9;
+  border-left: 4px solid black;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.amounts-div p {
+  margin: 0.5rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.amounts-div p:first-child {
+  margin-top: 0;
+}
+
+.amounts-div p:last-child {
+  color: #d9534f;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .PaymentForm {
+    margin: 1rem;
+    padding: 1rem;
+  }
+}

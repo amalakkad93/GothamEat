@@ -28,9 +28,26 @@ const PaymentInfo = ({ payment }) => {
         </button>
       )}
 
-      {/* If you have more statuses, you can add more buttons or a dropdown to select the status */}
+      {/* If the user needs a receipt, you could add a button or link to view/download the receipt */}
+      {payment.status === 'Completed' && (
+        <button onClick={() => {/* logic to view/download receipt */}}>
+          View Receipt
+        </button>
+      )}
+
+      {/* If refunds are allowed and the payment is refundable, provide an option to initiate a refund */}
+      {/* This should only be displayed based on business rules */}
+      {payment.status === 'Completed' && /* additional refund eligibility checks */ (
+        <button onClick={() => {/* logic to initiate a refund */}}>
+          Refund Payment
+        </button>
+      )}
+
+      {/* More actions can be added here based on the application's requirements */}
+
     </div>
   );
 };
 
 export default PaymentInfo;
+

@@ -1,54 +1,99 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { thunkCreatePayment, thunkEditPayment } from '../../../store/payments';
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { thunkCreatePayment } from "../../../store/payments";
+import "./PaymentForm.css";
 
-function PaymentForm({ payment }) {
-  const [orderId, setOrderId] = useState(payment?.order_id || '');
-  const [gateway, setGateway] = useState(payment?.gateway || '');
-  const [amount, setAmount] = useState(payment?.amount || '');
-  const [status, setStatus] = useState(payment?.status || '');
+function PaymentForm({
+  orderId,
+  totalWithShipping,
+  shippingCost,
+  totalAmountNumber,
+}) {
   const dispatch = useDispatch();
+  const [gateway, setGateway] = useState("Stripe");
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    cvc: "",
+    postalCode: "",
+  });
+
+  const { cardNumber, expiryMonth, expiryYear, cvc, postalCode } = cardDetails;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCardDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const paymentData = { orderId, gateway, amount, status };
+    const paymentData = {
+      orderId,
+      gateway,
+      amount: totalWithShipping,
+      cardNumber,
+      expiryMonth,
+      expiryYear,
+      cvc,
+      postalCode,
+    };
 
-    if (payment) {
-      dispatch(thunkEditPayment(payment.id, paymentData));
-    } else {
-      dispatch(thunkCreatePayment(paymentData));
-    }
+    dispatch(thunkCreatePayment(paymentData));
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Form fields here */}
-      <input
-        type="text"
-        value={orderId}
-        onChange={(e) => setOrderId(e.target.value)}
-        placeholder="Order ID"
-      />
-      <input
-        type="text"
-        value={gateway}
-        onChange={(e) => setGateway(e.target.value)}
-        placeholder="Gateway"
-      />
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="Amount"
-      />
-      <input
-        type="text"
-        value={status}
-        onChange={(e) => setStatus(e.target.value)}
-        placeholder="Status"
-      />
-      <button type="submit">{payment ? 'Update' : 'Add'}</button>
-    </form>
+    <div className="PaymentForm">
+      <form onSubmit={handleSubmit}>
+        <select value={gateway} onChange={(e) => setGateway(e.target.value)}>
+          <option value="Stripe">Stripe</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Credit Card">Credit Card</option>
+        </select>
+
+        {gateway === "Credit Card" && (
+          <>
+            <input
+              type="text"
+              value={cardNumber}
+              onChange={handleChange}
+              placeholder="Card Number"
+            />
+            <input
+              type="text"
+              value={expiryMonth}
+              onChange={handleChange}
+              placeholder="Expiry Month (MM)"
+            />
+            <input
+              type="text"
+              value={expiryYear}
+              onChange={handleChange}
+              placeholder="Expiry Year (YYYY)"
+            />
+            <input
+              type="text"
+              value={cvc}
+              onChange={handleChange}
+              placeholder="CVC"
+            />
+            <input
+              type="text"
+              value={postalCode}
+              onChange={handleChange}
+              placeholder="Postal Code"
+            />
+          </>
+        )}
+        <div className="amounts-div">
+          <p>Subtotal: ${totalAmountNumber?.toFixed(2)}</p>
+          <p>Delivery Fee: ${shippingCost?.toFixed(2)}</p>
+          <p>Total with Delivery: ${totalWithShipping?.toFixed(2)}</p>
+        </div>
+
+        <button type="submit">Confirm Payment</button>
+      </form>
+    </div>
   );
 }
 

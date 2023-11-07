@@ -47,3 +47,5 @@ npm install redux-persist
 
 npm install react-toastify
 npm install react-spinners
+
+window.persistor.purge(); // to clear the local storage

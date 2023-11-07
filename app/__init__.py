@@ -7,7 +7,7 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_login import LoginManager
 from flask_caching import Cache
 from .models import db, User
-from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, review_routes, review_img_routes, menu_item_routes, menu_item_img_routes, shopping_cart_routes, order_routes, order_item_routes, payment_routes, maps_routes, ubereats_routes, s3_routes
+from .api import user_routes,auth_routes, restaurant_routes, favorite_routes, review_routes, review_img_routes, menu_item_routes, menu_item_img_routes, shopping_cart_routes, order_routes, order_item_routes, payment_routes, maps_routes, ubereats_routes, s3_routes, shipping_routes
 from .seeds import seed_commands
 from .config import Config, cache
 
@@ -57,9 +57,11 @@ app.register_blueprint(order_item_routes, url_prefix='/api/order-items')
 app.register_blueprint(review_routes, url_prefix="/api/reviews")
 app.register_blueprint(review_img_routes, url_prefix="/api/review-images")
 app.register_blueprint(payment_routes, url_prefix="/api/payments")
+app.register_blueprint(shipping_routes, url_prefix='/api/shippings')
 app.register_blueprint(maps_routes, url_prefix='/api/maps')
 app.register_blueprint(s3_routes, url_prefix='/s3')
 app.register_blueprint(ubereats_routes, url_prefix='/api/ubereat') # Delete this line when use in production
+
 
 db.init_app(app)
 Migrate(app, db)

@@ -19,6 +19,8 @@ import EditMenuItemForm from "./components/MenuItems/MenuItemForm/EditMenuItemFo
 import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";
 import OrderList from "./components/Orders/OrderList";
 import OrderDetail from "./components/Orders/OrderDetail";
+import PaymentPage from "./components/Payments/PaymentPage";
+import CheckoutPage from "./components/Orders/CheckoutPage";
 import UserProfile from "./components/UserProfile/UserProfile";
 import NotFound from "./components/NotFound";
 
@@ -47,6 +49,7 @@ function App() {
        <Route path="/" element={<Home />} />
        <Route path="/login" element={<LoginFormPage />} />
        <Route path="/signup" element={<SignupFormPage />} />
+       <Route path="/checkout" element={<CheckoutPage />} />
        <Route path="/users/show" element={<UserProfile />} />
        <Route path="/favorites" element={<FavoritesRestaurants />} />
        <Route path="/shopping-cart" element={<ShoppingCart />} />
@@ -67,6 +70,7 @@ function App() {
        {/* Orders should be ordered such that the specific orderId route is before the general orders route */}
 
        <Route path="/orders/:orderId" element={<OrderDetail />} />
+       <Route path="/payment/:orderId" element={<PaymentPage />} />
        <Route path="/orders" element={<OrderList />} />
 
        {/* Catch-all route for undefined paths */}

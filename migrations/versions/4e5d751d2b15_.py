@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 5a080544f348
+Revision ID: 4e5d751d2b15
 Revises: 
-Create Date: 2023-11-05 22:34:04.677872
+Create Date: 2023-11-06 18:00:12.181412
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5a080544f348'
+revision = '4e5d751d2b15'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -115,6 +115,25 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('shippings',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('order_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('street_address', sa.String(length=255), nullable=True),
+    sa.Column('city', sa.String(length=100), nullable=True),
+    sa.Column('state', sa.String(length=100), nullable=True),
+    sa.Column('postal_code', sa.String(length=20), nullable=True),
+    sa.Column('country', sa.String(length=100), nullable=True),
+    sa.Column('shipping_type', sa.String(length=50), nullable=True),
+    sa.Column('cost', sa.Float(), nullable=True),
+    sa.Column('status', sa.String(length=50), nullable=True),
+    sa.Column('tracking_number', sa.String(length=255), nullable=True),
+    sa.Column('shipped_at', sa.DateTime(), nullable=True),
+    sa.Column('estimated_delivery', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('menu_item_imgs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('menu_item_id', sa.Integer(), nullable=True),
@@ -156,6 +175,7 @@ def downgrade():
     op.drop_table('review_imgs')
     op.drop_table('order_items')
     op.drop_table('menu_item_imgs')
+    op.drop_table('shippings')
     op.drop_table('reviews')
     op.drop_table('payments')
     op.drop_table('menu_items')

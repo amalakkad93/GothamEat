@@ -1,0 +1,28 @@
+.order-items-list {
+  margin: 20px 0;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.order-item-image {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.order-item-info {
+  flex-grow: 1;
+}
+
+.order-item-info h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.order-item-info p {
+  margin: 5px 0;
+}

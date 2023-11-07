@@ -57,24 +57,17 @@ export default function GetShoppingCart({ onClose }) {
   }, [dispatch]);
 
   // Handler to create an order from the cart
-  const handleCreateOrder = () => {
-    if (!isLoading) {
-      dispatch(thunkCreateOrderFromCart())
-        .then((order) => {
-          console.log("Order created successfully", order);
-          navigate(`/orders/${order.id}`);
-          if (onClose) {
-            onClose();
-          }
-        })
-        .catch((error) => {
-          console.error("Error creating the order", error);
-        });
-    } else {
-      console.log("Please wait, cart items are loading.");
-    }
-  };
+  const handleGoToCheckout = () => {
 
+    navigate('/checkout', {
+      state: {
+        cartItems: cartItemsById,
+        totalAmount: cartTotalPrice,
+        restaurantData: restaurantData
+      }
+    });
+    if (onClose) onClose();
+  };
   // Handler to add items to the cart
   const handleAddItems = () => {
     if (!isLoading) {
@@ -150,8 +143,8 @@ export default function GetShoppingCart({ onClose }) {
             <strong>Total</strong>
             <span>${cartTotalPrice.toFixed(2)}</span>
           </div>
-          <button onClick={handleCreateOrder} className="checkout-button">
-            Go to checkout
+          <button onClick={handleGoToCheckout} className="checkout-button">
+          Go to checkout
           </button>
           <button onClick={handleAddItems} className="add-items-button">
             Add items

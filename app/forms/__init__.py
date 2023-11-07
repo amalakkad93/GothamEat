@@ -8,4 +8,6 @@ from .menu_item_image_form import MenuItemImgForm
 from .shopping_cart_item_form import ShoppingCartItemForm
 from .order_form import OrderForm
 from .order_item_form import OrderItemForm
+from .shipping_form import ShippingForm
+from .payment_form import PaymentForm
 # from image_form import ImageForm

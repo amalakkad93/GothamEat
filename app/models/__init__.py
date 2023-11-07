@@ -11,3 +11,4 @@ from .order import Order
 from .order_item import OrderItem
 from .payment import Payment
 from .review_img import ReviewImg
+from .shipping import Shipping
