@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+/* General page styles */
+.order-confirmation-page {
+  font-family: 'Open Sans', sans-serif;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f7f7f7;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  color: #444;
+}
+
+.section {
+  background: #ececec;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+  text-align: left;
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.items-purchased {
+  margin-top: 1rem;
+}
+
+.items-purchased strong {
+  display: block;
+}
+
+.items-purchased ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+
+.item-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #fff;
+  border-radius: 5px;
+}
+
+.item-name {
+  flex-grow: 1;
+}
+
+.item-quantity,
+.item-price {
+  margin-left: 1rem;
+}
+
+/* Button styling */
+.order-confirmation-page button {
+  background-color: #3498db;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.order-confirmation-page button:hover {
+  background-color: #2980b9;
+  box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .item-detail {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item-quantity,
+  .item-price {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}

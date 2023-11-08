@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4e5d751d2b15
+Revision ID: 9ac9d707ffb8
 Revises: 
-Create Date: 2023-11-06 18:00:12.181412
+Create Date: 2023-11-07 09:49:52.635495
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4e5d751d2b15'
+revision = '9ac9d707ffb8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -98,6 +98,12 @@ def upgrade():
     sa.Column('stripe_payment_intent_id', sa.String(length=255), nullable=True),
     sa.Column('stripe_payment_method_id', sa.String(length=255), nullable=True),
     sa.Column('paypal_transaction_id', sa.String(length=255), nullable=True),
+    sa.Column('cardholder_name', sa.String(length=255), nullable=True),
+    sa.Column('card_number', sa.String(length=16), nullable=True),
+    sa.Column('card_expiry_month', sa.String(length=2), nullable=True),
+    sa.Column('card_expiry_year', sa.String(length=4), nullable=True),
+    sa.Column('card_cvc', sa.String(length=4), nullable=True),
+    sa.Column('postal_code', sa.String(length=20), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),
     sa.Column('status', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
@@ -124,7 +130,6 @@ def upgrade():
     sa.Column('state', sa.String(length=100), nullable=True),
     sa.Column('postal_code', sa.String(length=20), nullable=True),
     sa.Column('country', sa.String(length=100), nullable=True),
-    sa.Column('shipping_type', sa.String(length=50), nullable=True),
     sa.Column('cost', sa.Float(), nullable=True),
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('tracking_number', sa.String(length=255), nullable=True),

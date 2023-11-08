@@ -8,6 +8,7 @@ class PaymentForm(FlaskForm):
     # stripe_payment_intent_id = StringField('Stripe Payment Intent ID', validators=[Length(max=255)])
     # stripe_payment_method_id = StringField('Stripe Payment Method ID', validators=[Length(max=255)])
     # paypal_transaction_id = StringField('PayPal Transaction ID', validators=[Length(max=255)])
+    cardholder_name = StringField('Cardholder Name', validators=[Optional(), Length(max=255)])
     card_number = StringField('Card Number', validators=[Optional(), Length(min=14, max=16)])
     card_expiry_month = StringField('Card Expiry Month', validators=[Optional(), Length(min=2, max=2)])
     card_expiry_year = StringField('Card Expiry Year', validators=[Optional(), Length(min=4, max=4)])

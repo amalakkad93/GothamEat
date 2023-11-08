@@ -58,7 +58,7 @@ const actionUpdateItemInCart = (itemId, quantity, totalPrice) => ({
   totalPrice,
 });
 
-const actionClearCart = () => ({
+export const actionClearCart = () => ({
   type: CLEAR_CART,
 });
 export const setCartLoading = () => ({ type: SET_CART_LOADING });
@@ -133,9 +133,6 @@ export const thunkAddItemsToCart =
     }
   };
 
-// ***************************************************************
-//  Thunk to fetch the current cart
-// ***************************************************************
 // ***************************************************************
 //  Thunk to fetch the current cart
 // ***************************************************************
@@ -419,7 +416,7 @@ export default function shoppingCartReducer(state = initialState, action) {
         cartItems: { byId: {}, allIds: [] },
         menuItemsInfo: { byId: {}, allIds: [] },
         totalPrice: 0,
-        // restaurantId: null,
+        restaurantId: null,
       };
       // return {
       //   ...initialState, // Reset to initialState which will also reset the restaurantId

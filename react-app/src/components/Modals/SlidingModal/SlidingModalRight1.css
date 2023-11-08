@@ -1,60 +1,187 @@
-.sliding-modal-Right {
+.modal-close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color:rgb(159, 159, 159)
+
+}
+
+.modal-sidebar-overlay {
   position: fixed;
   top: 0;
-  right: -300%; /* Start off-screen */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start; /* Align to top */
+  justify-content: flex-end; /* Slide in from right */
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+.modal-sidebar-content {
+  background-color: white;
+  width: 30%; /* or any width you prefer */
+  height: 100vh; /* Full viewport height */
+  transform: translateX(100%); /* Start offscreen */
+  transition: transform 0.3s ease-out; /* Smooth transition for sliding */
+  position: relative;
+}
+
+.modal-sidebar-overlay .modal-sidebar-content {
+  transform: translateX(0); /* Slide in */
+}
+
+.modal-sidebar-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* Style the close button as needed */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #111;
+}
+
+nav {
+  background: #333;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: space-around;
+  width: 50%;
+  transition: transform 0.5s ease-in;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #fff;
+  transition: color 0.5s ease, border-bottom 0.5s ease, transform 0.5s ease;
+}
+
+.nav-links a:hover {
+  color: #38b8ff;
+  border-bottom: 2px solid #38b8ff;
+}
+
+.burger {
+  cursor: pointer;
+}
+
+.burger div {
+  background: #fff;
+  margin: 5px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 760px) {
+  .nav-links {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    background: #333;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    transform: translateX(100%);
+    padding-top: 60px;
+  }
+
+  .nav-links.nav-active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    opacity: 0;
+  }
+
+  .burger {
+    display: block;
+  }
+}
+
+@keyframes navLinkFade {
+  to {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+}
+
+.toggle .burger div:nth-child(1) {
+  transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.toggle .burger div:nth-child(2) {
+  opacity: 0;
+}
+
+.toggle .burger div:nth-child(3) {
+  transform: rotate(45deg) translate(-5px, -6px);
+} */
+
+
+
+
+
+
+/* .sliding-modal-Right {
+  position: fixed;
+  top: 0;
+  right: -300px;
   width: 300px;
   height: 100%;
-  background-color: #fff;
-  transition: right 0.5s cubic-bezier(0.77, 0, 0.175, 1); 
-  border-radius: 8px 0 0 8px; /* Smooth corners */
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Elegant shadow */
-  padding: 20px; /* Inner spacing */
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: right 0.3s ease;
+  overflow: hidden;
+  box-shadow: -4px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
 }
 
 .sliding-modal-Right.visible {
-  right: 0; /* Slide in to show */
+  right: 0;
 }
+
 
 .sliding-modal-backdrop-Right {
   position: fixed;
   top: 0;
   left: 0;
-  right: -300px; /* adjust to not cover the modal */
+  right: -300px;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 999;
   display: none;
-
 }
 
 .sliding-modal-Right.visible .sliding-modal-backdrop-Right {
   display: block;
   right: 300px;
-  /* opacity: 1;  */
-}
-
-/* Styling for the close button */
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  color: #ff6b6b; /* Interactive color change */
-}
-
-/* Typography within the modal */
-.sliding-modal-content {
-  font-family: 'Open Sans', sans-serif; /* Example font */
-  color: #333;
-  line-height: 1.6;
-}
+} */

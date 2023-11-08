@@ -66,6 +66,8 @@ export default function GetShoppingCart({ onClose }) {
         restaurantData: restaurantData
       }
     });
+
+    // dispatch(thunkClearCart());
     if (onClose) onClose();
   };
   // Handler to add items to the cart

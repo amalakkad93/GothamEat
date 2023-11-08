@@ -35,9 +35,9 @@ const migrations = {
 
 const persistConfig = {
   key: 'root',
-  version: 3, // The version number should match the version in your backend
+  version: 4, // The version number should match the version in your backend
   storage,
-  whitelist: ['shoppingCarts'], // Add other reducers you want to persist here
+  whitelist: ['shoppingCarts', 'orders'], 
   migrate: createMigrate(migrations, { debug: false }), // Set to true if you want to debug migrations
 };
 

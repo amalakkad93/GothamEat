@@ -15,6 +15,7 @@ const OrderSummary = ({ orderId }) => {
   const orderItems = useSelector((state) =>
     order?.orderItems.map((itemId) => state.orderItems.byId[itemId])
   );
+  console.log("🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 ~ file: index.js:18 ~ OrderSummary ~  orderItems:",  orderItems)
 
   if (!order) {
     return <div>Loading order details...</div>;

@@ -34,20 +34,20 @@ const CheckoutPage = () => {
 
   const totalWithShipping = parseFloat((totalAmountNumber + shippingCost).toFixed(2));
 
-  const handlePlaceOrder = async () => {
-    try {
-      const actionResult = await dispatch(thunkCreateOrderFromCart());
-      if (actionResult.meta.requestStatus === 'fulfilled') {
-        setOrderId(actionResult.payload.id);
-        navigate(`/order-confirmation/${actionResult.payload.id}`);
-      } else {
-        throw new Error('Failed to create order from cart.');
-      }
-    } catch (error) {
-      alert('There was an error placing your order. Please try again.');
-      console.error('Order placement error:', error);
-    }
-  };
+  // const handlePlaceOrder = async () => {
+  //   try {
+  //     const actionResult = await dispatch(thunkCreateOrderFromCart());
+  //     if (actionResult.meta.requestStatus === 'fulfilled') {
+  //       setOrderId(actionResult.payload.id);
+  //       navigate(`/order-confirmation/${actionResult.payload.id}`);
+  //     } else {
+  //       throw new Error('Failed to create order from cart.');
+  //     }
+  //   } catch (error) {
+  //     alert('There was an error placing your order. Please try again.');
+  //     console.error('Order placement error:', error);
+  //   }
+  // };
   // const handlePlaceOrder = async () => {
   //   if (!cartItems.length) {
   //     alert('Your cart is empty.');
@@ -95,9 +95,6 @@ const CheckoutPage = () => {
               <div className="button-container">
                 <button onClick={goToShippingStep} className="previous-button">
                   Previous
-                </button>
-                <button onClick={handlePlaceOrder} className="place-order-button">
-                  Place Order
                 </button>
               </div>
             </div>

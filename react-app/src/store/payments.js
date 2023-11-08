@@ -34,7 +34,7 @@ const actionPaymentError = (error) => ({
 
 export const thunkGetPayments = () => async (dispatch) => {
   try {
-    const response = await csrfFetch('/api/payments');
+    const response = await fetch('/api/payments');
 
     if (response.ok) {
       const payments = await response.json();
@@ -60,6 +60,7 @@ export const thunkCreatePayment = (paymentData) => async (dispatch) => {
     if (response.ok) {
       const payment = await response.json();
       dispatch(actionAddPayment(payment));
+      return payment;
     } else {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create payment.');

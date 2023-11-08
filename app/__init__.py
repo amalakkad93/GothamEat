@@ -27,6 +27,7 @@ app.logger.setLevel(logging.INFO)
 csrf = CSRFProtect()
 csrf.init_app(app)
 
+
 # Setup login manager
 login = LoginManager(app)
 login.login_view = 'auth.unauthorized'

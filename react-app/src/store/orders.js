@@ -1,5 +1,5 @@
 import { csrfFetch } from "./csrf";
-
+import {actionClearCart} from  './shoppingCarts'
 // Action types
 const ADD_ORDER = "orders/ADD_ORDER";
 const SET_CREATED_ORDER = 'order/SET_CREATED_ORDER';
@@ -65,10 +65,12 @@ const actionCancelOrder = (orderId) => ({
   orderId,
 });
 
+
+
 // Thunk to create an order
 export const thunkCreateOrder = (userId, total_price, cartItems) => async (dispatch) => {
   try {
-    const response = await csrfFetch("/api/orders/", {
+    const response = await csrfFetch("/api/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,6 +86,7 @@ export const thunkCreateOrder = (userId, total_price, cartItems) => async (dispa
 
     if (response.ok) {
       dispatch(actionAddOrder(data));
+      dispatch(actionClearCart());
       // Optionally, return the created order data.
       return data;
     } else {
@@ -100,26 +103,67 @@ export const thunkCreateOrder = (userId, total_price, cartItems) => async (dispa
   }
 };
 
-export const thunkCreateOrderFromCart = () => async (dispatch) => {
+export const thunkCreateOrderFromCart = () => async (dispatch, getState) => {
   try {
+    const state = getState(); // Get the current application state
+    const cartItemsById = state.shoppingCarts.items.byId; // Access the cart items from the state
+    const menuItemsDetails = state.shoppingCarts.menuItemsInfo.byId; // Access the menu items details from the state
+
+    // Check if there are any items in the cart
+    if (!cartItemsById || Object.keys(cartItemsById).length === 0) {
+      throw new Error("Cart is empty or items are not present");
+    }
+
+    // Convert cart items from object to array if necessary
+    const cartItemsArray = Object.values(cartItemsById);
+
+    // Make the API call to create an order from the cart
     const response = await csrfFetch('/api/orders/create_order', {
-      method: 'POST'
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ items: cartItemsArray }),
     });
 
+    // Process the response
     if (response.ok) {
       const order = await response.json();
-      dispatch(setCreatedOrder(order));
-      return order;  // Return the created order object
+
+      // Enrich the order items with details from `menuItemsDetails`
+      const itemsWithDetails = order.items.map(item => {
+        const detail = menuItemsDetails[item.menu_item_id];
+        return {
+          ...item,
+          name: detail?.name, // Use optional chaining in case detail is undefined
+          price: detail?.price,
+        };
+      });
+
+      // Construct a new order object with the enriched items
+      const orderWithDetails = {
+        ...order,
+        items: itemsWithDetails,
+      };
+
+      // Dispatch the action to set the created order in the store
+      dispatch(setCreatedOrder(orderWithDetails));
+      return orderWithDetails; // Return the enriched order object
     } else {
+      // If the response is not ok, process the errors
       const errors = await response.json();
-      console.error('Error creating order from shopping cart:', errors);
-      return Promise.reject(errors.error);  // Reject promise with the error message
+      throw new Error(errors.error);
     }
   } catch (error) {
+    // Log the error and rethrow it to be handled by the calling code
     console.error('An error occurred while creating the order:', error);
-    return Promise.reject('An error occurred while creating the order.');  // Reject promise with the error message
+    throw error;
   }
 };
+
+
+
+
 
 // Thunk to delete an order
 export const thunkDeleteOrder = (orderId) => async (dispatch) => {

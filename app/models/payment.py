@@ -27,6 +27,7 @@ class Payment(db.Model):
 
     paypal_transaction_id = db.Column(db.String(255))
 
+    cardholder_name = db.Column(db.String(255))
     card_number = Column(String(16))
     card_expiry_month = Column(String(2))
     card_expiry_year = Column(String(4))
@@ -34,6 +35,7 @@ class Payment(db.Model):
     postal_code = db.Column(db.String(20))
     amount = db.Column(db.Float)
     status = db.Column(db.String(255), default="Pending")
+
 
     def to_dict(self):
         data = {
@@ -45,6 +47,7 @@ class Payment(db.Model):
             # "paypal_transaction_id": self.paypal_transaction_id,
             "amount": self.amount,
             "status": self.status
+
         }
         if self.gateway == PaymentGateway.STRIPE:
             data.update({
@@ -58,6 +61,7 @@ class Payment(db.Model):
         elif self.gateway == PaymentGateway.CREDIT_CARD:
             # NEVER store credit card information in your database in production
             data.update({
+                "cardholder_name": self.cardholder_name,
                 "card_number": self.card_number,
                 "card_expiry_month": self.card_expiry_month,
                 "card_expiry_year": self.card_expiry_year,
