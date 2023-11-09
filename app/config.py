@@ -1,11 +1,15 @@
 import os
+import logging
 from flask_caching import Cache
 import boto3
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 class Config:
     # WTF_CSRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    
+
 
     S3_BUCKET = os.environ.get('S3_BUCKET')
     S3_KEY = os.environ.get('S3_KEY')
@@ -30,6 +34,6 @@ class Config:
 
     # Cache Configuration
     CACHE_TYPE = 'simple'
-    DATA_VERSION = 4
+    DATA_VERSION = 10
 # Initialize the cache
 cache = Cache(config={'CACHE_TYPE': 'simple'})

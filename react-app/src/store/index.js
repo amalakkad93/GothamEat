@@ -35,9 +35,9 @@ const migrations = {
 
 const persistConfig = {
   key: 'root',
-  version: 4, // The version number should match the version in your backend
+  version: 10, // The version number should match the version in your backend
   storage,
-  whitelist: ['shoppingCarts', 'orders'], 
+  whitelist: ['shoppingCarts', 'orders', 'shipping'],
   migrate: createMigrate(migrations, { debug: false }), // Set to true if you want to debug migrations
 };
 

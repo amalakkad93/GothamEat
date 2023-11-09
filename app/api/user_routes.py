@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 from flask_login import login_required
-from app.models import User
+from app.models import User, Shipping
+
 
 user_routes = Blueprint('users', __name__)
 
@@ -23,3 +24,17 @@ def user(id):
     """
     user = User.query.get(id)
     return user.to_dict()
+
+@user_routes.route('/<int:user_id>/shippings', methods=['GET'])
+def get_user_shippings(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        shippings = Shipping.query.filter_by(user_id=user_id).all()
+        return jsonify([shipping.to_dict() for shipping in shippings]), 200 if shippings else jsonify({'message': 'No shipping information available for this user.'}), 200
+    except Exception as e:
+        # Log the exception for debugging
+        current_app.logger.error(f'An error occurred when fetching shippings for user {user_id}: {e}')
+        return jsonify({'error': 'An unexpected error occurred'}), 500

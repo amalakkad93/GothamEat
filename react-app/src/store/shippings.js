@@ -35,74 +35,136 @@ const actionSetShippingError = (error) => ({
 });
 
 // Thunks
-export const thunkFetchShippings = () => async (dispatch) => {
+export const thunkGetShippings = () => async (dispatch) => {
   try {
-    const response = await csrfFetch('/api/shippings/');
-    if (response.ok) {
-      const shippings = await response.json();
-      dispatch(actionSetShippings(shippings));
-    } else {
-      throw new Error('Failed to fetch shippings.');
+    const response = await csrfFetch('/api/shipping');
+
+    // Check if the network response was not ok to throw an error
+    if (!response.ok) {
+      const errMessage = response.status === 404 ? 'Shippings not found.' : 'Failed to fetch shippings.';
+      throw new Error(errMessage);
     }
+
+    // Ensure the response is in JSON format
+    let shippings;
+    try {
+      shippings = await response.json();
+
+    } catch (e) {
+      throw new Error('Invalid JSON response from server.');
+    }
+
+    console.log("~~~~~thunkGetShippings ~ shippings:", shippings)
+    // Dispatch the success action with the shippings
+    dispatch(actionSetShippings(shippings));
   } catch (error) {
+    // Handle network errors
+    if (!navigator.onLine) {
+      error.message = 'No internet connection.';
+    }
+
+    // Optionally log the error to the console for debugging
+    console.error('Error in thunkGetShippings:', error);
+
+    // Dispatch the error action with the error message
     dispatch(actionSetShippingError(error.message));
   }
 };
 
+
 export const thunkCreateShipping = (newShippingData) => async (dispatch) => {
+  console.log("~~~~~thunkCreateShipping ~ newShippingData:", newShippingData)
   try {
-    const response = await csrfFetch('/api/shippings/', {
+    const response = await csrfFetch('/api/shipping', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(newShippingData),
     });
-    if (response.ok) {
-      const shipping = await response.json();
-      dispatch(actionAddShipping(shipping));
-    } else {
-      throw new Error('Failed to create shipping.');
+
+    if (!response.ok) {
+      const errMessage = response.status === 400 ? 'Invalid shipping data.' : 'Failed to create shipping.';
+      throw new Error(errMessage);
     }
+
+    let shipping;
+    try {
+      shipping = await response.json();
+    } catch (e) {
+      throw new Error('Invalid JSON response from server.');
+    }
+
+    console.log("~~~~~thunkCreateShipping ~ shipping:", shipping)
+    dispatch(actionAddShipping(shipping));
   } catch (error) {
+    if (!navigator.onLine) {
+      error.message = 'No internet connection.';
+    }
+
+    console.error('Error in thunkCreateShipping:', error);
     dispatch(actionSetShippingError(error.message));
   }
 };
 
+
 export const thunkUpdateShipping = (shippingId, updates) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/shippings/${shippingId}`, {
+    const response = await csrfFetch(`/api/shipping/${shippingId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(updates),
     });
-    if (response.ok) {
-      const shipping = await response.json();
-      dispatch(actionUpdateShipping(shippingId, shipping));
-    } else {
-      throw new Error('Failed to update shipping.');
+
+    if (!response.ok) {
+      const errMessage = response.status === 404 ? 'Shipping not found.' :
+                         response.status === 400 ? 'Invalid update data.' : 'Failed to update shipping.';
+      throw new Error(errMessage);
     }
+
+    let shipping;
+    try {
+      shipping = await response.json();
+    } catch (e) {
+      throw new Error('Invalid JSON response from server.');
+    }
+
+    dispatch(actionUpdateShipping(shippingId, shipping));
   } catch (error) {
+    if (!navigator.onLine) {
+      error.message = 'No internet connection.';
+    }
+
+    console.error('Error in thunkUpdateShipping:', error);
     dispatch(actionSetShippingError(error.message));
   }
 };
 
 export const thunkDeleteShipping = (shippingId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/shippings/${shippingId}`, {
+    const response = await csrfFetch(`/api/shipping/${shippingId}`, {
       method: 'DELETE',
     });
-    if (response.ok) {
-      dispatch(actionRemoveShipping(shippingId));
-    } else {
-      throw new Error('Failed to delete shipping.');
+
+    if (!response.ok) {
+      const errMessage = response.status === 404 ? 'Shipping not found to delete.' : 'Failed to delete shipping.';
+      throw new Error(errMessage);
     }
+
+    // No need to parse JSON for a DELETE request, assuming no content in response
+    dispatch(actionRemoveShipping(shippingId));
   } catch (error) {
+    if (!navigator.onLine) {
+      error.message = 'No internet connection.';
+    }
+
+    console.error('Error in thunkDeleteShipping:', error);
     dispatch(actionSetShippingError(error.message));
   }
 };
+
 
 
 // Initial State

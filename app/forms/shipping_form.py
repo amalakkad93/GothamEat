@@ -1,3 +1,4 @@
+from typing import Optional
 from wtforms import StringField, FloatField, SelectField, FormField, DateTimeField
 from wtforms.validators import DataRequired, Length, NumberRange
 from flask_wtf import FlaskForm
@@ -11,6 +12,6 @@ class ShippingForm(FlaskForm):
     # shipping_type = StringField('Shipping Type', validators=[DataRequired(), Length(max=50)])
     cost = FloatField('Cost', validators=[DataRequired(), NumberRange(min=0)])
     status = SelectField('Status', choices=[('Pending', 'Pending'), ('Shipped', 'Shipped'), ('Delivered', 'Delivered')], default='Pending')
-    # tracking_number = StringField('Tracking Number', validators=[Length(max=255)])
-    shipped_at = DateTimeField('Shipped At')
-    estimated_delivery = DateTimeField('Estimated Delivery')
+    # tracking_number = StringField('Tracking Number', validators=[Optional()])
+    # shipped_at = DateTimeField('Shipped At')
+    # estimated_delivery = DateTimeField('Estimated Delivery')

@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   thunkCreateShipping,
   thunkUpdateShipping,
-  thunkFetchShippings,
+  thunkGetShippings,
 } from "../../../store/shippings";
 
 import './ShippingForm.css';
 
-const ShippingForm = ({ userId, orderId, shippingCost }) => {
+const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     street_address: "",
@@ -39,7 +39,7 @@ const ShippingForm = ({ userId, orderId, shippingCost }) => {
   useEffect(() => {
     // Fetch shippings only if the user has no shipping data yet
     if (userShippings.length === 0) {
-      dispatch(thunkFetchShippings());
+      dispatch(thunkGetShippings());
     }
     // Set form data only if we have shipping data and formData hasn't been set yet
     if (userShippings.length > 0 && !formData.id) {
@@ -61,6 +61,7 @@ const ShippingForm = ({ userId, orderId, shippingCost }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('~~~~~handleSubmit called with formData', formData);
     // Dispatch the thunk to create or update shipping information
     if (orderId) {
       // If we have an orderId, it means we're confirming shipping for an existing order
@@ -68,9 +69,12 @@ const ShippingForm = ({ userId, orderId, shippingCost }) => {
         thunkUpdateShipping(formData.id, { ...formData, order_id: orderId })
       );
     } else {
+      console.log('~~~~~Dispatching thunkCreateShipping');
       // If there's no orderId, we're creating new shipping info
       dispatch(thunkCreateShipping({ ...formData, user_id: userId }));
     }
+
+    onNext();
   };
 
   return (
@@ -128,7 +132,7 @@ const ShippingForm = ({ userId, orderId, shippingCost }) => {
         readOnly
       /> */}
 
-      {/* <button type="submit">Submit</button> */}
+      <button type="submit">Next</button>
     </form>
     </div>
   );

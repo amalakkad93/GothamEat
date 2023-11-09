@@ -19,6 +19,7 @@ class Payment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('orders.id')))
+
     # gateway = db.Column(Enum("Stripe", "PayPal", "Credit Card", name="payment_gateways"))
     gateway = db.Column(Enum(PaymentGateway.STRIPE, PaymentGateway.PAYPAL, PaymentGateway.CREDIT_CARD, name="payment_gateways"))
 
@@ -35,6 +36,8 @@ class Payment(db.Model):
     postal_code = db.Column(db.String(20))
     amount = db.Column(db.Float)
     status = db.Column(db.String(255), default="Pending")
+
+    order = db.relationship('Order', back_populates='payment', foreign_keys=[order_id])
 
 
     def to_dict(self):

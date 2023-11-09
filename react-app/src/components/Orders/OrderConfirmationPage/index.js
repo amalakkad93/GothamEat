@@ -19,8 +19,17 @@ const OrderConfirmationPage = () => {
     return <div>No recent order found. Please make an order.</div>;
 
   // const { id, totalCost, shippingAddress, paymentStatus } = createdOrder || {};
-  const { id, items, total_price, shippingAddress, paymentStatus } =
-    createdOrder || {};
+
+const { id, items, total_price, shipping, payment } = createdOrder || {};
+
+
+const shippingAddress = shipping ? `${shipping.street_address}, ${shipping.city}, ${shipping.state} ${shipping.postal_code}, ${shipping.country}` : "Shipping information not available";
+const paymentStatus = payment ? payment.status : "Payment status not available";
+
+console.log("++++++Order Total Price:", total_price);
+console.log("++++++Shipping Address:", shippingAddress);
+console.log("++++++Payment Status:", paymentStatus);
+
 
   return (
     <div className="order-confirmation-page">
@@ -58,17 +67,7 @@ const OrderConfirmationPage = () => {
         <h2>Payment Status</h2>
         <p>{paymentStatus}</p>
       </div>
-      {/* <div className="section next-steps">
-        <h2>Next Steps</h2>
-        <p>
-          You will receive an email confirmation shortly with your order
-          details.
-        </p>
-        <p>
-          If you selected a tracked shipping method, you will receive another
-          email with your tracking information once your order has been shipped.
-        </p>
-      </div> */}
+
       <button onClick={() => navigate("/orders")}>Back to Orders</button>
     </div>
   );

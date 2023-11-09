@@ -34,43 +34,6 @@ const CheckoutPage = () => {
 
   const totalWithShipping = parseFloat((totalAmountNumber + shippingCost).toFixed(2));
 
-  // const handlePlaceOrder = async () => {
-  //   try {
-  //     const actionResult = await dispatch(thunkCreateOrderFromCart());
-  //     if (actionResult.meta.requestStatus === 'fulfilled') {
-  //       setOrderId(actionResult.payload.id);
-  //       navigate(`/order-confirmation/${actionResult.payload.id}`);
-  //     } else {
-  //       throw new Error('Failed to create order from cart.');
-  //     }
-  //   } catch (error) {
-  //     alert('There was an error placing your order. Please try again.');
-  //     console.error('Order placement error:', error);
-  //   }
-  // };
-  // const handlePlaceOrder = async () => {
-  //   if (!cartItems.length) {
-  //     alert('Your cart is empty.');
-  //     return;
-  //   }
-
-  //   try {
-  //     const actionResult = await dispatch(thunkCreateOrderFromCart());
-  //     console.log('Action Result:', actionResult);
-  //     if (actionResult.meta.requestStatus === 'fulfilled') {
-  //       // Set the orderId state with the new order ID from the action payload
-  //       setOrderId(actionResult.payload.id);
-  //       // Navigate to the order confirmation page
-  //       navigate(`/order-confirmation/${actionResult.payload.id}`);
-  //     } else {
-  //       throw new Error('Failed to create order from cart.');
-  //     }
-  //   } catch (error) {
-  //     alert('There was an error placing your order. Please try again.');
-  //     console.error('Order placement error:', error);
-  //   }
-  // };
-
 
   // Render the form based on the current step
   return (
@@ -81,11 +44,9 @@ const CheckoutPage = () => {
         <>
           {currentStep === 1 && (
             <div className="shipping-header">
-              <ShippingForm userId={userId} shippingCost={shippingCost} orderId={orderId} />
+              <ShippingForm userId={userId} shippingCost={shippingCost} orderId={orderId} onNext={goToPaymentStep} />
               <div className="button-container">
-                <button onClick={goToPaymentStep} className="next-button">
-                  Next
-                </button>
+                {/* <button onClick={goToPaymentStep} className="next-button">Next</button> */}
               </div>
             </div>
           )}
