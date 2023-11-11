@@ -83,5 +83,25 @@
 .navigation-btn {
   background: transparent;
   border: transparent;
-  
+
+}
+
+.clear-persisted-state-button {
+
+  border: black;
+  /* margin-left: 10px; */
+  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  /* padding: 8px 16px; */
+  padding-bottom: 10px;
+  width: 91px;
+  height: 36px;
+  /* font-size: 18px; */
+  font-weight: 700;
+  border-radius: 10px;
+  /* transition: background-color 0.3s, transform 0.3s; */
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  background:red;
 }

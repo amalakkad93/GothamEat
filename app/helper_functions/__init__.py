@@ -34,3 +34,4 @@ from .restaurant_helper import (
     fetch_menu_items_for_restaurant
 )
 from .payments_helper import get_payment_gateway_enum
+from .payment_gateway import PaymentGateway

@@ -98,19 +98,28 @@ def create_payment():
             current_app.logger.error("No data provided")
             return api_response(error="Invalid data", status_code=400)
 
+        # order_id = data.get('order_id')
+        # if not order_id:
+        #     return api_response(error="Order ID is required", status_code=400)
+
         form = PaymentForm(data=data)
         form.csrf_token.data = request.cookies.get('csrf_token')
 
         if form.validate():
+            gateway = form.gateway.data
+            if gateway not in ["Stripe", "PayPal", "Credit Card"]:
+                raise ValueError(f"Invalid payment gateway: {gateway}")
+
             # Create a dictionary with only the fields needed for the Payment model
             payment_data = {
+                # "order_id": order_id,
                 "gateway": form.gateway.data,
                 "amount": form.amount.data,
                 "status": form.status.data,
             }
 
-            # Include additional fields based on the selected gateway
-            if form.gateway.data == 'Credit Card':
+            # Include additional fields for credit card payments
+            if gateway == 'Credit Card':
                 payment_data.update({
                     "cardholder_name": form.cardholder_name.data,
                     "card_number": form.card_number.data,
@@ -128,20 +137,17 @@ def create_payment():
         else:
             current_app.logger.error(f"Form validation errors: {form.errors}")
             return api_response(error=form.errors, status_code=400)
+    except ValueError as ve:
+        current_app.logger.error(f"Validation Error: {str(ve)}")
+        return api_response(error=str(ve), status_code=400)
     except Exception as e:
         current_app.logger.error(f"Error creating payment record: {str(e)}")
         db.session.rollback()
         return api_response(error=str(e), status_code=500)
 
 
-    # except OperationalError as oe:
-    #     print(oe)
-    #     return jsonify({"error": "Database operation failed. Please try again later."}), 500
 
-    # except Exception as e:
-    #     print(f"Error creating payment record: {e}")
-    #     db.session.rollback()
-    #     return jsonify({"error": "An error occurred while creating the payment record."}), 500
+
 
 # ***************************************************************
 # Endpoint to Update a Payment

@@ -16,14 +16,13 @@ function PaymentForm({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [gateway, setGateway] = useState("Stripe");
-
-  const [paymentFormData, setPaymentFormData] = useState({
-    cardholder_name: "Anas Alakkad",
-    card_number: "4242424242424242",
-    card_expiry_month: "12",
-    card_expiry_year: "34",
-    card_cvc: "123",
-    postal_code: "91784",
+  const [cardDetails, setCardDetails] = useState({
+    cardholderName: "Anas Alakkad",
+    cardNumber: "'4242424242424242",
+    expiryMonth: "12",
+    expiryYear: "34",
+    cvc: "123",
+    postalCode: "91784",
     // cardholderName: "",
     // cardNumber: "",
     // expiryMonth: "",
@@ -32,27 +31,65 @@ function PaymentForm({
     // postalCode: "",
   });
 
-
+  const {
+    cardholderName,
+    cardNumber,
+    expiryMonth,
+    expiryYear,
+    cvc,
+    postalCode,
+  } = cardDetails;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPaymentFormData((prevData) => ({ ...prevData, [name]: value }));
+    setCardDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
   };
 
-  const handleSubmit =  async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀🚀🚀🚀🚀🚀🚀 ~ **PaymentForm** ~ handleSubmit ~ paymentFormData:", paymentFormData)
-    onNext({
-      gateway: gateway,
-      cardholder_name: paymentFormData.cardholder_name,
-      card_number: paymentFormData.card_number,
-      card_expiry_month: paymentFormData.card_expiry_month,
-      card_expiry_year: paymentFormData.card_expiry_year,
-      card_cvc: paymentFormData.card_cvc,
-      postal_code: paymentFormData.postal_code
+    const paymentData = {
+      orderId,
+      gateway,
+      amount: totalWithShipping,
+      cardholderName,
+      cardNumber,
+      expiryMonth,
+      expiryYear,
+      cvc,
+      postalCode,
+    };
 
-    });
-  };
+
+    try {
+      const paymentActionResult = await dispatch(thunkCreatePayment(paymentData));
+      console.log("++--Payment action result:", paymentActionResult);
+      if (!paymentActionResult) {
+        throw new Error("Payment creation failed: No result returned");
+      }
+      if (paymentActionResult.error) {
+        throw new Error("++--Payment failed: " + paymentActionResult.error);
+      }
+
+      const orderActionResult = await dispatch(thunkCreateOrderFromCart());
+      console.log("Order action result:", orderActionResult);
+      if (!orderActionResult) {
+        throw new Error("Order creation failed: No result returned");
+      }
+      if (orderActionResult.error) {
+        throw new Error("Order creation failed: " + orderActionResult.error);
+      }
+
+      if (orderActionResult.id) {
+        navigate(`/order-confirmation/${orderActionResult.id}`);
+      } else {
+        console.error("Unexpected order action result:", orderActionResult);
+        throw new Error("Order creation failed: Unexpected payload structure");
+      }
+    } catch (error) {
+      console.error("Error during payment or order creation:", error);
+      alert("An error occurred while processing your order. Please try again.");
+    }
+  };;
 
   return (
     <div className="PaymentForm">
@@ -66,44 +103,41 @@ function PaymentForm({
         {gateway === "Credit Card" && (
           <>
             <input
-              name="cardholder_name"
               type="text"
-              value={paymentFormData.cardholder_name}
+              value={cardholderName}
               onChange={handleChange}
               placeholder="Cardholder Name"
+              autocomplete="cc-number"
             />
             <input
-              name="card_number"
               type="text"
-              value={paymentFormData.card_number}
+              value={cardNumber}
               onChange={handleChange}
               placeholder="Card Number"
+              autocomplete="cc-number"
             />
             <input
-              name="card_expiry_month"
               type="text"
-              value={paymentFormData.card_expiry_month}
+              value={expiryMonth}
               onChange={handleChange}
               placeholder="Expiry Month (MM)"
+              autocomplete="cc-number"
             />
             <input
-              name="card_expiry_year"
               type="text"
-              value={paymentFormData.card_expiry_year}
+              value={expiryYear}
               onChange={handleChange}
               placeholder="Expiry Year (YYYY)"
             />
             <input
-              name="card_cvc"
               type="text"
-              value={paymentFormData.card_cvc}
+              value={cvc}
               onChange={handleChange}
               placeholder="CVC"
             />
             <input
-              name="postal_code"
               type="text"
-              value={paymentFormData.postal_code}
+              value={postalCode}
               onChange={handleChange}
               placeholder="Postal Code"
             />

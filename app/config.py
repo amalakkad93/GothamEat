@@ -34,6 +34,6 @@ class Config:
 
     # Cache Configuration
     CACHE_TYPE = 'simple'
-    DATA_VERSION = 10
+    # DATA_VERSION = 12
 # Initialize the cache
 cache = Cache(config={'CACHE_TYPE': 'simple'})

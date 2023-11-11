@@ -2,12 +2,16 @@ from flask import Blueprint, jsonify, request, abort, current_app
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
-from app.models import db, Order, OrderItem, MenuItem, ShoppingCart, ShoppingCartItem, Payment, Shipping
+from http import HTTPStatus
+from uuid import uuid4
+from app.models import db, Order, OrderItem, MenuItem, ShoppingCart, ShoppingCartItem, Payment, Delivery
 from app.forms import OrderForm, OrderItemForm
 from ..helper_functions import normalize_data, is_authorized_to_access_order, get_payment_gateway_enum
+from ..helper_functions.payment_gateway import PaymentGateway
 import traceback
-from uuid import uuid4
 import logging
+import datetime
+
 # Blueprint for routes related to Orders
 order_routes = Blueprint('orders', __name__)
 # Set up logging
@@ -48,7 +52,7 @@ def error_response(message, status_code):
 # Endpoint to Get User Orders
 # ***************************************************************
 @login_required
-@order_routes.route('/')
+@order_routes.route('')
 def get_user_orders():
     """
     Retrieve all orders associated with the currently authenticated user.
@@ -88,7 +92,7 @@ def get_user_orders():
 # Endpoint to Create an Order
 # ***************************************************************
 @login_required
-@order_routes.route('/', methods=['POST'])
+@order_routes.route('', methods=['POST'])
 def create_order():
     """
     Create a new order with associated order items.
@@ -159,78 +163,43 @@ def create_order():
     # If the form did not validate, return the errors
     return jsonify({'errors': form.errors}), 400
 
-
-
 # ***************************************************************
 # Endpoint to Create an Order From Cart
 # ***************************************************************
-# @order_routes.route('/create_order', methods=['POST'])
-# @login_required
-# def create_order_from_cart():
-#     # db.session() is assumed to be a scoped session
-#     try:
-#         # Start a transaction context
-#         with db.session.begin_nested():  # Use begin_nested for SAVEPOINT (nested transaction)
-#             shopping_cart = ShoppingCart.query.options(joinedload(ShoppingCart.items)).filter_by(user_id=current_user.id).first()
-#             if not shopping_cart or not shopping_cart.items:
-#                 return jsonify({'error': 'Shopping cart is empty'}), 400
-
-#             total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-#             new_order = Order(user_id=current_user.id, total_price=total_price)
-#             db.session.add(new_order)
-#             db.session.flush()  # Obtain the new order ID
-
-#             order_items = [
-#                 OrderItem(menu_item_id=cart_item.menu_item_id, order_id=new_order.id, quantity=cart_item.quantity)
-#                 for cart_item in shopping_cart.items
-#             ]
-#             db.session.bulk_save_objects(order_items)
-#             ShoppingCartItem.query.filter_by(shopping_cart_id=shopping_cart.id).delete()
-
-#             payment = Payment(order_id=new_order.id, gateway='Stripe', amount=total_price, status='Completed')
-#             db.session.add(payment)
-
-#             # The transaction will be committed automatically at the end of the block
-
-#         # If we reach this point, it means the transaction was successful
-#         order_dict = new_order.to_dict()
-#         order_dict['items'] = [item.to_dict() for item in order_items]
-#         return jsonify(order_dict), 201
-
-#     except IntegrityError as e:
-#         current_app.logger.error(f'Integrity error: {str(e)}')
-#         return jsonify({'error': 'An integrity error occurred'}), 400
-
-#     except OperationalError as e:
-#         current_app.logger.error(f'Operational error: {str(e)}')
-#         return jsonify({'error': 'A database operational error occurred'}), 500
-
-#     except Exception as e:
-#         current_app.logger.error(f'Unexpected error: {str(e)}')
-#         return jsonify({'error': 'An unexpected error occurred'}), 500
-
-#     # finally:
-#         # No need to call db.session.close() if using Flask-SQLAlchemy, which handles it automatically
-
-
-
-# ... [rest of your imports and setup] ...
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-
 @order_routes.route('/create_order', methods=['POST'])
 @login_required
 def create_order_from_cart():
-    data = request.get_json()
-    shipping_data = data.get('shipping')
-    payment_data = data.get('payment')
-
     try:
-        # Ensure any existing transaction is closed
-        if db.session.is_active:
-            db.session.rollback()
+        data = request.get_json()
+        total_price, new_order = create_order_logic(data)
 
-        # Fetch the shopping cart
+        return jsonify({
+            'success': True,
+            'order_id': new_order.id,
+            'total_price': total_price,
+            'status': new_order.status,
+            'created_at': new_order.created_at.isoformat(),
+            'updated_at': new_order.updated_at.isoformat()
+        }), HTTPStatus.OK
+
+    except ValueError as ve:
+        db.session.rollback()
+        return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        # Log the error for debugging
+        print(f"Database Error: {e}")
+        return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
+    except Exception as e:
+        db.session.rollback()
+        # Log the generic error
+        print(f"Unexpected Error: {e}")
+        return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+    
+# ++++++++++++++++++++++++++++
+# Helper Function to Create an Order From Cart
+def create_order_logic(data):
+    with db.session.begin_nested():  # Starts a nested transaction
         shopping_cart = ShoppingCart.query.options(
             joinedload(ShoppingCart.items)
         ).filter_by(user_id=current_user.id).first()
@@ -238,67 +207,25 @@ def create_order_from_cart():
         if not shopping_cart or not shopping_cart.items:
             raise ValueError("Shopping cart is empty")
 
-        # Calculate total price and create the Order
         total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-        new_order = Order(user_id=current_user.id, total_price=total_price)
+
+        delivery_id = data.get('delivery_id')
+        payment_id = data.get('payment_id')
+
+        new_order = Order(
+            user_id=current_user.id,
+            total_price=total_price,
+            delivery_id=delivery_id,
+            payment_id=payment_id,
+            status='Pending',
+            created_at=datetime.datetime.now(datetime.timezone.utc),
+            updated_at=datetime.datetime.now(datetime.timezone.utc),
+            is_deleted=False
+        )
         db.session.add(new_order)
-        db.session.commit()  # Commit to get new_order.id
-        logging.info(f'Created new order with ID: {new_order.id}')
-
-        # Create Shipping object if shipping data is provided
-        if shipping_data:
-            new_shipping = Shipping(
-                order_id=new_order.id,
-                user_id=current_user.id,
-                street_address=shipping_data['street_address'],
-                city=shipping_data['city'],
-                state=shipping_data['state'],
-                postal_code=shipping_data['postal_code'],
-                country=shipping_data['country'],
-                cost=shipping_data.get('cost', 0),
-                status='Pending',
-                tracking_number=str(uuid4()),
-                shipped_at=None,
-                estimated_delivery=None
-            )
-            db.session.add(new_shipping)
-            db.session.commit()  # Commit to get new_shipping.id
-            new_order.shipping_id = new_shipping.id
-            logging.info(f'Created new shipping with ID: {new_shipping.id}')
-
-        # Create Payment object if payment data is provided
-        if payment_data:
-            payment_gateway_enum = get_payment_gateway_enum(payment_data['gateway'])
-            new_payment = Payment(
-                order_id=new_order.id,
-                gateway=payment_gateway_enum,
-                amount=total_price,
-                status='Completed'
-            )
-            db.session.add(new_payment)
-            db.session.commit()  # Commit to get new_payment.id
-            new_order.payment_id = new_payment.id
-            logging.info(f'Created new payment with ID: {new_payment.id}')
-
-        # Final commit to save all changes
         db.session.commit()
 
-        # Refresh the order to ensure all data is up to date
-        db.session.refresh(new_order)
-
-        # Serialize the order, including related objects
-        order_dict = new_order.to_dict()  # Assuming to_dict() serializes all necessary data
-
-        return jsonify(order_dict), 201
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logging.exception('Database error occurred', exc_info=True)
-        return jsonify({'error': str(e)}), 500
-    except Exception as e:
-        db.session.rollback()
-        logging.exception('Unexpected error creating order', exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return total_price, new_order
 
 
 

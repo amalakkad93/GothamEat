@@ -160,45 +160,42 @@ export const thunkCreateOrder = (userId, total_price, cartItems) => async (dispa
 //     throw error;
 //   }
 // };
-export const thunkCreateOrderFromCart = () => async (dispatch, getState) => {
+export const thunkCreateOrderFromCart = (orderData) => async (dispatch) => {
   try {
-    const state = getState(); // Get the current application state
-    const cartItemsById = state.shoppingCarts.items.byId; // Access the cart items from the state
+    // Structure the data as per the backend's requirements
+    const requestData = {
+      user_id: orderData.user_id,
+      delivery_id: orderData.delivery_id,
+      payment_id: orderData.payment_id,
+      items: orderData.items.map(item => ({
+        menu_item_id: item.id, // Assuming each item has an id
+        quantity: item.quantity // Assuming quantity is part of the item
+      }))
+    };
 
-    // Check if there are any items in the cart
-    if (!cartItemsById || Object.keys(cartItemsById).length === 0) {
-      throw new Error("Cart is empty or items are not present");
-    }
-
-    // Convert cart items from object to array if necessary
-    const cartItemsArray = Object.values(cartItemsById);
-
-    // Make the API call to create an order from the cart
+    // Make the API call to create an order
     const response = await csrfFetch('/api/orders/create_order', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ items: cartItemsArray }),
+      body: JSON.stringify(requestData),
     });
 
     // Process the response
     if (response.ok) {
       const order = await response.json();
-      console.log("++++++Backend Order Response:", order); // Log the backend response for debugging
-
-      // Dispatch the action to set the created order in the store
-      dispatch(setCreatedOrder(order));
-      return order; // Return the order object
+      dispatch(setCreatedOrder(order)); // Dispatch the action to update the store
+      return { ok: true, payload: order }; // Return the order object
     } else {
-      // If the response is not ok, process the errors
+      // Process the errors
       const errors = await response.json();
       console.error("Error response from create_order:", errors);
-      throw new Error(errors.error);
+      return { ok: false, error: errors.error };
     }
   } catch (error) {
     console.error('An error occurred while creating the order:', error);
-    throw error;
+    return { ok: false, error: error.message };
   }
 };
 

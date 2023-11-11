@@ -1,4 +1,5 @@
 # Function to get the PaymentGateway enum from string
+from enum import Enum
 
 def get_payment_gateway_enum(gateway_str):
     from ..models import PaymentGateway
@@ -11,3 +12,8 @@ def get_payment_gateway_enum(gateway_str):
         return PaymentGateway.CREDIT_CARD
     else:
         raise ValueError(f"Invalid payment gateway: {gateway_str}")
+
+# class PaymentGateway(Enum):
+#     STRIPE = "Stripe"
+#     PAYPAL = "PayPal"
+#     CREDIT_CARD = "Credit Card"

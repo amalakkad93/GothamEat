@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  thunkCreateShipping,
-  thunkUpdateShipping,
-  thunkGetShippings,
-} from "../../../store/shippings";
+  thunkCreateDelivery,
+  thunkUpdateDelivery,
+  thunkGetDeliveries,
+} from "../../../store/deliveries";
 
-import './ShippingForm.css';
+import './DeliveryForm.css';
 
-const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
+const DeliveryForm =  ({ userId, orderId, deliveryCost, onNext }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     street_address: "",
@@ -16,16 +16,16 @@ const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
     state: "",
     postal_code: "",
     country: "",
-    cost: shippingCost,
+    cost: deliveryCost,
     status: "Pending",
     shipped_at: null,
     estimated_delivery: null,
   });
 
-  const userShippings = useSelector((state) =>
-    state.shipping.allIds
-      .map((id) => state.shipping.byId[id])
-      .filter((shipping) => shipping.user_id === userId)
+  const userDeliveries = useSelector((state) =>
+    state.delivery.allIds
+      .map((id) => state.delivery.byId[id])
+      .filter((delivery) => delivery.user_id === userId)
   );
 
   // useEffect(() => {
@@ -38,13 +38,13 @@ const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
   // }, [userId, userShippings, dispatch]);
   useEffect(() => {
     // Fetch shippings only if the user has no shipping data yet
-    if (userShippings.length === 0) {
-      dispatch(thunkGetShippings());
+    if (userDeliveries.length === 0) {
+      dispatch(thunkGetDeliveries());
     }
     // Set form data only if we have shipping data and formData hasn't been set yet
-    if (userShippings.length > 0 && !formData.id) {
-      const latestShipping = userShippings[userShippings.length - 1];
-      setFormData({ ...latestShipping });
+    if (userDeliveries.length > 0 && !formData.id) {
+      const latestDelivery = userDeliveries[userDeliveries.length - 1];
+      setFormData({ ...latestDelivery });
     }
     // Note: We removed `userShippings` from the dependency array to prevent re-running
     // this effect when `userShippings` changes as a result of `setFormData`.
@@ -66,12 +66,12 @@ const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
     if (orderId) {
       // If we have an orderId, it means we're confirming shipping for an existing order
       dispatch(
-        thunkUpdateShipping(formData.id, { ...formData, order_id: orderId })
+        thunkUpdateDelivery(formData.id, { ...formData, order_id: orderId })
       );
     } else {
-      console.log('~~~~~Dispatching thunkCreateShipping');
+      console.log('~~~~~Dispatching thunkCreateDelivery');
       // If there's no orderId, we're creating new shipping info
-      dispatch(thunkCreateShipping({ ...formData, user_id: userId }));
+      dispatch(thunkCreateDelivery({ ...formData, user_id: userId }));
     }
 
     onNext();
@@ -138,4 +138,4 @@ const ShippingForm =  ({ userId, orderId, shippingCost, onNext }) => {
   );
 };
 
-export default ShippingForm;
+export default DeliveryForm;

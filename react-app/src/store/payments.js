@@ -57,18 +57,19 @@ export const thunkCreatePayment = (paymentData) => async (dispatch) => {
       body: JSON.stringify(paymentData),
     });
 
-    if (response.ok) {
-      const payment = await response.json();
-      dispatch(actionAddPayment(payment));
-      return payment;
-    } else {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create payment.');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create payment.");
     }
+
+    const payment = await response.json();
+    dispatch(actionAddPayment(payment));
+    return { payload: payment }; // Ensure to return the payload
   } catch (error) {
-    dispatch(actionPaymentError(error.message));
+    return { error }; // Return an error object
   }
 };
+
 
 export const thunkEditPayment = (paymentId, paymentData) => async (dispatch) => {
   try {
