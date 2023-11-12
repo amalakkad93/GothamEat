@@ -1,99 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
-
-/* General page styles */
 .order-confirmation-page {
-  font-family: 'Open Sans', sans-serif;
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #f7f7f7;
-  border-radius: 10px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  color: #444;
-}
-
-.section {
-  background: #ececec;
-  border-radius: 5px;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.section h2 {
-  text-align: left;
-}
-
-.order-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.items-purchased {
-  margin-top: 1rem;
-}
-
-.items-purchased strong {
-  display: block;
-}
-
-.items-purchased ul {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 0.5rem;
-}
-
-.item-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  margin: 40px auto;
+  padding: 30px;
   background: #fff;
-  border-radius: 5px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  font-family: 'Arial', sans-serif;
 }
 
-.item-name {
-  flex-grow: 1;
+.order-confirmation-page h1 {
+  color: #0d6efd;
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
 }
 
-.item-quantity,
-.item-price {
-  margin-left: 1rem;
+.order-confirmation-page h2 {
+  color: #343a40;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
 }
 
-/* Button styling */
-.order-confirmation-page button {
-  background-color: #3498db;
-  color: white;
-  padding: 0.75rem 1.5rem;
+.order-confirmation-page ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.order-confirmation-page ul li {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.order-confirmation-page div {
+  margin-bottom: 30px;
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.button-container button {
+  background-color: #198754;
   border: none;
-  border-radius: 5px;
+  color: white;
+  padding: 12px 25px;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s ease-in-out, background-color 0.2s ease;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
 }
 
-.order-confirmation-page button:hover {
-  background-color: #2980b9;
-  box-shadow: 0 6px 8px rgba(0,0,0,0.3);
-  transform: translateY(-2px);
+.button-container button:hover {
+  background-color: #157347;
 }
 
-/* Responsive adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .item-detail {
-    flex-direction: column;
-    align-items: flex-start;
+  .order-confirmation-page {
+    padding: 20px;
+    margin: 20px;
   }
 
-  .item-quantity,
-  .item-price {
-    margin-left: 0;
-    margin-top: 0.5rem;
+  .order-confirmation-page h1 {
+    font-size: 2rem;
+  }
+
+  .order-confirmation-page h2 {
+    font-size: 1.3rem;
+  }
+
+  .button-container button {
+    width: 100%;
   }
 }

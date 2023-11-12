@@ -23,7 +23,7 @@ def generate_random_delivery_time():
     return f"{delivery_time_minutes}-{upper_bound_minutes} min"
 
 
-def create_payment(user, total_price, order_id):
+def create_payment(user, total_price):
     # Define the list of available gateways
     available_gateways = ["Stripe", "PayPal", "Credit Card"]
 
@@ -32,7 +32,7 @@ def create_payment(user, total_price, order_id):
 
     # Create the Payment instance with the chosen gateway
     payment = Payment(
-        order_id=order_id,
+        # order_id=order_id,
         gateway=gateway_choice,
         amount=total_price,
         status=choice(["Pending", "Completed", "Failed"]),
@@ -43,9 +43,9 @@ def create_payment(user, total_price, order_id):
 
 
 
-def create_delivery(user, order_id):
+def create_delivery(user):
     delivery = Delivery(
-        order_id=order_id,
+        # order_id=order_id,
         user_id=user.id,
         street_address="123 Main St",  # Placeholder for a real address
         city="Anytown",
@@ -98,8 +98,8 @@ def seed_orders_and_order_items():
                 db.session.add(temp_order_item)
 
             # Create Payment and Delivery with the order's ID
-            payment = create_payment(user, total_price, order.id)
-            delivery = create_delivery(user, order.id)
+            payment = create_payment(user, total_price)
+            delivery = create_delivery(user)
             db.session.add(payment)
             db.session.add(delivery)
             db.session.flush()  # Flush to get payment and delivery IDs

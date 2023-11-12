@@ -11,7 +11,7 @@ import mapsReducer from './maps';
 import restaurantsReducer from './restaurants';
 import favoritesReducer from './favorites';
 import menuItemsReducer from './menuItems';
-import ordersReducer from './orders';
+import  ordersReducer from './orders';
 import shoppingCartReducer from './shoppingCarts';
 import reviewsReducer from './reviews';
 import paymentReducer from './payments';

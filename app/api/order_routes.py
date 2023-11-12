@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request, abort, current_app
 from flask_login import login_required, current_user
+from icecream import ic
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
+from datetime import datetime
 from http import HTTPStatus
 from uuid import uuid4
 from app.models import db, Order, OrderItem, MenuItem, ShoppingCart, ShoppingCartItem, Payment, Delivery
@@ -171,7 +173,10 @@ def create_order():
 def create_order_from_cart():
     try:
         data = request.get_json()
+        ic(data)
         total_price, new_order = create_order_logic(data)
+        ic(total_price)
+        ic(new_order)
 
         return jsonify({
             'success': True,
@@ -195,7 +200,7 @@ def create_order_from_cart():
         # Log the generic error
         print(f"Unexpected Error: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
-    
+
 # ++++++++++++++++++++++++++++
 # Helper Function to Create an Order From Cart
 def create_order_logic(data):
@@ -223,59 +228,207 @@ def create_order_logic(data):
             is_deleted=False
         )
         db.session.add(new_order)
+        db.session.flush()
+
+        # Create order items from shopping cart
+        for cart_item in shopping_cart.items:
+            order_item = OrderItem(
+                order_id=new_order.id,
+                menu_item_id=cart_item.menu_item_id,
+                quantity=cart_item.quantity
+            )
+            db.session.add(order_item)
+
         db.session.commit()
 
         return total_price, new_order
 
 
+# # ++++++++++++++++++++++++++++
+# # Helper Function to Create an Order From Cart
+# def create_order_logic(data):
+#     with db.session.begin_nested():  # Starts a nested transaction
+#         shopping_cart = ShoppingCart.query.options(
+#             joinedload(ShoppingCart.items)
+#         ).filter_by(user_id=current_user.id).first()
 
-# ***************************************************************
-# Endpoint to Get Order Details
-# ***************************************************************
+#         if not shopping_cart or not shopping_cart.items:
+#             raise ValueError("Shopping cart is empty")
+
+#         total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+
+#         delivery_id = data.get('delivery_id')
+#         payment_id = data.get('payment_id')
+
+#         new_order = Order(
+#             user_id=current_user.id,
+#             total_price=total_price,
+#             delivery_id=delivery_id,
+#             payment_id=payment_id,
+#             status='Pending',
+            # created_at=datetime.datetime.now(datetime.timezone.utc),
+            # updated_at=datetime.datetime.now(datetime.timezone.utc),
+#             is_deleted=False
+#         )
+#         db.session.add(new_order)
+#         db.session.commit()
+
+#         return total_price, new_order
+
+
+
+# # ***************************************************************
+# # Endpoint to Get Order Details
+# # ***************************************************************
+# @login_required
+# @order_routes.route('/<int:order_id>')
+# def get_order_details(order_id):
+#     """
+#     Retrieve details for a specific order, including its associated items and menu items.
+#     Args:
+#         order_id (int): The ID of the order to retrieve.
+#     Returns:
+#         Response: A JSON representation of the order details, including associated items
+#                   and menu items, or an error message.
+#     """
+#     try:
+#         order = Order.query.options(
+#             joinedload(Order.items).joinedload(OrderItem.menu_item)
+#         ).get(order_id)
+
+#         if not order:
+#             abort(404, description="Order not found or you don't have permission to view it.")
+
+#         # Building order_items and menu_items
+#         order_items_data = []
+#         menu_items_data = {}
+#         for item in order.items:
+#             order_item_dict = item.to_dict()
+#             order_items_data.append(order_item_dict)
+
+#             menu_item_dict = item.menu_item.to_dict()
+#             menu_items_data[menu_item_dict['id']] = menu_item_dict
+
+#         ic("Order Items Data:", order_items_data)
+#         ic("Menu Items Data:", menu_items_data)
+
+#         normalized_order_items = {"byId": {item['id']: item for item in order_items_data}, "allIds": [item['id'] for item in order_items_data]}
+#         normalized_menu_items = {"byId": menu_items_data, "allIds": list(menu_items_data.keys())}
+
+#         normalized_order_details = {
+#             'order': order.to_dict(),
+#             'orderItems': normalized_order_items,
+#             'menuItems': normalized_menu_items
+#         }
+
+    #     return jsonify(normalized_order_details)
+
+    # except ValueError as ve:
+    #     return error_response(str(ve), 404)
+    # except PermissionError as pe:
+    #     return error_response(str(pe), 403)
+    # except Exception as e:
+    #     return error_response("An unexpected error occurred.", 500)
+
+# @login_required
+# @order_routes.route('/<int:order_id>')
+# def get_order_details(order_id):
+#     # Try to fetch the order with its items
+#     order = Order.query.get(order_id)
+
+#     if not order:
+#         abort(404, "Order not found.")
+
+#     # Fetch order items and menu items directly
+#     order_items = OrderItem.query.filter_by(order_id=order_id).all()
+#     menu_item_ids = [oi.menu_item_id for oi in order_items]
+#     menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all() if menu_item_ids else []
+
+#     # Convert to dictionary
+#     order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
+#     menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
+
+#     ic("order:", order)
+#     ic("order_items:", order_items)
+#     ic("menu_item_ids:", menu_item_ids)
+#     ic("order_items_dict:", order_items_dict)
+#     ic("menu_items_dict:", menu_items_dict)
+
+#     # Prepare the normalized order details
+#     normalized_order_details = {
+#         'order': order.to_dict(),
+#         'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
+#         'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
+#     }
+
+#     return jsonify(normalized_order_details)
+
+
 @login_required
 @order_routes.route('/<int:order_id>')
 def get_order_details(order_id):
-    """
-    Retrieve details for a specific order, including its associated items and menu items.
-    Args:
-        order_id (int): The ID of the order to retrieve.
-    Returns:
-        Response: A JSON representation of the order details, including associated items
-                  and menu items, or an error message.
-    """
     try:
-        # Fetch the order with eager loading of items and menu items
-        order = Order.query.options(
-            joinedload(Order.items).joinedload(OrderItem.menu_item)
-        ).get(order_id)
+        # Fetch the order with its items
+        order = Order.query.get(order_id)
 
-        # Check if the order exists and belongs to the current user
         if not order:
-            abort(404, description="Order not found or you don't have permission to view it.")
+            abort(404, f"Order with ID {order_id} not found.")
 
-        # Normalize the order items and menu items
-        order_items_data = [item.to_dict() for item in order.items]
-        menu_items_data = [item.menu_item.to_dict() for item in order.items]
+        # Additional check: Verify if the current user is authorized to view this order
+        # if not is_authorized(current_user, order):
+        #     abort(403, "You are not authorized to access this order.")
 
-        normalized_order_items = normalize_data(order_items_data, 'id')
-        normalized_menu_items = normalize_data(menu_items_data, 'id')
+        order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        menu_item_ids = [oi.menu_item_id for oi in order_items]
 
-        # Prepare the normalized order details
+        if not menu_item_ids:
+            abort(404, f"No menu items found for order ID {order_id}.")
+
+        menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all()
+
+        order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
+        menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
+
         normalized_order_details = {
             'order': order.to_dict(),
-            'orderItems': normalized_order_items,
-            'menuItems': normalized_menu_items
+            'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
+            'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
         }
+        ic("order:", order)
+        ic("order_items:", order_items)
+        ic("menu_item_ids:", menu_item_ids)
+        ic("menu_items:", menu_items)
+        ic("order_items_dict:", order_items_dict)
+        ic("menu_items_dict:", menu_items_dict)
+        ic("normalized_order_details:", normalized_order_details)
 
-        # Return the normalized order details
         return jsonify(normalized_order_details)
 
     except ValueError as ve:
-        return error_response(str(ve), 404)
-    except PermissionError as pe:
-        return error_response(str(pe), 403)
+        db.session.rollback()
+        return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Database Error: {e}")
+        return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
     except Exception as e:
-        return error_response("An unexpected error occurred.", 500)
+        db.session.rollback()
+        print(f"Unexpected Error: {e}")
+        return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+# Additional function (if needed) to check user authorization
+# def is_authorized(user, order):
+#     return user.id == order.user_id  # Example condition
+
+
+
+
+
+
+
+
 
     # try:
 

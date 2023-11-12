@@ -7,11 +7,11 @@ import { thunkClearCart } from "../../../store/shoppingCarts";
 import "./PaymentForm.css";
 
 function PaymentForm({
-  orderId,
-  totalWithShipping,
-  shippingCost,
-  totalAmountNumber,
-  onNext
+  totalWithDeliveryCost,
+  deliveryCost,
+  totalAmount,
+  onNext,
+
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -110,9 +110,9 @@ function PaymentForm({
           </>
         )}
         <div className="amounts-div">
-          <p>Subtotal: ${totalAmountNumber?.toFixed(2)}</p>
-          <p>Delivery Fee: ${shippingCost?.toFixed(2)}</p>
-          <p>Total with Delivery: ${totalWithShipping?.toFixed(2)}</p>
+          <p>Subtotal: ${totalAmount?.toFixed(2)}</p>
+          <p>Delivery Fee: ${deliveryCost?.toFixed(2)}</p>
+          <p>Total with Delivery: ${totalWithDeliveryCost?.toFixed(2)}</p>
         </div>
 
         <button type="submit">Confirm Payment</button>

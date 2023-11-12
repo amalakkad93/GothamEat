@@ -9,7 +9,7 @@ class Delivery(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     # order_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('orders.id')))
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    # order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
     # order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
 
     user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
@@ -34,7 +34,7 @@ class Delivery(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'order_id': self.order_id,
+            # 'order_id': self.order_id,
             'user_id': self.user_id,
             'street_address': self.street_address,
             'city': self.city,

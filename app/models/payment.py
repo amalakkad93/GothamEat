@@ -21,8 +21,8 @@ class Payment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     # order_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('orders.id')))
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
     # order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+
 
     # gateway = db.Column(Enum("Stripe", "PayPal", "Credit Card", name="payment_gateways"))
     # gateway = db.Column(Enum(PaymentGateway.STRIPE, PaymentGateway.PAYPAL, PaymentGateway.CREDIT_CARD, name="payment_gateways"))
@@ -48,7 +48,7 @@ class Payment(db.Model):
     def to_dict(self):
         data = {
             "id": self.id,
-            "order_id": self.order_id,
+            # "order_id": self.order_id,
             "gateway": self.gateway,
             "amount": self.amount,
             "status": self.status

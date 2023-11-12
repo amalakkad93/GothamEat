@@ -72,7 +72,8 @@ function App() {
        {/* Orders should be ordered such that the specific orderId route is before the general orders route */}
 
        <Route path="/orders/:orderId" element={<OrderDetail />} />
-       <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
+       {/* <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} /> */}
+       <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
        <Route path="/payment/:orderId" element={<PaymentPage />} />
        <Route path="/orders" element={<OrderList />} />
 
