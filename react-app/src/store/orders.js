@@ -1,128 +1,179 @@
 import { csrfFetch } from "./csrf";
+import { produce } from "immer";
 
+import { actionClearCart } from "./shoppingCarts";
+import {
+  addEntity,
+  mergeEntities,
+  removeEntity,
+} from "../assets/helpers/entityHelpers";
 // Action types
-const ADD_ORDER = "orders/ADD_ORDER";
-const SET_CREATED_ORDER = 'order/SET_CREATED_ORDER';
-const SET_ORDERS = "orders/SET_ORDERS";
-const REMOVE_ORDER = "orders/REMOVE_ORDER";
-const UPDATE_ORDER = "orders/UPDATE_ORDER";
-const SET_USER_ORDERS = "orders/SET_USER_ORDERS";
-const SET_ORDER_DETAILS = "orders/SET_ORDER_DETAILS";
-const REORDER_PAST_ORDER = "orders/REORDER_PAST_ORDER";
-const SET_ORDER_ITEMS = "orders/SET_ORDER_ITEMS";
-const CANCEL_ORDER = "orders/CANCEL_ORDER";
+export const ADD_ORDER = "orders/ADD_ORDER";
+export const SET_CREATED_ORDER = "orders/SET_CREATED_ORDER";
+export const SET_ORDERS = "orders/SET_ORDERS";
+export const REMOVE_ORDER = "orders/REMOVE_ORDER";
+export const UPDATE_ORDER = "orders/UPDATE_ORDER";
+export const SET_USER_ORDERS = "orders/SET_USER_ORDERS";
+export const SET_ORDER_DETAILS = "orders/SET_ORDER_DETAILS";
+export const REORDER_PAST_ORDER = "orders/REORDER_PAST_ORDER";
+export const SET_ORDER_ITEMS = "orders/SET_ORDER_ITEMS";
+export const CANCEL_ORDER = "orders/CANCEL_ORDER";
+export const SET_LOADING = "orders/SET_LOADING";
+export const SET_ERROR = "orders/SET_ERROR";
 
 // Action creators
-const actionAddOrder = (order) => ({
+export const actionAddOrder = (order) => ({
   type: ADD_ORDER,
-  order,
+  payload: { order },
 });
 
-// Action creator for setting the created order in the store
-const setCreatedOrder = (order) => ({
+// Action creator
+export const actionSetCreatedOrder = (order, items) => ({
   type: SET_CREATED_ORDER,
-  payload: order,
+  payload: { order, items },
 });
 
-const actionSetOrders = (orders) => ({
+export const actionSetOrders = (orders) => ({
   type: SET_ORDERS,
-  orders,
+  payload: { orders },
 });
 
-const actionRemoveOrder = (orderId) => ({
+export const actionRemoveOrder = (orderId) => ({
   type: REMOVE_ORDER,
-  orderId,
+  payload: { orderId },
 });
 
-const actionUpdateOrder = (orderId, status) => ({
+export const actionUpdateOrder = (orderId, status) => ({
   type: UPDATE_ORDER,
-  orderId,
-  status,
+  payload: { orderId, status },
 });
 
-const actionSetUserOrders = (orders) => ({
+export const actionSetUserOrders = (orders) => ({
   type: SET_USER_ORDERS,
-  orders,
+  payload: { orders },
 });
 
-const actionSetOrderDetails = (orderDetails) => ({
+export const actionSetOrderDetails = (orderDetails) => ({
   type: SET_ORDER_DETAILS,
-  orderDetails,
+  payload: orderDetails,
 });
 
-const actionReorderPastOrder = (order) => ({
+export const actionReorderPastOrder = (order) => ({
   type: REORDER_PAST_ORDER,
-  order,
+  payload: { order },
 });
 
-const actionSetOrderItems = (orderItems) => ({
+export const actionSetOrderItems = (orderItems) => ({
   type: SET_ORDER_ITEMS,
-  orderItems,
+  payload: { orderItems },
 });
 
-const actionCancelOrder = (orderId) => ({
+export const actionCancelOrder = (orderId) => ({
   type: CANCEL_ORDER,
-  orderId,
+  payload: { orderId },
+});
+
+export const setLoading = (loading) => ({
+  type: "SET_LOADING",
+  payload: loading,
+});
+
+export const setError = (error) => ({
+  type: "SET_ERROR",
+  payload: error,
 });
 
 // Thunk to create an order
-export const thunkCreateOrder = (userId, total_price, cartItems) => async (dispatch) => {
-  try {
-    const response = await csrfFetch("/api/orders/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        total_price,
-        items: cartItems,
-      }),
-    });
+export const thunkCreateOrder =
+  (userId, total_price, cartItems) => async (dispatch) => {
+    try {
+      const response = await csrfFetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          total_price,
+          items: cartItems,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      dispatch(actionAddOrder(data));
-      // Optionally, return the created order data.
-      return data;
-    } else {
-      console.error("Error creating the order:", data.errors);
+      if (response.ok) {
+        dispatch(actionAddOrder(data));
+        dispatch(actionClearCart());
+        // Optionally, return the created order data.
+        return data;
+      } else {
+        console.error("Error creating the order:", data.errors);
+        // Handle your error dispatching here, e.g., actionSetOrderError
+        // dispatch(actionSetOrderError(data.errors || "Error creating the order."));
+        return data.errors;
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the order:", error);
       // Handle your error dispatching here, e.g., actionSetOrderError
-      // dispatch(actionSetOrderError(data.errors || "Error creating the order."));
-      return data.errors;
+      // dispatch(actionSetOrderError("An error occurred while creating the order."));
+      return ["An error occurred while creating the order."];
     }
-  } catch (error) {
-    console.error("An error occurred while creating the order:", error);
-    // Handle your error dispatching here, e.g., actionSetOrderError
-    // dispatch(actionSetOrderError("An error occurred while creating the order."));
-    return ["An error occurred while creating the order."];
-  }
-};
+  };
 
-export const thunkCreateOrderFromCart = () => async (dispatch) => {
-  try {
-    const response = await csrfFetch('/api/orders/create_order', {
-      method: 'POST'
-    });
+export const thunkCreateOrderFromCart =
+  (orderData) => async (dispatch, getState) => {
+    try {
+      const state = getState();
+      const cartItemsById = state.shoppingCarts.cartItems.byId;
+      const menuItemsDetailsById = state.shoppingCarts.menuItemsInfo.byId;
 
-    if (response.ok) {
-      const order = await response.json();
-      dispatch(setCreatedOrder(order));
-      return order;  // Return the created order object
-    } else {
-      const errors = await response.json();
-      console.error('Error creating order from shopping cart:', errors);
-      return Promise.reject(errors.error);  // Reject promise with the error message
+      // Prepare detailed order items
+      const detailedItems = Object.values(cartItemsById).map((cartItem) => ({
+        menu_item_id: cartItem.menu_item_id,
+        quantity: cartItem.quantity,
+        name: menuItemsDetailsById[cartItem.menu_item_id]?.name,
+        price: menuItemsDetailsById[cartItem.menu_item_id]?.price,
+      }));
+
+      const requestData = {
+        user_id: orderData.user_id,
+        delivery_id: orderData.delivery_id,
+        payment_id: orderData.payment_id,
+        items: detailedItems,
+      };
+
+      // Make the API call to create an order
+      const response = await csrfFetch("/api/orders/create_order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      // Process the response
+      if (response.ok) {
+        const order = await response.json();
+        // Include detailed items in the order object for the Redux action
+        const orderWithDetails = {
+          ...order,
+          items: detailedItems,
+        };
+        dispatch(actionSetCreatedOrder(orderWithDetails, detailedItems));
+        return { ok: true, payload: orderWithDetails };
+      } else {
+        const errors = await response.json();
+        console.error("Error response from create_order:", errors);
+        return { ok: false, error: errors.error };
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the order:", error);
+      return { ok: false, error: error.message };
     }
-  } catch (error) {
-    console.error('An error occurred while creating the order:', error);
-    return Promise.reject('An error occurred while creating the order.');  // Reject promise with the error message
-  }
-};
+  };
 
 // Thunk to delete an order
-export const thunkDeleteOrder = (orderId) => async (dispatch) => {
+export const thunkDeleteOrder = (orderId, userId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/orders/${orderId}`, {
       method: "DELETE",
@@ -130,13 +181,17 @@ export const thunkDeleteOrder = (orderId) => async (dispatch) => {
 
     if (response.ok) {
       dispatch(actionRemoveOrder(orderId));
+      dispatch(thunkGetUserOrders(userId));
     } else {
       const errors = await response.json();
       console.error(`Error deleting order ID ${orderId}:`, errors);
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while deleting order ID ${orderId}:`, error);
+    console.error(
+      `An error occurred while deleting order ID ${orderId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
@@ -160,7 +215,10 @@ export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while updating status for order ID ${orderId}:`, error);
+    console.error(
+      `An error occurred while updating status for order ID ${orderId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
@@ -179,7 +237,10 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while fetching orders for user ID ${userId}:`, error);
+    console.error(
+      `An error occurred while fetching orders for user ID ${userId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
@@ -188,7 +249,7 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
 export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/orders/${orderId}/reorder`, {
-      method: 'POST',
+      method: "POST",
     });
     if (response.ok) {
       const order = await response.json();
@@ -200,7 +261,10 @@ export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while reordering order ID ${orderId}:`, error);
+    console.error(
+      `An error occurred while reordering order ID ${orderId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
@@ -219,7 +283,10 @@ export const thunkGetOrderItems = (orderId) => async (dispatch) => {
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while fetching items for order ID ${orderId}:`, error);
+    console.error(
+      `An error occurred while fetching items for order ID ${orderId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
@@ -228,7 +295,7 @@ export const thunkGetOrderItems = (orderId) => async (dispatch) => {
 export const thunkCancelOrder = (orderId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/orders/${orderId}/cancel`, {
-      method: 'POST',
+      method: "POST",
     });
     if (response.ok) {
       dispatch(actionCancelOrder(orderId));
@@ -238,164 +305,256 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
       // Handle your error dispatching here, if needed
     }
   } catch (error) {
-    console.error(`An error occurred while cancelling order ID ${orderId}:`, error);
+    console.error(
+      `An error occurred while cancelling order ID ${orderId}:`,
+      error
+    );
     // Handle your error dispatching here, if needed
   }
 };
 
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
+  dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/api/orders/${orderId}`);
-
+    // const response = await fetch(`/api/orders/${orderId}`);
     if (response.ok) {
       const orderDetails = await response.json();
+      console.log(
+        "🚀 ~ file: orders.js:322 ~ thunkGetOrderDetails ~ orderDetails:",
+        orderDetails
+      );
       dispatch(actionSetOrderDetails(orderDetails));
-      // Optionally, return the fetched order details.
-      return orderDetails;
     } else {
       const errors = await response.json();
-      console.error(`Error fetching details for order ID ${orderId}:`, errors);
-      // Handle your error dispatching here, e.g., actionSetOrderError
-      // dispatch(actionSetOrderError(errors.message || `Error fetching details for order ID ${orderId}.`));
+      dispatch(setError(errors));
     }
   } catch (error) {
-    console.error(`An error occurred while fetching details for order ID ${orderId}:`, error);
-    // Handle your error dispatching here, e.g., actionSetOrderError
-    // dispatch(actionSetOrderError(`An error occurred while fetching details for order ID ${orderId}.`));
+    dispatch(setError(error.toString()));
+  } finally {
+    dispatch(setLoading(false));
   }
 };
-
 
 // Initial state
 const initialState = {
-  orders: {},
-  orderItems: {},
-  menuItems: {},
+  orders: { byId: {}, allIds: [] },
+  orderItems: { byId: {}, allIds: [] },
+  menuItems: { byId: {}, allIds: [] },
+  createdOrder: null, // for tracking the most recently created order
+  isLoading: false,
+  error: null,
 };
 
-// Reducer
 export default function ordersReducer(state = initialState, action) {
-  switch (action.type) {
-    case ADD_ORDER: {
-      const { order } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          [order.id]: order,
-        },
-      };
-    }
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case ADD_ORDER:
+        addEntity(draft.orders, action.order);
+        break;
 
-    case SET_ORDERS: {
-      const { orders } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          ...orders.byId,
-        },
-        orderItems: {
-          ...state.orderItems,
-          ...orders.orderItems.byId,
-        },
-        menuItems: {
-          ...state.menuItems,
-          ...orders.menuItems.byId,
-        },
-      };
-    }
-    case SET_CREATED_ORDER:
-      return {
-        ...state,
-        createdOrder: action.payload,
-      };
-    case REMOVE_ORDER: {
-      const { orderId } = action;
-      const newOrders = { ...state.orders };
-      delete newOrders[orderId];
-      return {
-        ...state,
-        orders: newOrders,
-      };
-    }
+      case SET_ORDERS:
+        mergeEntities(draft.orders, action.payload.orders);
+        break;
 
-    case UPDATE_ORDER: {
-      const { orderId, status } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          [orderId]: {
-            ...state.orders[orderId],
-            status,
-          },
-        },
-      };
-    }
-    case SET_USER_ORDERS: {
-      const { orders } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          ...orders.entities.orders.byId,
-        },
-      };
-    }
-    case SET_ORDER_DETAILS: {
-      const { orderDetails } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          [orderDetails.order.id]: orderDetails.order,
-        },
-        orderItems: {
-          ...state.orderItems,
-          ...orderDetails.orderItems.byId,
-        },
-        menuItems: {
-          ...state.menuItems,
-          ...orderDetails.menuItems.byId,
-        },
-      };
-    }
-    case REORDER_PAST_ORDER: {
-      const { order } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          [order.id]: order,
-        },
-      };
-    }
-    case SET_ORDER_ITEMS: {
-      const { orderItems } = action;
-      return {
-        ...state,
-        orderItems: {
-          ...state.orderItems,
+      case SET_CREATED_ORDER:
+        if (action.payload && Array.isArray(action.payload.items)) {
+          // Update the createdOrder in the state
+          draft.createdOrder = action.payload.order;
+
+          // Iterate through items and update orderItems and menuItems
+          action.payload.items.forEach((item) => {
+            if (item && item.menu_item_id) {
+              draft.orderItems.byId[item.menu_item_id] = {
+                id: item.menu_item_id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+              };
+
+              // Add item to menuItems if not already present
+              if (!draft.menuItems.byId[item.menu_item_id]) {
+                draft.menuItems.byId[item.menu_item_id] = {
+                  id: item.menu_item_id,
+                  name: item.name,
+                  price: item.price,
+                };
+              }
+            }
+          });
+        } else {
+          console.error(
+            "SET_CREATED_ORDER: 'items' not found or not an array in action payload"
+          );
+        }
+        break;
+
+        case REMOVE_ORDER:
+          removeEntity(draft.orders, action.payload.orderId);
+          break;
+
+
+      case UPDATE_ORDER:
+        if (draft.orders.byId[action.orderId]) {
+          draft.orders.byId[action.orderId].status = action.status;
+        }
+        break;
+
+      case SET_USER_ORDERS:
+        mergeEntities(draft.orders, action.payload.orders);
+        break;
+
+      case SET_ORDER_DETAILS:
+        console.log(
+          "--order: Setting order details in Redux state:",
+          action.payload
+        );
+        const { order, orderItems, menuItems } = action.payload;
+        draft.orders.byId[order.id] = order;
+        draft.orderItems.byId = {
+          ...draft.orderItems.byId,
           ...orderItems.byId,
-        },
-      };
-    }
-    case CANCEL_ORDER: {
-      const { orderId } = action;
-      return {
-        ...state,
-        orders: {
-          ...state.orders,
-          [orderId]: {
-            ...state.orders[orderId],
-            status: "Cancelled",
-          },
-        },
-      };
-    }
+        };
+        draft.menuItems.byId = { ...draft.menuItems.byId, ...menuItems.byId };
+        break;
 
-    default:
-      return state;
-  }
+      case REORDER_PAST_ORDER:
+        addEntity(draft.orders, action.order);
+        break;
+
+      case SET_ORDER_ITEMS:
+        mergeEntities(draft.orderItems, action.payload.orderItems);
+        break;
+
+      case CANCEL_ORDER:
+        if (draft.orders.byId[action.orderId]) {
+          draft.orders.byId[action.orderId].status = "Cancelled";
+        }
+        break;
+
+      case SET_LOADING:
+        draft.isLoading = action.payload;
+        break;
+
+      case SET_ERROR:
+        draft.error = action.payload;
+        break;
+
+      default:
+        return state;
+    }
+  });
 }
+
+// // Helper function to merge normalized items into state
+// const mergeNormalizedItems = (state, entity, items) => ({
+//   ...state[entity],
+//   ...items.byId,
+//   allIds: Array.from(new Set([...(state[entity].allIds || []), ...items.allIds])),
+// });
+
+// export default function ordersReducer(state = initialState, action) {
+//   switch (action.type) {
+//     case ADD_ORDER: {
+//       const { order } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [order.id]: order,
+//         },
+//       };
+//     }
+
+//     case SET_ORDERS: {
+//       const { orders } = action;
+//       return {
+//         ...state,
+//         orders: mergeNormalizedItems(state, 'orders', orders),
+//         orderItems: mergeNormalizedItems(state, 'orderItems', orders.orderItems),
+//         menuItems: mergeNormalizedItems(state, 'menuItems', orders.menuItems),
+//       };
+//     }
+//     case SET_CREATED_ORDER:
+//       return {
+//         ...state,
+//         createdOrder: action.payload,
+//       };
+//     case REMOVE_ORDER: {
+//       const { orderId } = action;
+//       const newOrders = { ...state.orders };
+//       delete newOrders[orderId];
+//       return {
+//         ...state,
+//         orders: newOrders,
+//       };
+//     }
+
+//     case UPDATE_ORDER: {
+//       const { orderId, status } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderId]: {
+//             ...state.orders[orderId],
+//             status,
+//           },
+//         },
+//       };
+//     }
+//     case SET_USER_ORDERS: {
+//       const { orders } = action;
+//       return {
+//         ...state,
+//         orders: mergeNormalizedItems(state, 'orders', orders),
+//       };
+//     }
+//     case SET_ORDER_DETAILS: {
+//       const { orderDetails } = action;
+//       console.log('Reducer - Order Details:', orderDetails);
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderDetails.order.id]: orderDetails.order,
+//         },
+//         orderItems: mergeNormalizedItems(state, 'orderItems', orderDetails.orderItems),
+//         menuItems: mergeNormalizedItems(state, 'menuItems', orderDetails.menuItems),
+//       };
+//     }
+//     case REORDER_PAST_ORDER: {
+//       const { order } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [order.id]: order,
+//         },
+//       };
+//     }
+//     case SET_ORDER_ITEMS: {
+//       const { orderItems } = action;
+//       return {
+//         ...state,
+//         orderItems: mergeNormalizedItems(state, 'orderItems', orderItems),
+//       };
+//     }
+//     case CANCEL_ORDER: {
+//       const { orderId } = action;
+//       return {
+//         ...state,
+//         orders: {
+//           ...state.orders,
+//           [orderId]: {
+//             ...state.orders[orderId],
+//             status: "Cancelled",
+//           },
+//         },
+//       };
+//     }
+
+// default:
+//   return state;
+//   }
+// }

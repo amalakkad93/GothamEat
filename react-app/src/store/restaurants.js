@@ -404,9 +404,6 @@ export default function restaurantsReducer(state = initialState, action) {
         return newState;
 
 
-
-
-
     case CREATE_RESTAURANT:
       return {
         ...state,

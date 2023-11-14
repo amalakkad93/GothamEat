@@ -26,9 +26,12 @@ function SearchBar({ onPlaceSelected }) {
   };
 
   return apiKey ? (
-    <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
-      <StandaloneSearchBox onLoad={(ref) => searchBoxRef.current = ref} onPlacesChanged={onPlacesChanged}>
-        <input type="text" className="search-input" placeholder="Enter a delivery address" />
+    <LoadScript googleMapsApiKey={apiKey} libraries={['places']}>
+      <StandaloneSearchBox onLoad={(ref) => (searchBoxRef.current = ref)} onPlacesChanged={onPlacesChanged}>
+        <div className="search-input-container">
+          <i className="fas fa-search search-input-icon"></i> {/* FontAwesome icon */}
+          <input type="text" className="search-input" placeholder="Enter a delivery address" />
+        </div>
       </StandaloneSearchBox>
     </LoadScript>
   ) : null;

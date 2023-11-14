@@ -1,0 +1,57 @@
+.ShippingForm {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ShippingForm form {
+  display: flex;
+  flex-direction: column;
+}
+
+.ShippingForm select,
+.ShippingForm input {
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.ShippingForm input::placeholder {
+  color: #c0c4cc;
+}
+
+.ShippingForm button {
+  padding: 1rem;
+  border: none;
+  background-color: black;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.ShippingForm button:hover {
+  background-color: #0056b3;
+}
+
+.ShippingForm .AmountDisplay {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .ShippingForm {
+    margin: 1rem;
+    padding: 1rem;
+  }
+}

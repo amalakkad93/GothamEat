@@ -20,6 +20,7 @@ class OrderItem(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('orders.id')))
     quantity = db.Column(db.Integer)
 
+    menu_item = db.relationship('MenuItem', backref='order_items')
     def to_dict(self):
         return {
             'id': self.id,

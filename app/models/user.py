@@ -2,7 +2,13 @@ from datetime import datetime
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy import Enum
+from enum import Enum as PyEnum
 
+# class RoleType(PyEnum):
+#     CUSTOMER = "customer"
+#     SELLER = "seller"
+#     # ADMIN = "admin"
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
@@ -15,6 +21,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(40), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     hashed_password = db.Column(db.String(255), nullable=False)
+    # role = db.Column(Enum(RoleType), default=RoleType.CUSTOMER, nullable=False)
 
     # Relationships
     restaurants = db.relationship("Restaurant", backref='owner')
@@ -39,6 +46,7 @@ class User(db.Model, UserMixin):
             'last_name': self.last_name,
             'username': self.username,
             'email': self.email,
+            # 'role': self.role.name,
         }
 
 

@@ -127,7 +127,7 @@ export default function MenuItemOverview() {
       const numericQuantity = Number(quantity);
 
       // Update the cart state in Redux
-      dispatch(addToCart(menuItemId, numericQuantity, menuItem)); 
+      dispatch(addToCart(menuItemId, numericQuantity, menuItem));
       setIsCartVisible(true);
       // Navigate back to the restaurant page after adding the item to the cart
       navigate(`/restaurants/${restaurantId}`);
@@ -194,7 +194,17 @@ export default function MenuItemOverview() {
         {/* <button onClick={handleOrderSubmission}>Add {quantity} to order • ${menuItem.price * quantity}</button> */}
 
         {/* Button to add the menu item to the shopping cart */}
-        <button onClick={handleAddToCart}>Add to Cart</button>
+        <div className="button-container">
+          <button
+            className="menuItemOverview-btn"
+            onClick={() => navigate(`/restaurants/${restaurantId}`)}
+          >
+            Back to the Menu
+          </button>
+          <button className="menuItemOverview-btn" onClick={handleAddToCart}>
+            Add to Cart
+          </button>
+        </div>
       </div>
     </div>
   );

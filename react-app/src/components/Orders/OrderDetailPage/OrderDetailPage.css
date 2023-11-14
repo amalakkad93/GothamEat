@@ -1,0 +1,98 @@
+.order-detail-page {
+  font-family: 'San Francisco', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+  max-width: 1538px;
+  margin: auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.order-header h1 {
+  color: #007bff;
+  font-size: 2rem;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.order-date {
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.order-status {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #28a745;
+  padding: 8px 15px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.order-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+  justify-content: space-between;
+}
+
+.order-items, .order-summary, .additional-info {
+  background: #f7f7f7;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.item-card, .additional-info > div {
+  background: #ffffff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.item-card h3, .additional-info h3, .order-summary h2 {
+  color: #007bff;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.back-button, .cancel-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.back-button:hover, .cancel-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+
+@media (max-width: 768px) {
+  .order-body, .additional-info {
+    flex-direction: column;
+  }
+}

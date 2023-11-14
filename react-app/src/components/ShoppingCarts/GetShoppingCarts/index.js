@@ -8,7 +8,7 @@ import ClearShoppingCart from "../ClearShoppingCart";
 
 import "./ShoppingCart.css";
 
-export default function ShoppingCart({ onClose }) {
+export default function GetShoppingCart({ onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const ulRef = useRef();
@@ -43,20 +43,10 @@ export default function ShoppingCart({ onClose }) {
     error: state.shoppingCarts.error,
   }));
 
-  console.log("🚀 ~ -file: index.js:57 ~ cartTotalPrice:", cartTotalPrice);
-  console.log("🚀 ~ -file: index.js:58 ~ cartItemIds:", cartItemIds);
-  console.log("🚀 ~ -file: index.js:59 ~ cartItemsById:", cartItemsById);
-  console.log("🚀 ~ -file: index.js:60 ~ menuItem:", menuItem);
-  console.log("🚀 ~ -file: index.js:61 ~ restaurantId:", restaurantId);
-  console.log("🚀 ~ -file: index.js:62 ~ restaurantData:", restaurantData);
-
   const menuItemImagesById = useSelector(
     (state) => state.menuItems.menuItemImages.byId
   );
-  console.log(
-    "🚀**************** ~ file: index.js:37 ~ ShoppingCart ~ menuItemImagesById:",
-    menuItemImagesById
-  );
+
   // Fetch current cart when the component mounts
   const mounted = useRef(false);
   useEffect(() => {
@@ -67,21 +57,19 @@ export default function ShoppingCart({ onClose }) {
   }, [dispatch]);
 
   // Handler to create an order from the cart
-  const handleCreateOrder = () => {
-    if (!isLoading) {
-      dispatch(thunkCreateOrderFromCart())
-        .then((order) => {
-          console.log("Order created successfully", order);
-          // Navigate to success page or reset cart here
-        })
-        .catch((error) => {
-          console.error("Error creating the order", error);
-        });
-    } else {
-      console.log("Please wait, cart items are loading.");
-    }
-  };
+  const handleGoToCheckout = () => {
 
+    navigate('/checkout', {
+      state: {
+        cartItems: cartItemsById,
+        totalAmount: cartTotalPrice,
+        restaurantData: restaurantData
+      }
+    });
+
+    // dispatch(thunkClearCart());
+    if (onClose) onClose();
+  };
   // Handler to add items to the cart
   const handleAddItems = () => {
     if (!isLoading) {
@@ -94,15 +82,17 @@ export default function ShoppingCart({ onClose }) {
       console.log("Please wait, cart items are loading.");
     }
   };
+  console.log('Cart Item IDs:', cartItemIds);
+  console.log('Cart Items by ID:', cartItemsById);
 
   return (
     <div className="shopping-cart-container">
-      <div className="shopping-cart-header">
-        <h1>{`${restaurantData?.name} (${restaurantData?.street_address})`}</h1>
-        <ClearShoppingCart />
-      </div>
-      {cartItemIds.length > 0 ? (
+      {cartItemIds?.length > 0 ? (
         <>
+          <div className="shopping-cart-header">
+            <h1 className="shopping-cart-header-h1">{`${restaurantData?.name} (${restaurantData?.street_address})`}</h1>
+            <ClearShoppingCart handleAddItems={handleAddItems} />
+          </div>
           <div className="shopping-cart-summary">
             <span>{cartItemIds.length} item(s)</span>
             <span>Total: ${cartTotalPrice.toFixed(2)}</span>
@@ -117,22 +107,35 @@ export default function ShoppingCart({ onClose }) {
 
               const menuItemDetails = menuItem[item.menu_item_id];
               if (!menuItemDetails) {
-                console.error(`No menu item details found for menu item id ${item.menu_item_id}`, menuItem);
+                console.error(
+                  `No menu item details found for menu item id ${item.menu_item_id}`,
+                  menuItem
+                );
                 return null;
               }
 
               const itemName = menuItemDetails.name;
-              const itemImage = menuItemDetails.image_paths ? menuItemDetails.image_paths[0] : '';
+              const itemImage = menuItemDetails.image_paths
+                ? menuItemDetails.image_paths[0]
+                : "";
 
               return (
                 <li key={itemId} className="cart-item">
                   <div className="cart-item-name">
-                    {itemImage && <img src={itemImage} alt={itemName} style={{ width: '50px', height: '50px' }} />}
+                    {itemImage && (
+                      <img
+                        src={itemImage}
+                        alt={itemName}
+                        style={{ width: "50px", height: "50px" }}
+                      />
+                    )}
                     <span>{itemName}</span>
                   </div>
                   <div className="cart-item-details">
                     <EditShoppingCart itemId={itemId} />
-                    <span>${(menuItemDetails.price * item.quantity).toFixed(2)}</span>
+                    <span>
+                      ${(menuItemDetails.price * item.quantity).toFixed(2)}
+                    </span>
                   </div>
                 </li>
               );
@@ -142,15 +145,15 @@ export default function ShoppingCart({ onClose }) {
             <strong>Total</strong>
             <span>${cartTotalPrice.toFixed(2)}</span>
           </div>
-          <button onClick={handleCreateOrder} className="checkout-button">
-            Go to checkout
+          <button onClick={handleGoToCheckout} className="checkout-button">
+          Go to checkout
           </button>
           <button onClick={handleAddItems} className="add-items-button">
             Add items
           </button>
         </>
       ) : (
-        <p>Your cart is empty.</p>
+        <p className="message-empty-cart-p">Your cart is empty.</p>
       )}
     </div>
   );
