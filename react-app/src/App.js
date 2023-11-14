@@ -17,8 +17,8 @@ import MenuItemOverview from "./components/MenuItems/GetMenuItems/MenuItemOvervi
 import CreateMenuItemForm from "./components/MenuItems/MenuItemForm/CreateMenuItemForm";
 import EditMenuItemForm from "./components/MenuItems/MenuItemForm/EditMenuItemForm";
 import ShoppingCart from "./components/ShoppingCarts/GetShoppingCarts";
-import OrderList from "./components/Orders/OrderList";
-import OrderDetail from "./components/Orders/OrderDetail";
+import UserOrderLists from "./components/Orders/UserOrderLists";
+import OrderDetailPage from "./components/Orders/OrderDetailPage";
 import OrderConfirmationPage from "./components/Orders/OrderConfirmationPage";
 import PaymentPage from "./components/Payments/PaymentPage";
 import CheckoutPage from "./components/Orders/CheckoutPage";
@@ -71,11 +71,11 @@ function App() {
 
        {/* Orders should be ordered such that the specific orderId route is before the general orders route */}
 
-       <Route path="/orders/:orderId" element={<OrderDetail />} />
+       <Route path="/orders/:orderId" element={<OrderDetailPage />} />
        {/* <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} /> */}
        <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
        <Route path="/payment/:orderId" element={<PaymentPage />} />
-       <Route path="/orders" element={<OrderList />} />
+       <Route path="/orders" element={<UserOrderLists />} />
 
        {/* Catch-all route for undefined paths */}
        <Route path="*" element={<NotFound />} />

@@ -1,0 +1,58 @@
+.tile-parent-cancel-order {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  text-align: center;
+  max-width: 400px;
+  margin: auto;
+}
+
+.cancel-order-h1-p-tag {
+  margin-bottom: 20px;
+}
+
+.cancel-order-h1-tag {
+  color: #007bff;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.cancel-order-p-tag {
+  color: #555;
+  font-size: 1rem;
+  font-weight: bold;
+
+}
+
+.cancel-keep-order-cancel-btn {
+  display: flex;
+  gap: 24px;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.cancel-keep-order-cancel-btn button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  font-size: 1rem;
+}
+
+.cancel-keep-order-cancel-btn button:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+
+}
+
+#cancel-order-btn {
+  background-color: #6c757d; /* A neutral grey color */
+}
+
+#cancel-order-btn:hover {
+  background-color: #5a6268;
+}

@@ -49,7 +49,7 @@ const configureStore = (preloadedState) => {
       const persistConfig = {
         key: 'root',
         storage,
-        whitelist: ['shoppingCarts', 'orders', 'delivery', 'payments'],
+        whitelist: ['shoppingCarts', 'orders', 'delivery', 'payments', 'menuItems', 'restaurants', 'favorites', 'reviews'],
       };
 
       // Creating a persisted reducer

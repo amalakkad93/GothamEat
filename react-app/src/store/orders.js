@@ -18,6 +18,8 @@ export const SET_ORDER_DETAILS = "orders/SET_ORDER_DETAILS";
 export const REORDER_PAST_ORDER = "orders/REORDER_PAST_ORDER";
 export const SET_ORDER_ITEMS = "orders/SET_ORDER_ITEMS";
 export const CANCEL_ORDER = "orders/CANCEL_ORDER";
+export const SET_LOADING = "orders/SET_LOADING";
+export const SET_ERROR = "orders/SET_ERROR";
 
 // Action creators
 export const actionAddOrder = (order) => ({
@@ -71,6 +73,16 @@ export const actionCancelOrder = (orderId) => ({
   payload: { orderId },
 });
 
+export const setLoading = (loading) => ({
+  type: "SET_LOADING",
+  payload: loading,
+});
+
+export const setError = (error) => ({
+  type: "SET_ERROR",
+  payload: error,
+});
+
 // Thunk to create an order
 export const thunkCreateOrder =
   (userId, total_price, cartItems) => async (dispatch) => {
@@ -108,108 +120,6 @@ export const thunkCreateOrder =
     }
   };
 
-// export const thunkCreateOrderFromCart = () => async (dispatch, getState) => {
-//   try {
-//     const state = getState(); // Get the current application state
-//     const cartItemsById = state.shoppingCarts.items.byId; // Access the cart items from the state
-//     const menuItemsDetails = state.shoppingCarts.menuItemsInfo.byId; // Access the menu items details from the state
-
-//     // Check if there are any items in the cart
-//     if (!cartItemsById || Object.keys(cartItemsById).length === 0) {
-//       throw new Error("Cart is empty or items are not present");
-//     }
-
-//     // Convert cart items from object to array if necessary
-//     const cartItemsArray = Object.values(cartItemsById);
-
-//     // Make the API call to create an order from the cart
-//     const response = await csrfFetch('/api/orders/create_order', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ items: cartItemsArray }),
-//     });
-
-//     // Process the response
-//     if (response.ok) {
-//       const order = await response.json();
-
-//       // Enrich the order items with details from `menuItemsDetails`
-//       const itemsWithDetails = order.items.map(item => {
-//         const detail = menuItemsDetails[item.menu_item_id];
-//         return {
-//           ...item,
-//           name: detail?.name, // Use optional chaining in case detail is undefined
-//           price: detail?.price,
-//         };
-//       });
-
-//       // Construct a new order object with the enriched items
-//       const orderWithDetails = {
-//         ...order,
-//         items: itemsWithDetails,
-//       };
-
-//       // Dispatch the action to set the created order in the store
-//       dispatch(setCreatedOrder(orderWithDetails));
-//       return orderWithDetails; // Return the enriched order object
-//     } else {
-//       // If the response is not ok, process the errors
-//       const errors = await response.json();
-//       throw new Error(errors.error);
-//     }
-//   } catch (error) {
-//     // Log the error and rethrow it to be handled by the calling code
-//     console.error('An error occurred while creating the order:', error);
-//     throw error;
-//   }
-// };
-// export const thunkCreateOrderFromCart = (orderData) => async (dispatch) => {
-//   console.log("🚀 ~ file: orders.js:164 ~ thunkCreateOrderFromCart ~ orderData:", orderData);
-//   try {
-//     const itemsArray = Array.isArray(orderData.items)
-//       ? orderData.items
-//       : Object.values(orderData.items);
-//     const requestData = {
-//       user_id: orderData.user_id,
-//       delivery_id: orderData.delivery_id,
-//       payment_id: orderData.payment_id,
-//       items: itemsArray.map((item) => ({
-//         menu_item_id: item.menu_item_id || item.id,
-//         quantity: item.quantity,
-//       })),
-//       // items: orderData?.items?.map(item => ({
-//       //   menu_item_id: item.id || item.id,
-//       //   quantity: item.quantity
-//       // }))
-//     };
-
-//     // Make the API call to create an order
-//     const response = await csrfFetch("/api/orders/create_order", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(requestData),
-//     });
-
-//     // Process the response
-//     if (response.ok) {
-//       const order = await response.json();
-//       dispatch(actionSetCreatedOrder(order)); // Dispatch the action to update the store
-//       return { ok: true, payload: order }; // Return the order object
-//     } else {
-//       // Process the errors
-//       const errors = await response.json();
-//       console.error("Error response from create_order:", errors);
-//       return { ok: false, error: errors.error };
-//     }
-//   } catch (error) {
-//     console.error("An error occurred while creating the order:", error);
-//     return { ok: false, error: error.message };
-//   }
-// };
 export const thunkCreateOrderFromCart =
   (orderData) => async (dispatch, getState) => {
     try {
@@ -263,7 +173,7 @@ export const thunkCreateOrderFromCart =
   };
 
 // Thunk to delete an order
-export const thunkDeleteOrder = (orderId) => async (dispatch) => {
+export const thunkDeleteOrder = (orderId, userId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/orders/${orderId}`, {
       method: "DELETE",
@@ -271,6 +181,7 @@ export const thunkDeleteOrder = (orderId) => async (dispatch) => {
 
     if (response.ok) {
       dispatch(actionRemoveOrder(orderId));
+      dispatch(thunkGetUserOrders(userId));
     } else {
       const errors = await response.json();
       console.error(`Error deleting order ID ${orderId}:`, errors);
@@ -403,23 +314,25 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
 };
 
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
+  dispatch(setLoading(true));
   try {
-    console.log("--order: Fetching order details for ID:", orderId); // Enhanced log
     const response = await csrfFetch(`/api/orders/${orderId}`);
-
+    // const response = await fetch(`/api/orders/${orderId}`);
     if (response.ok) {
       const orderDetails = await response.json();
-      console.log("--order: Order Details fetched:", orderDetails); // Enhanced log
+      console.log(
+        "🚀 ~ file: orders.js:322 ~ thunkGetOrderDetails ~ orderDetails:",
+        orderDetails
+      );
       dispatch(actionSetOrderDetails(orderDetails));
-      return orderDetails;
     } else {
       const errors = await response.json();
-      console.error("Error fetching order details:", errors); // Enhanced error log
-      return { error: errors };
+      dispatch(setError(errors));
     }
   } catch (error) {
-    console.error("Exception in thunk:", error); // Enhanced error log
-    return { error };
+    dispatch(setError(error.toString()));
+  } finally {
+    dispatch(setLoading(false));
   }
 };
 
@@ -429,6 +342,8 @@ const initialState = {
   orderItems: { byId: {}, allIds: [] },
   menuItems: { byId: {}, allIds: [] },
   createdOrder: null, // for tracking the most recently created order
+  isLoading: false,
+  error: null,
 };
 
 export default function ordersReducer(state = initialState, action) {
@@ -474,9 +389,10 @@ export default function ordersReducer(state = initialState, action) {
         }
         break;
 
-      case REMOVE_ORDER:
-        removeEntity(draft.orders, action.orderId);
-        break;
+        case REMOVE_ORDER:
+          removeEntity(draft.orders, action.payload.orderId);
+          break;
+
 
       case UPDATE_ORDER:
         if (draft.orders.byId[action.orderId]) {
@@ -514,6 +430,14 @@ export default function ordersReducer(state = initialState, action) {
         if (draft.orders.byId[action.orderId]) {
           draft.orders.byId[action.orderId].status = "Cancelled";
         }
+        break;
+
+      case SET_LOADING:
+        draft.isLoading = action.payload;
+        break;
+
+      case SET_ERROR:
+        draft.error = action.payload;
         break;
 
       default:

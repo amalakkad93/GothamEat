@@ -54,8 +54,8 @@ def error_response(message, status_code):
 # Endpoint to Get User Orders
 # ***************************************************************
 @login_required
-@order_routes.route('')
-def get_user_orders():
+@order_routes.route('/user/<int:user_id>')
+def get_user_orders(user_id):
     """
     Retrieve all orders associated with the currently authenticated user.
 
@@ -63,6 +63,8 @@ def get_user_orders():
         Response: A JSON representation of the user's orders or an error message.
     """
     try:
+        if current_user.id != user_id:
+            return jsonify({"error": "Unauthorized access"}), 403
         # Fetch orders associated with the current user
         orders = Order.query.filter_by(user_id=current_user.id).all()
 
@@ -365,7 +367,7 @@ def create_order_logic(data):
 
 
 @login_required
-@order_routes.route('/<int:order_id>')
+@order_routes.route('/<int:order_id>', methods=['GET'])
 def get_order_details(order_id):
     try:
         # Fetch the order with its items

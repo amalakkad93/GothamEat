@@ -165,6 +165,17 @@ export default function ProfileButton(props) {
                         Add your Restaurant
                       </button>
                     </li>
+                    <li>
+                      <button
+                        className="Manage-spot-button center-menu1"
+                        onClick={(e) => {
+                          closeMenu();
+                          navigate("/orders");
+                        }}
+                      >
+                        Your Orders
+                      </button>
+                    </li>
 
                     <li>
                       <button

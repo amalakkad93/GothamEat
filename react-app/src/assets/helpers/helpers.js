@@ -128,3 +128,9 @@ export const useDynamicBackground = () => {
   //   }
   // }, [sessionUser, bgImageIndex, images, location.pathname]);
 };
+
+
+export const calculateTax = (subtotal) => {
+  const TAX_RATE = 0.25;
+  return (subtotal * TAX_RATE);
+};
