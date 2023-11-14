@@ -58,7 +58,7 @@ const actionUpdateItemInCart = (itemId, quantity, totalPrice) => ({
   totalPrice,
 });
 
-const actionClearCart = () => ({
+export const actionClearCart = () => ({
   type: CLEAR_CART,
 });
 export const setCartLoading = () => ({ type: SET_CART_LOADING });
@@ -136,9 +136,6 @@ export const thunkAddItemsToCart =
 // ***************************************************************
 //  Thunk to fetch the current cart
 // ***************************************************************
-// ***************************************************************
-//  Thunk to fetch the current cart
-// ***************************************************************
 export const thunkFetchCurrentCart = () => async (dispatch) => {
   dispatch(setCartLoading());
   try {
@@ -207,7 +204,7 @@ export const thunkUpdateItemInCart = (itemId, quantity) => async (dispatch) => {
     if (response.ok) {
       const data = await response.json();
       dispatch(actionUpdateItemInCart(itemId, quantity, data.totalPrice));
-     
+
       return data.message;
     } else {
       const data = await response.json();
@@ -417,8 +414,9 @@ export default function shoppingCartReducer(state = initialState, action) {
         ...state,
         items: { byId: {}, allIds: [] },
         cartItems: { byId: {}, allIds: [] },
-        menuItemData: { byId: {}, allIds: [] },
+        menuItemsInfo: { byId: {}, allIds: [] },
         totalPrice: 0,
+        restaurantId: null,
       };
       // return {
       //   ...initialState, // Reset to initialState which will also reset the restaurantId

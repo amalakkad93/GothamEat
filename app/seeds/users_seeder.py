@@ -12,6 +12,7 @@ users=[
     User(first_name="Edward", last_name="Nigma", username='TheRiddler', password="password", email='riddler@gotham.com'),
     User(first_name="Harvey", last_name="Dent", username='TwoFace', password="password", email='twoface@gotham.com'),
     User(first_name="Victor", last_name="Fries", username='MrFreeze', password="password", email='mr.freeze@gotham.com'),
+    User(first_name="Anas", last_name="Alakkad", username='amala', password="password", email='amalakkad@gmail.com'),
     # User(first_name="Jonathan", last_name="Crane", username='Scarecrow', password="password", email='scarecrow@gotham.com'),
     # User(first_name="Rachel", last_name="Dawes", username='RachelDawes', password="password", email='rachel@gotham.com'),
     # User(first_name="Lucius", last_name="Fox", username='LuciusFox', password="password", email='lucius@waynecorp.com'),

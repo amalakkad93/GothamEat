@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { useNavigate, Link } from "react-router-dom";
 import SlidingModalLeft from "../Modals/SlidingModal/SlidingModalLeft";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faBars } from "@fortawesome/free-solid-svg-icons";
+import { persistor } from "../../index.js";
+import PersistorContext from "../../context/PersistorContext";
 
 import "./ProfileButton.css";
 // import CreateMenuItemForm from "../MenuItems/MenuItemForm/CreateMenuItemForm";
@@ -12,8 +14,10 @@ import "./ProfileButton.css";
 export default function ProfileButton(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const persistor = useContext(PersistorContext);
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const [showMenu, setShowMenu] = useState(false);
+  const [purgeSuccessful, setPurgeSuccessful] = useState(false);
   const ulRef = useRef();
 
   const openMenu = (e) => {
@@ -48,6 +52,21 @@ export default function ProfileButton(props) {
     navigate("/");
   };
   const ulClassName = "profile-dropdown";
+
+  // This method clears the persisted state
+  const handleClearPersistedState = () => {
+    persistor
+      .purge()
+      .then(() => {
+        console.log("Persisted state cleared");
+        setPurgeSuccessful(true); // Trigger to show the confirmation message
+        // Additional actions after purging can be implemented here
+      })
+      .catch((error) => {
+        console.error("Failed to clear persisted state", error);
+        // Handle any errors that occur during the purge
+      });
+  };
 
   return (
     <>
@@ -146,6 +165,17 @@ export default function ProfileButton(props) {
                         Add your Restaurant
                       </button>
                     </li>
+                    <li>
+                      <button
+                        className="Manage-spot-button center-menu1"
+                        onClick={(e) => {
+                          closeMenu();
+                          navigate("/orders");
+                        }}
+                      >
+                        Your Orders
+                      </button>
+                    </li>
 
                     <li>
                       <button
@@ -154,6 +184,18 @@ export default function ProfileButton(props) {
                       >
                         Log Out
                       </button>
+                      <button
+                        onClick={handleClearPersistedState}
+                        className="clear-persisted-state-button"
+                      >
+                        Clear Persisted State
+                      </button>
+                      {/* Show confirmation message if purge was successful */}
+                      {purgeSuccessful && (
+                        <div className="confirmation-message">
+                          Your session has been cleared. Please reload the page.
+                        </div>
+                      )}
                     </li>
                   </ul>
                 </>

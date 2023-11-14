@@ -1,18 +1,28 @@
 .sliding-modal-Right {
   position: fixed; /* changed to fixed for full height coverage */
   top: 0;
-  right: -300px; /* start from the right side */
-  width: 300px;
+  right: -540px; /* start from the right side */
+  /* right: -300px;  */
+  /* width: 300px; */
+  width: 448px;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.9);
+  /* background-color: #000; */
   transition: right 0.3s ease; /* animate the right property */
   overflow: hidden;
   box-shadow: -4px 0px 10px rgba(0, 0, 0, 0.1); /* shadow direction */
   z-index: 1000;
+
+  border-radius: 8px 0 0 8px;
+  /* left: 1428px; */
+  padding: 20px;
 }
 
 .sliding-modal-Right.visible {
-  right: 0; /* slide in to show */
+  /*slide in to show*/
+  /* right: 0; */
+  right: 146px;
+  left: 1073px;
 }
 
 /* Update .sliding-modal-backdrop if needed for new modal */
@@ -29,6 +39,8 @@
 
 .sliding-modal-Right.visible .sliding-modal-backdrop-Right {
   display: block;
-  right: 300px; /* adjust to cover the screen except the modal */
-}
+   /* adjust to cover the screen except the modal */
+  /* right: 300px; */
 
+  right: 446px;
+}

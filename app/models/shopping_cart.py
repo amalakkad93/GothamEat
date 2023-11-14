@@ -18,7 +18,8 @@ class ShoppingCart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
 
-    items = db.relationship("ShoppingCartItem", backref='cart')
+    items = db.relationship("ShoppingCartItem", backref='cart', cascade="all, delete-orphan")
+
 
     def calculate_total_price(self):
         # This method calculates the total price of all items in the shopping cart.
@@ -32,7 +33,7 @@ class ShoppingCart(db.Model):
         # We use a generator expression to sum up the price multiplied by the quantity.
         # The 'or 0' part ensures that if either the price or quantity is None (which shouldn't happen),
         # it is treated as 0 to avoid type errors during the calculation.
-        total_price = sum((item.menu_item.price or 0) * (item.quantity or 0) for item in items)
+        total_price = sum((item.menu_item.price or 0) * (item.quantity or 0) for item in items if item.menu_item and item.quantity is not None)
 
         # The total price is rounded to 2 decimal places before being returned.
         # This is a common practice when dealing with currency to avoid

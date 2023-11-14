@@ -7,7 +7,7 @@ from .review_seeder import seed_reviews, undo_reviews
 from .review_img_seeder import seed_review_images, undo_review_images
 from .shopping_cart_seeder import seed_shopping_carts_and_items, undo_shopping_carts_and_items
 from .order_seeder import seed_orders_and_order_items, undo_orders_and_order_items
-from .payment_seeder import seed_payments, undo_payments
+# from .payment_seeder import seed_payments, undo_payments
 from app.models.db import db, environment, SCHEMA
 
 # Creates a seed group to hold our commands
@@ -32,12 +32,12 @@ def seed():
     seed_review_images()
     seed_shopping_carts_and_items()
     seed_orders_and_order_items()
-    seed_payments()
+    # seed_payments()
 
 # Creates the `flask seed undo` command
 @seed_commands.command('undo')
 def undo():
-    undo_payments()
+    # undo_payments()
     undo_orders_and_order_items()
     undo_shopping_carts_and_items()
     undo_review_images()
