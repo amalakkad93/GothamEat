@@ -7,33 +7,30 @@ import EditMenuItemForm from "../MenuItemForm/EditMenuItemForm";
 import "./MenuItem.css";
 
 // export default function MenuItem({ item, menuItemImgs, setReloadPage }) {
-  export default function MenuItem({ item, menuItemImages, setReloadPage }) {
+export default function MenuItem({ item, menuItemImages, setReloadPage, restaurantId }) {
   // const menuItemImgs = useSelector((state) => state.menuItems.menuItemImages, shallowEqual); //
   // const menuItemImgs = useSelector(state => state.menuItems.menuItemImages || { byId: {}, allIds: [] }, shallowEqual);
 
-
-console.log("Menu item images in component:", menuItemImages);
+  console.log("Menu item images in component:", menuItemImages);
   // const menuItemImgs = useSelector(state => state.menuItemImages || { byId: {}, allIds: [] }, shallowEqual);
 
   // console.log("Menu item images in component:",  menuItemImgs);
   const [, forceUpdate] = useState();
 
-// Call this function where you want to force a re-render
-const update = () => {
-  forceUpdate({});
-};
-
-
+  // Call this function where you want to force a re-render
+  const update = () => {
+    forceUpdate({});
+  };
 
   // console.log("..........menuItemImgs:", menuItemImgs);
   const currentUser = useSelector((state) => state.session?.user, shallowEqual);
-
+const restaurant = useSelector((state) => state.restaurants?.singleRestaurant?.byId[restaurantId], shallowEqual);
   let menuItemImg;
-  if (item?.menu_item_img_ids?.length > 0) menuItemImg = menuItemImages.byId[item.menu_item_img_ids[0]];
+  if (item?.menu_item_img_ids?.length > 0)
+    menuItemImg = menuItemImages.byId[item.menu_item_img_ids[0]];
 
   // console.log("Current menu item image:", menuItemImg?.image_path);
   // Inside the MenuItem component
-
 
   // console.log("+++Full menuItemImg object:", menuItemImg);
   // console.log("++Rendering MenuItem with image:", menuItemImg?.image_path);
@@ -46,7 +43,12 @@ const update = () => {
       >
         {menuItemImg && (
           // <img src={menuItemImg?.image_path} alt={item?.name} className="menu-item-image" />
-          <img src={`${menuItemImg?.image_path}?timestamp=${new Date().getTime()}`} alt={item?.name} className="menu-item-image"  key={menuItemImg?.image_path}/>
+          <img
+            src={`${menuItemImg?.image_path}?timestamp=${new Date().getTime()}`}
+            alt={item?.name}
+            className="menu-item-image"
+            key={menuItemImg?.image_path}
+          />
         )}
 
         <div className="menu-item-name-price">
@@ -60,30 +62,34 @@ const update = () => {
       {/* {currentUser?.id === item?.restaurant?.owner_id && ( */}
       <div className="menu-item-actions">
         {/* Edit MenuItem Modal */}
-        <OpenModalButton
-          buttonText="Edit"
-          modalComponent={
-            <EditMenuItemForm
-              restaurantId={item.restaurant_id}
-              menuItemId={item.id}
-              imageId={menuItemImg ? menuItemImg.id : null}
-              setReloadPage={setReloadPage}
+        {currentUser && restaurant?.owner_id === currentUser?.id && (
+          <>
+            <OpenModalButton
+              buttonText="Edit"
+              modalComponent={
+                <EditMenuItemForm
+                  restaurantId={item.restaurant_id}
+                  menuItemId={item.id}
+                  imageId={menuItemImg ? menuItemImg.id : null}
+                  setReloadPage={setReloadPage}
+                />
+              }
             />
-          }
-        />
 
-        {/* Delete MenuItem Modal */}
-        <OpenModalButton
-          buttonText="Delete"
-          modalComponent={
-            <DeleteMenuItem
-              menuItemId={item.id}
-              imageId={item.menu_item_img_ids[0]}
-              restaurantId={item.restaurant_id}
-              setReloadPage={setReloadPage}
+            {/* Delete MenuItem Modal */}
+            <OpenModalButton
+              buttonText="Delete"
+              modalComponent={
+                <DeleteMenuItem
+                  menuItemId={item.id}
+                  imageId={item.menu_item_img_ids[0]}
+                  restaurantId={item.restaurant_id}
+                  setReloadPage={setReloadPage}
+                />
+              }
             />
-          }
-        />
+          </>
+        )}
       </div>
       {/* )} */}
     </li>
@@ -102,7 +108,6 @@ const update = () => {
 //   // const menuItemImgs = useSelector((state) => state.menuItems.menuItemImages, shallowEqual); //
 //   // const menuItemImgs = useSelector(state => state.menuItems.menuItemImages || { byId: {}, allIds: [] }, shallowEqual);
 
-
 // console.log("Menu item images in component:", menuItemImages);
 //   // const menuItemImgs = useSelector(state => state.menuItemImages || { byId: {}, allIds: [] }, shallowEqual);
 
@@ -110,9 +115,6 @@ const update = () => {
 //   const [, forceUpdate] = useState();
 
 // // Call this function where you want to force a re-render
-
-
-
 
 //   // console.log("..........menuItemImgs:", menuItemImgs);
 //   const currentUser = useSelector((state) => state.session?.user, shallowEqual);
@@ -122,7 +124,6 @@ const update = () => {
 
 //   // console.log("Current menu item image:", menuItemImg?.image_path);
 //   // Inside the MenuItem component
-
 
 //   // console.log("+++Full menuItemImg object:", menuItemImg);
 //   // console.log("++Rendering MenuItem with image:", menuItemImg?.image_path);

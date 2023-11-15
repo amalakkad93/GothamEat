@@ -9,7 +9,10 @@ import Home from "./components/Home";
 import SignupFormPage from "./components/SignupFormPage";
 import LoginFormPage from "./components/LoginFormPage";
 import GetRestaurants from "./components/Restaurants/GetRestaurants";
+
 import RestaurantDetail from "./components/Restaurants/RestaurantDetail";
+// import RestaurantDetail from "./components/Restaurants/RestaurantDetail/RestaurantDetail";
+
 import FavoritesRestaurants from "./components/Restaurants/FavoritesRestaurants";
 import CreateRestaurantForm from "./components/Restaurants/RestaurantForms/CreateRestaurantForm";
 import EditRestaurantForm from "./components/Restaurants/RestaurantForms/EditRestaurantForm";

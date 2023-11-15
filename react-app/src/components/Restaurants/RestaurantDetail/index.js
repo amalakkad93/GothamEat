@@ -127,19 +127,7 @@ export default function RestaurantDetail() {
     fetchData();
   }, [dispatch, restaurantId, reloadPage]);
 
-  // Effect to fetch user's favorite restaurants
-  useEffect(() => {
-    // Check if the component is still mounted before dispatching
-    if (userId && isMountedRef.current) {
-      dispatch(thunkFetchAllFavorites(userId));
-    }
-  }, [dispatch, userId]);
 
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
   // Error and loading checks
   // Error handling: Show an error message if there's an issue fetching restaurant details

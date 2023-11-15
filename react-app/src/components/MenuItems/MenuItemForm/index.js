@@ -175,6 +175,7 @@ const handleSubmit = (e) => {
     dispatch(thunkCreateMenuItem(restaurantId, menuItemData, image))
       .then(() => {
         handleSuccess();
+        if (setReloadPage) setReloadPage((prev) => !prev);
         closeModal();
       })
       .catch((error) => {
