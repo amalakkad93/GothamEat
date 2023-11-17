@@ -42,7 +42,7 @@ export default function GetReviews({
   }, [dispatch, restaurantId, reloadReviews, setReloadPage]);
 
   // Error handling: Show an error message if there's an issue fetching reviews
-  if (error) return <p>Error: {error}</p>;
+  // if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="reviews-list">

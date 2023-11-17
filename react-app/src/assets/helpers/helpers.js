@@ -134,3 +134,22 @@ export const calculateTax = (subtotal) => {
   const TAX_RATE = 0.25;
   return (subtotal * TAX_RATE);
 };
+
+// Example transformation assuming filteredMenuItems is an object with item IDs as keys
+export const groupMenuItemsByType = (menuItems) => {
+  if (!menuItems || !menuItems.allIds || !menuItems.byId) {
+    // If menuItems is not in the expected format, return an empty object
+    return {};
+  }
+
+  const groupedItems = {};
+  menuItems.allIds.forEach(id => {
+    const item = menuItems.byId[id];
+    if (!groupedItems[item.type]) {
+      groupedItems[item.type] = [];
+    }
+    groupedItems[item.type].push(item);
+  });
+  return groupedItems;
+};
+

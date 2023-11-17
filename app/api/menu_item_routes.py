@@ -1,6 +1,7 @@
 from flask import (Blueprint, jsonify, request, redirect, url_for, abort,
                    send_file, current_app)
 import traceback
+from icecream import ic
 from flask_login import current_user, login_required
 from sqlalchemy import func, distinct, or_, desc
 from ..models import User, Review, Review, db, MenuItem, MenuItemImg
@@ -56,8 +57,86 @@ def get_menu_item(id):
         return jsonify(normalized_data), 200
 
     except Exception as e:
-        app.logger.error(f"Error fetching menu item with ID {id}: {str(e)}")
+        current_app.logger.error(f"Error fetching menu item with ID {id}: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while fetching the menu item."}), 500
+
+
+@menu_item_routes.route('/list', methods=["GET"])
+def get_filtered_menu_items():
+    try:
+        # Fetch query parameters for filtering
+        category = request.args.get('type', default=None, type=str)
+        min_price = request.args.get('min_price', default=0, type=float)
+        max_price = request.args.get('max_price', default=float('inf'), type=float)
+        restaurant_id = request.args.get('restaurant_id', type=int)
+
+        ic("Category:", category, "Min price:", min_price, "Max price:", max_price, "Restaurant ID:", restaurant_id)
+
+        # Build the query with optional filters
+        query = MenuItem.query.filter(MenuItem.restaurant_id == restaurant_id) 
+        ic("Query:", query)
+        # Execute the query
+        menu_items = query.all()
+        ic("Fetched menu items:", menu_items)
+
+        if category and category.lower() != 'all':
+            query = query.filter(MenuItem.type == category)
+
+        query = query.filter(MenuItem.price >= min_price, MenuItem.price <= max_price)
+
+        # Serialize the menu items
+        menu_items_data = [item.to_dict() for item in menu_items]
+        for item_data in menu_items_data:
+            item_data['image_paths'] = [img.image_path for img in MenuItemImg.query.filter_by(menu_item_id=item_data['id']).all()]
+
+        return jsonify(menu_items_data), 200
+    except Exception as e:
+        print(f"Error fetching menu items: {e}")
+        return jsonify({"error": "An unexpected error occurred while fetching the menu items."}), 500
+
+# @menu_item_routes.route('/list', methods=["GET"])
+# def get_filtered_menu_items():
+#     try:
+#         # Fetching query parameters
+#         type_filter = request.args.get('type', default=None, type=str)
+#         min_price = request.args.get('min_price', default=0, type=float)
+#         max_price = request.args.get('max_price', default=float('inf'), type=float)
+#         restaurant_id = request.args.get('restaurant_id', type=int)
+
+#         ic(type_filter, min_price, max_price, restaurant_id)
+#         # Building the base query
+#         query = MenuItem.query.filter(MenuItem.restaurant_id == restaurant_id)
+
+#         # Applying type filter if provided and not 'all'
+#         if type_filter and type_filter.lower() != 'all':
+#             # Ensure this matches exactly with the types defined in your form ('entree', 'dessert', 'drink', 'side')
+#             query = query.filter(MenuItem.type == type_filter.lower())
+
+#         # Applying price range filter
+#         query = query.filter(MenuItem.price >= min_price, MenuItem.price <= max_price)
+
+#         ic(query)
+
+#         # Executing the query
+#         menu_items = query.all()
+
+#         ic(menu_items)
+
+#         # Serializing menu items
+#         menu_items_data = [item.to_dict() for item in menu_items]
+#         for item_data in menu_items_data:
+#             item_data['image_paths'] = [img.image_path for img in MenuItemImg.query.filter_by(menu_item_id=item_data['id']).all()]
+
+#         ic(menu_items_data)
+
+#         return jsonify(menu_items_data), 200
+
+#     except Exception as e:
+#         print(f"Error fetching menu items: {e}")
+#         return jsonify({"error": "An unexpected error occurred while fetching the menu items."}), 500
+
+
+
 
 # ***************************************************************
 # Endpoint to Edit a Menu Item
@@ -208,7 +287,7 @@ def upload_menu_item_image(menu_item_id):
         new_image = MenuItemImg(menu_item_id=menu_item_id, image_path=image_url)
         db.session.add(new_image)
         db.session.commit()
-        
+
         print("Sending image data:", {"status": "success", "image_url": image_url, "id": new_image.id})
         # Return the ID of the new image along with the other data
         return jsonify({

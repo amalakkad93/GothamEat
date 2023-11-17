@@ -346,42 +346,50 @@ export default function reviewsReducer(state = initialState, action) {
       allIds: [action.payload.id],
     },
   };
+
     // case SET_REVIEWS:
+    //   console.log('SET_REVIEWS action', action);
     //   return {
     //     ...state,
-    //     reviews: action.reviews.byId,
-    //     reviewImages: action.images.byId,
-    //     users: action.users.byId,
-    //     userHasReview: true,
-    //     error: null,
+    //     reviews: {
+    //       byId: {
+    //         ...state.reviews.byId,
+    //         ...action.reviews.byId // Adjusted from action.payload.entities.reviews.byId
+    //       },
+    //       allIds: action.reviews.allIds // Adjusted from action.payload.entities.reviews.allIds
+    //     },
+    //     reviewImages: {
+    //       byId: {
+    //         ...state.reviewImages.byId,
+    //         ...action.images.byId // Adjusted from action.payload.entities.reviewImages.byId
+    //       },
+    //       allIds: action.images.allIds // Adjusted from action.payload.entities.reviewImages.allIds
+    //     },
+    //     users: {
+    //       byId: {
+    //         ...state.users.byId,
+    //         ...action.users.byId // Adjusted from action.payload.entities.users.byId
+    //       },
+    //       allIds: action.users.allIds // Adjusted from action.payload.entities.users.allIds
+    //     }
     //   };
+
     case SET_REVIEWS:
-      console.log('SET_REVIEWS action', action);
       return {
         ...state,
         reviews: {
-          byId: {
-            ...state.reviews.byId,
-            ...action.reviews.byId // Adjusted from action.payload.entities.reviews.byId
-          },
-          allIds: action.reviews.allIds // Adjusted from action.payload.entities.reviews.allIds
+          byId: action.reviews.byId, 
+          allIds: action.reviews.allIds
         },
         reviewImages: {
-          byId: {
-            ...state.reviewImages.byId,
-            ...action.images.byId // Adjusted from action.payload.entities.reviewImages.byId
-          },
-          allIds: action.images.allIds // Adjusted from action.payload.entities.reviewImages.allIds
+          byId: action.images.byId,
+          allIds: action.images.allIds
         },
         users: {
-          byId: {
-            ...state.users.byId,
-            ...action.users.byId // Adjusted from action.payload.entities.users.byId
-          },
-          allIds: action.users.allIds // Adjusted from action.payload.entities.users.allIds
+          byId: action.users.byId,
+          allIds: action.users.allIds
         }
       };
-
 
 
     case ADD_REVIEW: {

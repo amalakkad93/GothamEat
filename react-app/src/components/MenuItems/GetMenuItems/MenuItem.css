@@ -11,17 +11,19 @@
 }
 
 .menu-section ul {
-  list-style-type: none;
-  padding: 0;
+  /* list-style-type: none; */
+  /* padding: 0; */
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* Space between menu items */
-  justify-content: space-between; /* If there are less than 4 items in the last row, they will spread evenly */
+  gap: 20px;
+  /* justify-content: space-between; */
 }
 
 /* Menu Item Styles */
 .menu-item {
-  flex-basis: 23%; /* This gives a tiny bit of room for the gap */
+  /* flex-basis: 23%;  */
+  flex-basis: calc(25% - 20px);
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   border: 1px solid #e0e0e0;
@@ -34,7 +36,9 @@
 
 .menu-item-image {
   width: 100%;
-  height: auto; /* Adjust as needed */
+  height: 200px;
+  object-fit: cover;
+  /* height: auto;  */
   margin-bottom: 15px;
 }
 

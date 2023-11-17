@@ -13,14 +13,14 @@ users=[
     User(first_name="Harvey", last_name="Dent", username='TwoFace', password="password", email='twoface@gotham.com'),
     User(first_name="Victor", last_name="Fries", username='MrFreeze', password="password", email='mr.freeze@gotham.com'),
     User(first_name="Anas", last_name="Alakkad", username='amala', password="password", email='amalakkad@gmail.com'),
-    # User(first_name="Jonathan", last_name="Crane", username='Scarecrow', password="password", email='scarecrow@gotham.com'),
-    # User(first_name="Rachel", last_name="Dawes", username='RachelDawes', password="password", email='rachel@gotham.com'),
-    # User(first_name="Lucius", last_name="Fox", username='LuciusFox', password="password", email='lucius@waynecorp.com'),
-    # User(first_name="Barbara", last_name="Gordon", username='Oracle', password="password", email='barbara@gotham.com'),
-    # User(first_name="Tim", last_name="Drake", username='Robin', password="password", email='tim@gotham.com'),
-    # User(first_name="Jason", last_name="Todd", username='RedHood', password="password", email='jason@gotham.com'),
-    # User(first_name="Damian", last_name="Wayne", username='DamianWayne', password="password", email='damian@waynemanor.com'),
-    # User(first_name="Cassandra", last_name="Cain", username='Batgirl', password="password", email='cassandra@gotham.com'),
+    User(first_name="Jonathan", last_name="Crane", username='Scarecrow', password="password", email='scarecrow@gotham.com'),
+    User(first_name="Rachel", last_name="Dawes", username='RachelDawes', password="password", email='rachel@gotham.com'),
+    User(first_name="Lucius", last_name="Fox", username='LuciusFox', password="password", email='lucius@waynecorp.com'),
+    User(first_name="Barbara", last_name="Gordon", username='Oracle', password="password", email='barbara@gotham.com'),
+    User(first_name="Tim", last_name="Drake", username='Robin', password="password", email='tim@gotham.com'),
+    User(first_name="Jason", last_name="Todd", username='RedHood', password="password", email='jason@gotham.com'),
+    User(first_name="Damian", last_name="Wayne", username='DamianWayne', password="password", email='damian@waynemanor.com'),
+    User(first_name="Cassandra", last_name="Cain", username='Batgirl', password="password", email='cassandra@gotham.com'),
 ]
 def seed_users():
     db.session.add_all(users)

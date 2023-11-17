@@ -45,6 +45,12 @@ const DELETE_MENU_ITEM = "DELETE_MENU_ITEM";
 /** Action type for deleting a menu item image in the store */
 const DELETE_MENU_ITEM_IMAGE = "DELETE_MENU_ITEM_IMAGE";
 
+/** Action type for getting filtered menu items in the store */
+const GET_FILTERED_MENU_ITEMS = "menuItems/GET_FILTERED_MENU_ITEMS";
+
+/** Action type for clearing filtered menu items in the store */
+const CLEAR_FILTERED_MENU_ITEMS = "menuItems/CLEAR_FILTERED_MENU_ITEMS";
+
 /** Action type to handle errors related to menu item actions */
 const SET_MENU_ITEM_ERROR = "menuItems/SET_MENU_ITEM_ERROR";
 
@@ -116,6 +122,18 @@ export const actionDeleteMenuItem = (menuItemId) => ({
 export const actionDeleteMenuItemImage = (imageId) => ({
   type: DELETE_MENU_ITEM_IMAGE,
   imageId,
+});
+
+/** Creates an action to get filtered menu items in the store */
+const actionGetFilteredMenuItems = (restaurantId, filteredMenuItems) => ({
+  type: GET_FILTERED_MENU_ITEMS,
+  restaurantId,
+  filteredMenuItems,
+});
+
+/** Creates an action to clear filtered menu items in the store */
+export const clearFilteredMenuItems = () => ({
+  type: CLEAR_FILTERED_MENU_ITEMS,
 });
 
 /** Creates an action to handle errors during menu item operations */
@@ -536,6 +554,45 @@ export const thunkDeleteMenuItem =
     }
   };
 
+// ***************************************************************
+//  Thunk to Filter a Menu Item by Type and/or Price
+// ***************************************************************
+export const thunkGetFilteredMenuItems =
+  (restaurantId, menuItemTypes, minPrice, maxPrice) => async (dispatch) => {
+    // const queryParams = new URLSearchParams({
+    // type: menuItemType,
+    //   min_price: minPrice,
+    //   max_price: maxPrice,
+    // }).toString();
+    const queryParams = new URLSearchParams({
+      // type: menuItemType,
+      min_price: minPrice,
+      max_price: maxPrice,
+    })
+    menuItemTypes.forEach(type => queryParams.append('type', type));
+    try {
+      const response = await fetch(
+        `/api/restaurants/${restaurantId}/menu-items/filter?${queryParams}`
+      );
+
+      if (response.ok) {
+        const filteredMenuItems = await response.json();
+        console.log(
+          "🚀 ~ file: menuItems.js:569 ~ thunkGetFilteredMenuItems ~ filteredMenuItems:",
+          filteredMenuItems
+        );
+        dispatch(actionGetFilteredMenuItems(restaurantId, filteredMenuItems));
+      } else {
+        // Handle errors
+        const error = await response.json();
+        dispatch(actionSetMenuItemError(error.message));
+      }
+    } catch (error) {
+      console.error("Error fetching filtered menu items:", error);
+      dispatch(actionSetMenuItemError("Failed to fetch filtered menu items."));
+    }
+  };
+
 // =========================================================
 //                   ****Reducer****
 // =========================================================
@@ -548,14 +605,15 @@ const menuItemInitialState = {
   // menuItemImages: {},
   menuItemImages: { byId: {}, allIds: [] },
   types: {},
+  filteredMenuItems: {},
   error: null,
   isLoading: false,
 };
 
 /** Defines how the state should change for each menu item action */
 export default function menuItemsReducer(state = menuItemInitialState, action) {
-  console.log('++Action received', action);
-  console.log('Current state', state);
+  console.log("++Action received", action);
+  console.log("Current state", state);
   switch (action.type) {
     case GET_SINGLE_MENU_ITEM:
       return {
@@ -566,28 +624,27 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         },
       };
 
-
-
-
-
     case GET_MENU_ITEMS_BY_RESTAURANT:
-        // Check if the action has defined menuItems before attempting to set them in the state
-        if (!action.menuItems) {
-          console.error("No menu items provided for restaurant with id:", action.restaurantId);
-          return {
-            ...state,
-            error: `No menu items provided for restaurant with id: ${action.restaurantId}`
-          };
-        }
-
-        // Proceed with updating the state if menuItems are present
+      // Check if the action has defined menuItems before attempting to set them in the state
+      if (!action.menuItems) {
+        console.error(
+          "No menu items provided for restaurant with id:",
+          action.restaurantId
+        );
         return {
           ...state,
-          menuItemsByRestaurant: {
-            ...state.menuItemsByRestaurant,
-            [action.restaurantId]: action.menuItems,
-          },
+          error: `No menu items provided for restaurant with id: ${action.restaurantId}`,
         };
+      }
+
+      // Proceed with updating the state if menuItems are present
+      return {
+        ...state,
+        menuItemsByRestaurant: {
+          ...state.menuItemsByRestaurant,
+          [action.restaurantId]: action.menuItems,
+        },
+      };
 
     case SET_MENU_ITEM_IMAGES:
       return {
@@ -656,72 +713,6 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         menuItemImages: newMenuItemImages,
       };
     }
-        // case CREATE_MENU_ITEM:
-    //   const restaurantId = action.menuItem.restaurant_id; // Assuming this is how you get the restaurant ID
-    //   const updatedMenuItems = state.menuItemsByRestaurant[restaurantId]
-    //     ? [...state.menuItemsByRestaurant[restaurantId], action.menuItem.id]
-    //     : [action.menuItem.id];
-
-    //   return {
-    //     ...state,
-    //     singleMenuItem: {
-    //       byId: {
-    //         ...state.singleMenuItem.byId,
-    //         [action.menuItem.id]: action.menuItem,
-    //       },
-    //       allIds: [...state.singleMenuItem.allIds, action.menuItem.id],
-    //     },
-    //     menuItemsByRestaurant: {
-    //       ...state.menuItemsByRestaurant,
-    //       [restaurantId]: updatedMenuItems,
-    //     },
-    //   };
-    // case UPLOAD_MENU_ITEM_IMAGE: {
-    //   const { image_id, image_path, menu_item_id, restaurant_id } =
-    //     action.payload;
-
-    //   // Update menuItemImages state
-    //   const newMenuItemImages = {
-    //     ...state.menuItemImages,
-    //     byId: {
-    //       ...state.menuItemImages.byId,
-    //       [image_id]: { image_path, menu_item_id },
-    //     },
-    //     allIds: [...state.menuItemImages.allIds, image_id],
-    //   };
-
-    //   // Update the specific menu item's image in menuItemsByRestaurant
-    //   const restaurantMenuItems = state.menuItemsByRestaurant[restaurant_id];
-    //   if (restaurantMenuItems && restaurantMenuItems?.byId[menu_item_id]) {
-    //     const updatedMenuItem = {
-    //       ...restaurantMenuItems.byId[menu_item_id],
-    //       image_id: image_id, // Assuming you want to replace it with the new image ID
-    //     };
-
-    //     // Update the state with the new menu item details
-    //     const updatedMenuItemsByRestaurant = {
-    //       ...state.menuItemsByRestaurant,
-    //       [restaurant_id]: {
-    //         ...restaurantMenuItems,
-    //         byId: {
-    //           ...restaurantMenuItems.byId,
-    //           [menu_item_id]: updatedMenuItem,
-    //         },
-    //       },
-    //     };
-
-    //     return {
-    //       ...state,
-    //       menuItemImages: newMenuItemImages,
-    //       menuItemsByRestaurant: updatedMenuItemsByRestaurant,
-    //     };
-    //   } else {
-    //     // Handle the case where the menu item doesn't exist
-    //     return state;
-    //   }
-    // }
-
-    //******************************************************* */
 
     case UPDATE_MENU_ITEM: {
       if (!action.updatedMenuItem || !action.updatedMenuItem.id) {
@@ -772,6 +763,36 @@ export default function menuItemsReducer(state = menuItemInitialState, action) {
         menuItemImages: newMenuItemImages,
       };
     }
+
+    // case GET_FILTERED_MENU_ITEMS:
+
+    //   const newMenuItemsByRestaurant = {
+    //     ...state.menuItemsByRestaurant,
+    //     [action.restaurantId]: action.filteredMenuItems.reduce((acc, item) => {
+    //       acc[item.id] = item;
+    //       return acc;
+    //     }, {})
+    //   };
+
+    //   return {
+    //     ...state,
+    //     menuItemsByRestaurant: newMenuItemsByRestaurant
+    //   };
+    case GET_FILTERED_MENU_ITEMS:
+      return {
+        ...state,
+        filteredMenuItems: action.filteredMenuItems.reduce((acc, item) => {
+          acc[item.id] = item;
+          return acc;
+        }, {}),
+      };
+
+    case CLEAR_FILTERED_MENU_ITEMS:
+      return {
+        ...state,
+        filteredMenuItems: {},
+      };
+
     case SET_MENU_ITEM_ERROR:
       return { ...state, error: action.payload };
 
