@@ -216,9 +216,9 @@ const handleSubmit = (e) => {
 
   return (
     <div>
-      {/* {errorMessage && <div className="error">{errorMessage}</div>}
-      {successMessage && <div className="success">{successMessage}</div>} */}
-      <button onClick={handleSubmit}>Manual Submit</button>
+      {errorMessage && <div className="error">{errorMessage}</div>}
+      {successMessage && <div className="success">{successMessage}</div>}
+
 
       <FormContainer
         fields={fields}

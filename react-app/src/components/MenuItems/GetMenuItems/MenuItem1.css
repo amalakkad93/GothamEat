@@ -1,0 +1,118 @@
+/* Base styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #eaeaea;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Menu Section */
+.menu-section {
+  margin: 30px;
+  background: linear-gradient(145deg, #cacaca, #f0f0f0);
+  border-radius: 20px;
+  box-shadow: 5px 5px 15px #bbbbbb, -5px -5px 15px #ffffff;
+  padding: 20px;
+  text-align: center;
+}
+
+.menu-section h3 {
+  font-size: 2.2em;
+  color: #333;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Menu Item List */
+.menu-section ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  gap: 20px;
+
+  width: 100%;
+}
+
+/* Menu Item Card */
+.menu-item {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  width: calc(25% - 20px); /* 4 items per row with spacing */
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 350px; /* Fixed height */
+  flex: 0 0 auto; /* Added line */
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Menu Item Image */
+.menu-item-image {
+  width: 100%;
+  height: 200px; /* Fixed height */
+  object-fit: cover; /* Ensures images cover the area uniformly */
+  border-radius: 8px 8px 0 0;
+}
+
+/* Menu Item Content */
+/* Menu Item Content */
+.menu-item-name-price {
+  padding: 10px;
+  text-align: left;
+  min-height: 60px; /* Adjust as needed */
+}
+
+.menu-item-name {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #333;
+}
+
+.menu-item-price {
+  font-size: 1.2em;
+  color: #666;
+}
+
+.menu-item-description {
+  padding: 10px;
+  text-align: left;
+  min-height: 80px; /* Adjust as needed */
+  overflow: hidden; /* Hides extra content */
+  text-overflow: ellipsis;
+}
+
+/* Menu Item Actions */
+.menu-item-actions {
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ddd;
+}
+
+.menu-item-actions button {
+  border: none;
+  background-color: #007bff;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item-actions button:hover {
+  background-color: #0056b3;
+}

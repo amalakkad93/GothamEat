@@ -1,0 +1,115 @@
+.menu-filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  padding: 15px;
+  background-color: black;
+  color: white;
+  
+}
+
+.menu-filter-form input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.menu-filter-form label {
+  display: flex;
+  align-items: center;
+  color: white; /* Labels are white to contrast against the black background */
+}
+
+.menu-filter-form input[type="range"] {
+  width: 100%;
+  /* Customize the range input to fit the theme */
+}
+
+.menu-filter-form button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #28a745; /* A greenish color for the buttons */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-filter-form button:hover {
+  background-color: #218838; /* A darker green when hovered */
+}
+
+.menu-filter-form button[type="button"] {
+  background-color: #dc3545; /* A reddish color for the reset button */
+}
+
+.menu-filter-form button[type="button"]:hover {
+  background-color: #c82333; /* A darker red when hovered */
+}
+
+.price-range-slider input[type="range"] {
+  /* Style the slider to match the theme */
+  background-color: #333; /* Dark background for the slider */
+  border-radius: 5px;
+  -webkit-appearance: none; /* Override default appearance */
+}
+
+.price-range-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #28a745; /* Green thumb */
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.price-range-slider input[type="range"]::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #28a745;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+/* .menu-filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  padding: 15px;
+}
+
+.menu-filter-form input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.menu-filter-form label {
+  display: flex;
+  align-items: center;
+}
+
+.menu-filter-form input[type="range"] {
+  width: 100%;
+}
+
+.menu-filter-form button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-filter-form button:hover {
+  background-color: #0056b3;
+}
+
+.menu-filter-form button[type="button"] {
+  background-color: #6c757d;
+}
+
+.menu-filter-form button[type="button"]:hover {
+  background-color: #5a6268;
+} */
