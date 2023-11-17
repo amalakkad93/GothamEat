@@ -1,0 +1,82 @@
+/* Enhanced Menu Filter Styles */
+.menu-filter-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.type-filters {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  flex-direction: column;
+}
+
+.type-filters label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  background: #f6f6f6;
+  border-radius: 20px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.type-filters input[type="checkbox"] {
+  accent-color: black;
+  margin-right: 5px;
+}
+
+.price-range-slider {
+  margin-bottom: 15px;
+}
+
+.price-range-slider label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.price-range-slider input[type="range"] {
+  width: 100%;
+  accent-color: black;
+
+
+}
+
+.apply-filter-btn, .reset-filter-btn {
+  background-color: black;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.apply-filter-btn:hover {
+  background-color: black
+}
+.reset-filter-btn:hover {
+  background-color: black;
+}
+
+.reset-filter-btn[type="button"] {
+  background-color: #666;
+  margin-left: 10px;
+}
+
+.reset-filter-btn[type="button"]:hover {
+  background-color: #555;
+}
+.apply-filter-btn[type="button"] {
+  background-color: #666;
+  margin-left: 10px;
+}
+
+.apply-filter-btn[type="button"]:hover {
+  background-color: #555;
+}

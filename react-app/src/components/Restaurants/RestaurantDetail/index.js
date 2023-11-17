@@ -226,7 +226,13 @@ export default function RestaurantDetail() {
       <div className="restaurant-detail-header">
         <div
           className="restaurant-banner"
-          style={{ backgroundImage: `url(${restaurant?.banner_image_path})` }}
+          style={{
+            backgroundImage: `url(${restaurant?.banner_image_path})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: 'rgba(0, 0, 0, 0.02)' 
+          }}
         >
           <FontAwesomeIcon
             icon={isFavorite ? solidHeart : regularHeart}

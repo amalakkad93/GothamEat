@@ -6,7 +6,8 @@
   padding: 15px;
   background-color: black;
   color: white;
-  
+  margin-top: 71px;
+
 }
 
 .menu-filter-form input[type="checkbox"] {
@@ -28,7 +29,7 @@
   padding: 8px 15px;
   border: none;
   border-radius: 5px;
-  background-color: #28a745; /* A greenish color for the buttons */
+  background-color: #28a745;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;

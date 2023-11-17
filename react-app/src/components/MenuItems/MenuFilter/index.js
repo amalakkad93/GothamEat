@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import './MenuFilter.css';
+// import './MenuFilter.css';
+import './MenuFilter1.css';
 
 // function MenuFilter({ onFilterChange, onFilterReset, menuTypes }) {
 //   const [selectedTypes, setSelectedTypes] = useState(new Set());
@@ -123,8 +124,8 @@ function MenuFilter({ onFilterChange, onFilterReset, menuTypes }) {
         </label>
       </div>
 
-      <button type="submit">Apply Filter</button>
-      <button type="button" onClick={onFilterReset}>Reset Filter</button>
+      <button className='apply-filter-btn' type="submit">Apply Filter</button>
+      <button className='reset-filter-btn' type="button" onClick={onFilterReset}>Reset Filter</button>
     </form>
   );
 }
