@@ -1,5 +1,6 @@
 from sqlite3 import OperationalError
 from flask import Blueprint, jsonify, request, redirect, url_for, abort, current_app
+from icecream import ic
 import requests
 import logging
 from flask_caching import Cache
@@ -647,6 +648,89 @@ def get_menu_items_by_restaurant_id(id):
         print(e)
         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
 
+# @restaurant_routes.route('/<int:id>/menu-items/filter')
+# def filter_menu_items_by_type(id):
+#     """
+#     Retrieves filtered menu items for a specific restaurant based on type and price range.
+
+#     Args:
+#         id (int): The ID of the restaurant.
+
+#     Returns:
+#         Response: A collection of filtered menu items for the specified restaurant.
+#     """
+#     try:
+#         menu_item_type = request.args.get('type', None)
+#         min_price = request.args.get('min_price', type=float)
+#         max_price = request.args.get('max_price', type=float)
+
+#         ic('menu_item_type',menu_item_type)
+#         ic('min_price',min_price)
+#         ic('max_price',max_price)
+
+
+
+#         if not menu_item_type:
+#             return jsonify({"error": "Menu item type is required for filtering."}), 400
+
+#         # Fetch filtered menu items
+#         filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_type, min_price, max_price)
+#         ic('filtered_menu_data',filtered_menu_data)
+#         return jsonify(filtered_menu_data)
+
+#     except OperationalError as oe:
+#         print(oe)
+#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
+
+@restaurant_routes.route('/<int:id>/menu-items/filter')
+def filter_menu_items_by_type(id):
+    """
+    Retrieves filtered menu items for a specific restaurant based on type and price range.
+    Args:
+        id (int): The ID of the restaurant.
+    Returns:
+        Response: A collection of filtered menu items for the specified restaurant.
+    """
+    try:
+        # menu_item_type = request.args.get('type', None)
+        menu_item_types = request.args.getlist('type')
+        min_price = request.args.get('min_price', type=float)
+        max_price = request.args.get('max_price', type=float)
+
+        ic('menu_item_type', menu_item_types)
+        ic('min_price', min_price)
+        ic('max_price', max_price)
+
+        # if not menu_item_type:
+        #     return jsonify({"error": "Menu item type is required for filtering."}), 400
+        if not menu_item_types:
+            return jsonify({"error": "Menu item type is required for filtering."}), 400
+
+        # Fetch filtered menu items
+        # filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_type, min_price, max_price)
+        filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_types, min_price, max_price)
+        ic('filtered_menu_data', filtered_menu_data)
+
+        # Fetch the images separately
+        menu_item_ids = [item['id'] for item in filtered_menu_data]
+        images = MenuItemImg.query.filter(MenuItemImg.menu_item_id.in_(menu_item_ids)).all()
+        images_dict = {img.menu_item_id: img.to_dict() for img in images}
+
+        # Combine menu items with their images
+        for item in filtered_menu_data:
+            item['images'] = images_dict.get(item['id'], [])
+
+        return jsonify(filtered_menu_data)
+
+    except OperationalError as oe:
+        print(oe)
+        return jsonify({"error": "Database operation failed. Please try again later."}), 500
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "An error occurred while fetching the menu items."}), 500
 
 # ***************************************************************
 # Endpoint to Create a MenuItem Based on a Restaurant ID

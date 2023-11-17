@@ -7,6 +7,7 @@
  */
 import React, { useEffect } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   thunkFetchAllFavorites,
   thunkToggleFavorite,
@@ -20,6 +21,7 @@ import "../GetRestaurants/GetRestaurants.css";
 
 export default function FavoritesRestaurants() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Extract the user ID from the Redux store
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
@@ -82,6 +84,7 @@ export default function FavoritesRestaurants() {
               key={restaurantKey}
               className="restaurant-card"
               title={restaurant.name}
+              onClick={() => navigate(`/restaurants/${restaurant.id}`)}
             >
               {/* Restaurant banner image */}
               <img

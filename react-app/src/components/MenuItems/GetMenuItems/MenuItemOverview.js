@@ -57,19 +57,49 @@ export default function MenuItemOverview() {
   );
 
   // Redux state: Loading and error statuses
-  const isLoading = useSelector(
-    (state) => state.menuItems?.isLoading,
-    shallowEqual
-  );
+  // const isLoading = useSelector(
+  //   (state) => state.menuItems?.isLoading,
+  //   shallowEqual
+  // );
   const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   // Fetching data using effect hook
-  useEffect(() => {
-    dispatch(thunkGetMenuItemDetails(itemId));
-  }, [dispatch, itemId]);
+  // useEffect(() => {
+  //   dispatch(thunkGetMenuItemDetails(itemId));
+  // }, [dispatch, itemId]);
+
+  // useEffect(() => {
+  //   setIsLoading(true); // Start loading when data fetching begins
+  //   dispatch(thunkGetMenuItemDetails(itemId))
+  //     .then(() => setIsLoading(false)) // Stop loading on success
+  //     .catch(() => setIsLoading(false)); // Stop loading on error
+  // }, [dispatch, itemId]);
+useEffect(() => {
+  let isMounted = true; // Flag to track mounted state
+
+  setIsLoading(true);
+  dispatch(thunkGetMenuItemDetails(itemId))
+    .then(() => {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    })
+    .catch(() => {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    });
+
+  return () => {
+    isMounted = false; // Set the flag to false when the component unmounts
+  };
+}, [dispatch, itemId]);
+
 
   // Logic to determine the image path of the menu item
   let menuItemImgPath;
@@ -138,8 +168,10 @@ export default function MenuItemOverview() {
 
   // Rendering
   // if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+
   if (!menuItem) return <p>Item not found.</p>;
+  if (isLoading) return <p>Loading...</p>;
+
 
   return (
     // Main container for the menu item overview

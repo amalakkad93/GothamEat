@@ -11,13 +11,18 @@
  */
 import React from "react";
 import MenuItem from "./ MenuItem"
-import './MenuItem.css'
+// import './MenuItem.css'
+import "./MenuItem1.css";
 
-export default function MenuSection({ type, items, menuItemImages, setReloadPage }) {
+export default function MenuSection({ type, items, menuItemImages, restaurantId, setReloadPage }) {
+ console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ setReloadPage:", setReloadPage)
+ console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ restaurantId:", restaurantId)
+ console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ menuItemImages:", menuItemImages)
+ console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ items:", items)
+ console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ type:", type)
+
   // Check to ensure the items prop is an array
-  // console.log("+++menuItemImgs: ", menuItemImgs);
-  // console.log(".........Rendering MenuSection for type:", type);
-  // console.log(".........Items in MenuSection for type:", type, items);
+
 
   if (!Array.isArray(items)) {
     console.error("Items is not an array:", items);
@@ -34,7 +39,7 @@ export default function MenuSection({ type, items, menuItemImages, setReloadPage
         {items.map(item => (
           // <MenuItem key={item.id} item={item} menuItemImgs={menuItemImgs} />
           // <MenuItem key={item.id + Date.now()} item={item} menuItemImgs={menuItemImgs} />
-          <MenuItem key={item.id} item={item} menuItemImages={menuItemImages} setReloadPage={setReloadPage} />
+          <MenuItem key={item.id} item={item} menuItemImages={menuItemImages} restaurantId={restaurantId} setReloadPage={setReloadPage} />
 
 
         ))}
