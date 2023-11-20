@@ -11,7 +11,7 @@ colorama==0.4.6
 dnspython==2.3.0
 email-validator==2.0.0.post2
 executing==2.0.0
-Faker==20.1.0
+Faker==18.13.0
 Flask==2.2.2
 Flask-Caching==2.1.0
 Flask-Cors==3.0.10
