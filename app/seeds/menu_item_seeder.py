@@ -211,11 +211,37 @@ def seed_menu_items():
     # 8. Commit the session to save all the menu item images to the database.
     db.session.commit()
 
+# def undo_menu_items():
+#     if environment == "production":
+#         db.session.execute(f"TRUNCATE table {SCHEMA}.menu_items RESTART IDENTITY CASCADE;")
+#         db.session.execute(f"TRUNCATE table {SCHEMA}.menu_item_images RESTART IDENTITY CASCADE;")
+#     else:
+#         db.session.execute(text("DELETE FROM menu_items"))
+#         db.session.execute(text("DELETE FROM menu_item_images"))
+#     db.session.commit()
 def undo_menu_items():
-    if environment == "production":
-        db.session.execute(f"TRUNCATE table {SCHEMA}.menu_items RESTART IDENTITY CASCADE;")
-        db.session.execute(f"TRUNCATE table {SCHEMA}.menu_item_images RESTART IDENTITY CASCADE;")
-    else:
-        db.session.execute(text("DELETE FROM menu_items"))
-        db.session.execute(text("DELETE FROM menu_item_images"))
+    # Function to check if a table exists in the database
+    def table_exists(table_name):
+        if environment == "production":
+            # For production, check with the schema
+            query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '{SCHEMA}' AND table_name = '{table_name}');"
+        else:
+            # For other environments, check without schema
+            query = f"SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type='table' AND name='{table_name}');"
+        result = db.engine.execute(query).scalar()
+        return result
+
+    # Only execute the TRUNCATE command if the table exists
+    if table_exists("menu_items"):
+        if environment == "production":
+            db.session.execute(f"TRUNCATE table {SCHEMA}.menu_items RESTART IDENTITY CASCADE;")
+        else:
+            db.session.execute(text("DELETE FROM menu_items"))
+
+    if table_exists("menu_item_images"):
+        if environment == "production":
+            db.session.execute(f"TRUNCATE table {SCHEMA}.menu_item_images RESTART IDENTITY CASCADE;")
+        else:
+            db.session.execute(text("DELETE FROM menu_item_images"))
+
     db.session.commit()
