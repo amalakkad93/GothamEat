@@ -18,10 +18,10 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
 
-    # delivery_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('deliveries.id')), nullable=True)
-    # payment_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('payments.id')), nullable=True)
-    delivery_id = db.Column(db.Integer, db.ForeignKey('deliveries.id'), nullable=True)
-    payment_id = db.Column(db.Integer, db.ForeignKey('payments.id'), nullable=True)
+    delivery_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('deliveries.id')), nullable=True)
+    payment_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('payments.id')), nullable=True)
+    # delivery_id = db.Column(db.Integer, db.ForeignKey('deliveries.id'), nullable=True)
+    # payment_id = db.Column(db.Integer, db.ForeignKey('payments.id'), nullable=True)
 
     # payment_id = db.Column(db.Integer, nullable=True)
     total_price = db.Column(db.Float)
@@ -40,7 +40,7 @@ class Order(db.Model):
     # delivery = db.relationship('Delivery', backref='order', uselist=False, cascade="all, delete-orphan")
     # payment = db.relationship('Payment', backref='order', uselist=False, cascade="all, delete-orphan")
     # delivery = db.relationship('Delivery', backref=db.backref('order', uselist=False, lazy=True), foreign_keys=[delivery_id])
- 
+
     delivery = db.relationship('Delivery', backref=db.backref('order', uselist=False, lazy=True), foreign_keys=[delivery_id])
     payment = db.relationship('Payment', backref=db.backref('order', uselist=False, lazy=True), foreign_keys=[payment_id])
 
