@@ -61,7 +61,7 @@ app.register_blueprint(payment_routes, url_prefix="/api/payments")
 app.register_blueprint(delivery_routes, url_prefix='/api/delivery')
 app.register_blueprint(maps_routes, url_prefix='/api/maps')
 app.register_blueprint(s3_routes, url_prefix='/s3')
-app.register_blueprint(ubereats_routes, url_prefix='/api/ubereat') # Delete this line when use in production
+# app.register_blueprint(ubereats_routes, url_prefix='/api/ubereat') # Delete this line when use in production
 
 
 db.init_app(app)
