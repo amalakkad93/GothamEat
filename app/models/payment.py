@@ -16,6 +16,7 @@ class Payment(db.Model):
             return f"{SCHEMA}.{attr}"
         else:
             return attr
+        
     if environment == "production":
         __table_args__ = {'schema': SCHEMA}
 
