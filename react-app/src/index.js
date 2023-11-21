@@ -24,7 +24,7 @@ const Root = () => {
       setStore(store);
       setPersistor(persistor);
       // Simulate a delay if you want to see the loading spinner for testing
-      // setTimeout(() => setLoading(false), 500); // Remove this line for production
+      setTimeout(() => setLoading(false), 500); // Remove this line for production
 
       // Expose store for debugging purposes
       if (process.env.NODE_ENV !== "production") {

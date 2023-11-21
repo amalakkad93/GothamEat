@@ -19,9 +19,9 @@ class Config:
 
     MAPS_API_KEY = os.environ.get('MAPS_API_KEY')
 
-    UBER_CLIENT_ID = os.environ.get('UBER_CLIENT_ID')
-    UBER_CLIENT_SECRET = os.environ.get('UBER_CLIENT_SECRET')
-    UBER_REDIRECT_URI = os.environ.get('UBER_REDIRECT_URI')
+    # UBER_CLIENT_ID = os.environ.get('UBER_CLIENT_ID')
+    # UBER_CLIENT_SECRET = os.environ.get('UBER_CLIENT_SECRET')
+    # UBER_REDIRECT_URI = os.environ.get('UBER_REDIRECT_URI')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # SQLAlchemy 1.4 no longer supports url strings that start with 'postgres'
