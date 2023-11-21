@@ -1,4 +1,4 @@
-alembic==1.9.2
+pialembic==1.9.2
 arrow==1.2.3
 asttokens==2.4.0
 boto3==1.28.62

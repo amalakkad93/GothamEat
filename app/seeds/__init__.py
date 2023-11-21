@@ -1,6 +1,6 @@
 from flask.cli import AppGroup
 from .users_seeder import seed_users, undo_users
-from .favorite_seeder import seed_favorites, undo_favorites
+# from .favorite_seeder import seed_favorites, undo_favorites
 from .restaurant_seeder import seed_restaurants, undo_restaurants
 from .menu_item_seeder import seed_menu_items, undo_menu_items
 from .review_seeder import seed_reviews, undo_reviews
@@ -23,12 +23,12 @@ def seed():
         # command, which will  truncate all tables prefixed with
         # the schema name (see comment in users.py undo_users function).
         # Make sure to add all your other model's undo functions below
-       
+
         undo_orders_and_order_items()
         undo_shopping_carts_and_items()
         undo_review_images()
         undo_reviews()
-        undo_favorites()
+        # undo_favorites()
         undo_menu_items()
         undo_restaurants()
         undo_users()
@@ -36,7 +36,7 @@ def seed():
     seed_users()
     seed_restaurants()
     seed_menu_items()
-    seed_favorites()
+    # seed_favorites()
     seed_reviews()
     seed_review_images()
     seed_shopping_carts_and_items()
@@ -51,7 +51,7 @@ def undo():
     undo_shopping_carts_and_items()
     undo_review_images()
     undo_reviews()
-    undo_favorites()
+    # undo_favorites()
     undo_menu_items()
     undo_restaurants()
     undo_users()
