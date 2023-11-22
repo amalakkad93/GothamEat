@@ -28,6 +28,7 @@ export default function MenuItem({ item, menuItemImages, setReloadPage, restaura
   );
 
   return (
+    <div className="menu-item-main-container">
     <li className="menu-item">
       <Link
         to={`/restaurant/${item.restaurant_id}/menu-item/${item.id}`}
@@ -73,6 +74,7 @@ export default function MenuItem({ item, menuItemImages, setReloadPage, restaura
         </div>
       )}
     </li>
+    </div>
   );
 };
 

@@ -1,0 +1,9 @@
+.delete-rest-btn {
+  background-color: black;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}

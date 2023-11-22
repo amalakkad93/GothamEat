@@ -16,6 +16,7 @@ export default function ProfileButton(props) {
   const navigate = useNavigate();
   const persistor = useContext(PersistorContext);
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
+  const isAdmin = sessionUser?.email === "amalakkad@gmail.com";
   const [showMenu, setShowMenu] = useState(false);
   const [purgeSuccessful, setPurgeSuccessful] = useState(false);
   const ulRef = useRef();
@@ -184,17 +185,22 @@ export default function ProfileButton(props) {
                       >
                         Log Out
                       </button>
-                      <button
-                        onClick={handleClearPersistedState}
-                        className="clear-persisted-state-button"
-                      >
-                        Clear Persisted State
-                      </button>
-                      {/* Show confirmation message if purge was successful */}
-                      {purgeSuccessful && (
-                        <div className="confirmation-message">
-                          Your session has been cleared. Please reload the page.
-                        </div>
+                      {isAdmin && (
+                        <>
+                          <button
+                            onClick={handleClearPersistedState}
+                            className="clear-persisted-state-button"
+                          >
+                            Clear Persisted State
+                          </button>
+
+                          {purgeSuccessful && (
+                            <div className="confirmation-message">
+                              Your session has been cleared. Please reload the
+                              page.
+                            </div>
+                          )}
+                        </>
                       )}
                     </li>
                   </ul>

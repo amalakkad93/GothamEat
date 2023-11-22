@@ -9,7 +9,7 @@
 }
 
 .user-initials {
-  background-color: #FF5A5F;
+  background-color:goldenrod;
   color: #fff;
   width: 70px;
   height: 70px;
@@ -44,6 +44,6 @@
 }
 
 .user-details strong {
-  color: #FF5A5F;
+  color: goldenrod;
   margin-right: 10px;
 }

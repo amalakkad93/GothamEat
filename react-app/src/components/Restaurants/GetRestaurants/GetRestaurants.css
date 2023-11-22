@@ -65,3 +65,19 @@
   font-size: 15px;
   color: #ff9800;
 }
+
+.owner-buttons {
+  display: flex;
+  gap: 20px;
+  /* justify-content: space-around; */
+
+}
+.edit-rest-btn {
+    background-color: goldenrod;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }

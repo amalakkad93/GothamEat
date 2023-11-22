@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { thunkDeleteRestaurant } from '../../../store/restaurants';
+import './DeleteRestaurant.css';
 
 export default function DeleteRestaurant({ restaurantId }) {
   const dispatch = useDispatch();
@@ -20,7 +21,7 @@ export default function DeleteRestaurant({ restaurantId }) {
   };
 
   return (
-      <button onClick={handleDelete}>
+      <button className= "delete-rest-btn" onClick={handleDelete}>
           Delete Restaurant
       </button>
   );

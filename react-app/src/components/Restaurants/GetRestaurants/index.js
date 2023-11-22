@@ -189,6 +189,7 @@ export default function GetRestaurants({ ownerMode = false }) {
               {ownerMode && (
                 <div className="owner-buttons">
                   <button
+                    className="edit-rest-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/edit-restaurant/${id}`);

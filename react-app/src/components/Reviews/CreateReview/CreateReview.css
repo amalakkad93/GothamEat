@@ -46,7 +46,7 @@
 
 .star-container span:hover,
 .star-container span:hover ~ span {
-  color: green;
+  color: goldenrod;
 }
 
 #submit-review-btn {
@@ -62,7 +62,7 @@
 }
 
 #submit-review-btn:hover {
-  background-color:  green;
+  background-color:  goldenrod;
 }
 
 #submit-review-btn:active {

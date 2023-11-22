@@ -1,0 +1,81 @@
+.tile-parent-delete-item{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0px;
+  border: black solid 4px;
+  border-radius: 10px;
+  /* height: 243px; */
+  height: 283px;
+  width: 337px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding:10px;
+}
+.modal__buttons {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+.delete-item-h1-p-tag {
+  margin-top: -28px;
+}
+.delete-keep-item-cancel-btn, .delete-item-h1-p-tag {
+  height: 50%;
+  width: 100%;
+}
+
+
+#cancel-item-btn:hover,
+#delete-item-btn:hover{
+  color:black;
+  background-color: goldenrod;
+}
+
+#delete-item-btn{
+  background-color:  black;
+  border: black solid 1px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  height: 30px;
+  color: white;
+  margin-right: 10px;
+  margin-left: 10px;
+  width: 90%;
+  height: 48px;
+  cursor: pointer;
+  }
+
+#cancel-item-btn {
+  background-color: grey;
+  border: black solid 1px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  height: 30px;
+  color: white;
+  margin-right: 10px;
+  margin-left: 10px;
+  width: 90%;
+  height: 48px;
+  cursor: pointer;
+  }
+  #delete-item-btn:disabled{
+  background-color: gray;
+  border: black solid 1px;
+  box-shadow: none;
+  }
+
+  .delete-item-h1-tag {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: -46px; */
+  }
+  .delete-item-h1-tag {
+    font-weight: bold;
+    display:flex;
+    justify-content: center;
+    align-items: center
+  }

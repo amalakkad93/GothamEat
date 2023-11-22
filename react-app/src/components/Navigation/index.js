@@ -25,6 +25,7 @@ function Navigation({ isLoaded }) {
 
   return (
     <div className="navBar-inner-container">
+      <div className="profile-btn-logo-container">
       {isLoaded && (
         <ProfileButton
           user={sessionUser}
@@ -39,6 +40,7 @@ function Navigation({ isLoaded }) {
             <h1 className="logo-h1-second">Eats</h1>
           </div>
         </NavLink>
+      </div>
       </div>
 
       <div className="navBar-spacer"></div>

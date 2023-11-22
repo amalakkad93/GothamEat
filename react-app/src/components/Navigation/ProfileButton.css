@@ -26,7 +26,7 @@
   width:150px;
 }
 .profile-dropdown button:hover {
-  background-color: #349684;
+  background-color: goldenrod;
   width:174px;
 }
 .profile-dropdown.show {

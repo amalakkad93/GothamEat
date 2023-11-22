@@ -50,13 +50,18 @@ export default function RestaurantDetail() {
     (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {},
     shallowEqual
   );
+  const menuItemsForRestaurant = menuItemsByRestaurant
+    ? menuItemsByRestaurant[restaurantId] || []
+    : [];
   const menuItemImages = useSelector(
-    (state) => state.menuItems.menuItemImages || {},
+    (state) => state.menuItems?.menuItemImages || {},
     shallowEqual
   );
+  const noMenuItems =
+    !menuItemsForRestaurant || menuItemsForRestaurant.length === 0;
 
   const reviewImages = useSelector(
-    (state) => state.reviews.reviewImages || {},
+    (state) => state.reviews?.reviewImages || {},
     shallowEqual
   );
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
@@ -73,19 +78,16 @@ export default function RestaurantDetail() {
     (state) => state.reviews?.reviews || {},
     shallowEqual
   );
-  const userHasReview = currentUser
-    ? Object.values(reviews).some((review) => review.user_id === currentUser.id)
-    : false;
+  const noReviews = !reviews || Object.keys(reviews).length === 0;
 
-  // const filteredMenuItems = useSelector(
-  //   (state) => state.menuItems?.menuItemsByRestaurant[restaurantId]
-  // );
-  // console.log(
-  //   "🚀 ~ file: index.js:78 ~ RestaurantDetail ~ filteredMenuItems :",
-  //   filteredMenuItems
-  //   );
+  // const userHasReview = currentUser
+  //   ? Object.values(reviews).some(
+  //       (review) => review?.user_id === currentUser?.id
+  //     )
+  //   : false;
+  const userHasReview = useSelector(state => state.reviews.userHasReview);
   const filteredMenuItems = useSelector(
-    (state) => state.menuItems.filteredMenuItems
+    (state) => state.menuItems?.filteredMenuItems
   );
 
   // **************************************************************************************
@@ -97,27 +99,8 @@ export default function RestaurantDetail() {
   const [reloadPage, setReloadPage] = useState(false);
   const [isFavorite, setIsFavorite] = useState(!!favoritesById[restaurantId]);
 
-  const restaurant = restaurantData?.byId[restaurantId] || null;
+  const restaurant = restaurantData?.byId?.[restaurantId] || null;
   const owner = restaurant?.owner_id || {};
-
-  // const groupItemsByType = (items) => {
-  //   const grouped = {};
-  //   items?.forEach((item) => {
-  //     if (!grouped[item.type]) {
-  //       grouped[item.type] = [];
-  //     }
-  //     grouped[item.type].push(item);
-  //   });
-  //   return grouped;
-  // };
-
-  // // Determine if filteredMenuItems is in its initial state or has filter applied
-  // const isFilterApplied = filteredMenuItems && Object.keys(filteredMenuItems).length > 0;
-
-  // // Group items by type if a filter is applied
-  // const groupedItems = isFilterApplied
-  //   ? groupItemsByType(Object.values(filteredMenuItems))
-  //   : Object.values(menuItemsByRestaurant).flat();\
 
   const groupItemsByType = (items) => {
     const grouped = {};
@@ -228,10 +211,10 @@ export default function RestaurantDetail() {
           className="restaurant-banner"
           style={{
             backgroundImage: `url(${restaurant?.banner_image_path})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: 'rgba(0, 0, 0, 0.02)' 
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundColor: "rgba(0, 0, 0, 0.02)",
           }}
         >
           <FontAwesomeIcon
@@ -246,7 +229,7 @@ export default function RestaurantDetail() {
         <div className="avgRating-numberOfReviews-container">
           <span className="avgRating-numberOfReviews-span">
             ★{" "}
-            {restaurant.average_rating ? (
+            {restaurant?.average_rating ? (
               restaurant.average_rating
             ) : (
               <span className="boldText">New</span>
@@ -290,35 +273,39 @@ export default function RestaurantDetail() {
         </div>
 
         <div className="restaurant-detail-main-content">
-          <div className="menu-items-container">
-            {isFilterApplied
-              ? Object.entries(groupedFilteredItems).map(([type, items]) => (
-                  <MenuSection
-                    key={type}
-                    type={type}
-                    items={items}
-                    menuItemImages={menuItemImages}
-                    setReloadPage={setReloadPage}
-                    restaurantId={restaurantId}
-                  />
-                ))
-              : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
-                  const itemsOfType = itemIds
-                    .map((id) => menuItemsByRestaurant?.byId[id])
-                    .filter(Boolean);
-                  return (
+        {/* {(noMenuItems && !currentUser) && <p>No menu items available.</p>} */}
+
+          {/* {!noMenuItems && ( */}
+            <div className="menu-items-container">
+              {isFilterApplied
+                ? Object.entries(groupedFilteredItems).map(([type, items]) => (
                     <MenuSection
                       key={type}
                       type={type}
-                      items={itemsOfType}
+                      items={items}
                       menuItemImages={menuItemImages}
                       setReloadPage={setReloadPage}
                       restaurantId={restaurantId}
                     />
-                  );
-                })}
-          </div>
+                  ))
+                : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
+                    const itemsOfType = itemIds
+                      .map((id) => menuItemsByRestaurant?.byId[id])
 
+                      .filter(Boolean);
+                    return (
+                      <MenuSection
+                        key={type}
+                        type={type}
+                        items={itemsOfType}
+                        menuItemImages={menuItemImages}
+                        setReloadPage={setReloadPage}
+                        restaurantId={restaurantId}
+                      />
+                    );
+                  })}
+            </div>
+           {/* )} */}
           {/* Reviews */}
           <div className="reviews-section">
             <h2 className="avgRating-numofReviews">
@@ -328,7 +315,10 @@ export default function RestaurantDetail() {
               ) : (
                 <span className="boldText">New</span>
               )}
-              {restaurant.num_reviews === 0 && ` · No reviews, be the first!`}
+              {restaurant.num_reviews === 0 &&
+                !userHasReview &&
+                currentUser.id !== restaurant.owner_id &&
+                ` · No reviews, be the first!`}
               {restaurant.num_reviews === 1 && ` · 1 review`}
               {restaurant.num_reviews > 1 &&
                 ` · ${restaurant.num_reviews} reviews`}
@@ -349,11 +339,13 @@ export default function RestaurantDetail() {
                 />
               )}
 
-            <GetReviews
-              restaurantId={restaurantId}
-              reviewImages={reviewImages}
-              setReloadPage={setReloadPage}
-            />
+            {/* {(!userHasReview || currentUser.id === restaurant.owner_id) && ( */}
+              <GetReviews
+                restaurantId={restaurantId}
+                reviewImages={reviewImages}
+                setReloadPage={setReloadPage}
+              />
+             {/* )} */}
           </div>
         </div>
       </div>
