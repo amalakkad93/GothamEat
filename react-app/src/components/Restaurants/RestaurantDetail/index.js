@@ -85,7 +85,7 @@ export default function RestaurantDetail() {
   //       (review) => review?.user_id === currentUser?.id
   //     )
   //   : false;
-  const userHasReview = useSelector(state => state.reviews.userHasReview);
+  const userHasReview = useSelector((state) => state.reviews.userHasReview);
   const filteredMenuItems = useSelector(
     (state) => state.menuItems?.filteredMenuItems
   );
@@ -273,45 +273,45 @@ export default function RestaurantDetail() {
         </div>
 
         <div className="restaurant-detail-main-content">
-        {/* {(noMenuItems && !currentUser) && <p>No menu items available.</p>} */}
+          {/* {(noMenuItems && !currentUser) && <p>No menu items available.</p>} */}
 
           {/* {!noMenuItems && ( */}
-            <div className="menu-items-container">
-              {isFilterApplied
-                ? Object.entries(groupedFilteredItems).map(([type, items]) => (
+          <div className="menu-items-container">
+            {isFilterApplied
+              ? Object.entries(groupedFilteredItems).map(([type, items]) => (
+                  <MenuSection
+                    key={type}
+                    type={type}
+                    items={items}
+                    menuItemImages={menuItemImages}
+                    setReloadPage={setReloadPage}
+                    restaurantId={restaurantId}
+                  />
+                ))
+              : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
+                  const itemsOfType = itemIds
+                    .map((id) => menuItemsByRestaurant?.byId[id])
+
+                    .filter(Boolean);
+                  return (
                     <MenuSection
                       key={type}
                       type={type}
-                      items={items}
+                      items={itemsOfType}
                       menuItemImages={menuItemImages}
                       setReloadPage={setReloadPage}
                       restaurantId={restaurantId}
                     />
-                  ))
-                : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
-                    const itemsOfType = itemIds
-                      .map((id) => menuItemsByRestaurant?.byId[id])
-
-                      .filter(Boolean);
-                    return (
-                      <MenuSection
-                        key={type}
-                        type={type}
-                        items={itemsOfType}
-                        menuItemImages={menuItemImages}
-                        setReloadPage={setReloadPage}
-                        restaurantId={restaurantId}
-                      />
-                    );
-                  })}
-            </div>
-           {/* )} */}
+                  );
+                })}
+          </div>
+          {/* )} */}
           {/* Reviews */}
           <div className="reviews-section">
             <h2 className="avgRating-numofReviews">
               ★{" "}
-              {restaurant?.average_rating ? (
-                restaurant?.average_rating?.toFixed(1)
+              {restaurant?.average_rating !== undefined ? (
+                Number(restaurant?.average_rating).toFixed(1)
               ) : (
                 <span className="boldText">New</span>
               )}
@@ -340,12 +340,12 @@ export default function RestaurantDetail() {
               )}
 
             {/* {(!userHasReview || currentUser.id === restaurant.owner_id) && ( */}
-              <GetReviews
-                restaurantId={restaurantId}
-                reviewImages={reviewImages}
-                setReloadPage={setReloadPage}
-              />
-             {/* )} */}
+            <GetReviews
+              restaurantId={restaurantId}
+              reviewImages={reviewImages}
+              setReloadPage={setReloadPage}
+            />
+            {/* )} */}
           </div>
         </div>
       </div>
