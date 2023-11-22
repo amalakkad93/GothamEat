@@ -14,9 +14,9 @@ from .config import Config, cache
 import logging
 from logging.handlers import RotatingFileHandler
 
-# app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
-app = Flask(__name__, static_folder='../react-app/public', static_url_path='/')
 
+# app = Flask(__name__, static_folder='../react-app/public', static_url_path='/')
+app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
 
 # Configure logger for Flask app
 handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
