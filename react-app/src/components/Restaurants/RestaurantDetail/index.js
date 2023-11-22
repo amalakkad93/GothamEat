@@ -224,23 +224,23 @@ export default function RestaurantDetail() {
           />
         </div>
 
-        <h1 className="restaurant-name">{restaurant.name}</h1>
+        <h1 className="restaurant-name">{restaurant?.name}</h1>
 
         <div className="avgRating-numberOfReviews-container">
           <span className="avgRating-numberOfReviews-span">
             ★{" "}
             {restaurant?.average_rating ? (
-              restaurant.average_rating
+              restaurant?.average_rating
             ) : (
               <span className="boldText">New</span>
             )}
           </span>
 
-          {restaurant && restaurant.num_reviews > 0 && (
+          {restaurant && restaurant?.num_reviews > 0 && (
             <div className="num_reviews-food_type-moreInfo-div">
-              {`(${restaurant.num_reviews}${
-                restaurant.num_reviews === 1 ? " review" : " reviews"
-              }) • ${restaurant.food_type} ɵ`}
+              {`(${restaurant?.num_reviews}${
+                restaurant?.num_reviews === 1 ? " review" : " reviews"
+              }) • ${restaurant?.food_type} ɵ`}
               <OpenModalButton
                 modalComponent={<MoreInfoModal restaurant={restaurant} />}
                 buttonText="More info"
