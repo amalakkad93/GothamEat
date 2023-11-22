@@ -310,23 +310,23 @@ export default function RestaurantDetail() {
           <div className="reviews-section">
             <h2 className="avgRating-numofReviews">
               ★{" "}
-              {restaurant.average_rating ? (
-                restaurant.average_rating.toFixed(1)
+              {restaurant?.average_rating ? (
+                restaurant?.average_rating?.toFixed(1)
               ) : (
                 <span className="boldText">New</span>
               )}
-              {restaurant.num_reviews === 0 &&
+              {restaurant?.num_reviews === 0 &&
                 !userHasReview &&
-                currentUser.id !== restaurant.owner_id &&
+                currentUser?.id !== restaurant?.owner_id &&
                 ` · No reviews, be the first!`}
-              {restaurant.num_reviews === 1 && ` · 1 review`}
-              {restaurant.num_reviews > 1 &&
-                ` · ${restaurant.num_reviews} reviews`}
+              {restaurant?.num_reviews === 1 && ` · 1 review`}
+              {restaurant?.num_reviews > 1 &&
+                ` · ${restaurant?.num_reviews} reviews`}
             </h2>
 
             {!userHasReview &&
               currentUser &&
-              currentUser.id !== restaurant.owner_id && (
+              currentUser?.id !== restaurant?.owner_id && (
                 <OpenModalButton
                   className="post-delete-review-btn"
                   buttonText="Post Your Review"
