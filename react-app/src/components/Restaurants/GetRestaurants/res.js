@@ -14,17 +14,14 @@ import {
 import {
   thunkGetNearbyRestaurants,
   thunkGetOwnerRestaurants,
-  thunkGetAllRestaurants,
 } from "../../../store/restaurants";
 import DeleteRestaurant from "../DeleteRestaurant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
-
 import "./GetRestaurants.css";
 
-export default function GetRestaurants({ mode = "nearby" }) {
+export default function GetRestaurants({ ownerMode = false }) {
   // Hook to allow component to dispatch actions to the Redux store
   const dispatch = useDispatch();
   // Hook to navigate programmatically with React Router
@@ -35,39 +32,15 @@ export default function GetRestaurants({ mode = "nearby" }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Extracting necessary data from the Redux state
-  const favoritesById = useSelector(
-    (state) => state.favorites?.byId,
-    shallowEqual
-  );
-  const ownerRestaurants = useSelector(
-    (state) => state.restaurants.owner?.byId || {},
-    shallowEqual
-  );
+  const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
+  const ownerRestaurants = useSelector((state) => state.restaurants.owner?.byId || {}, shallowEqual);
 
   const nearbyRestaurants = useSelector(
-    (state) => state.restaurants.nearby?.byId || {},
-    shallowEqual
+    (state) => state.restaurants.nearby?.byId || {}, shallowEqual
   );
-  const allRestaurants = useSelector(
-    (state) => state.restaurants.allRestaurants?.byId || {},
-    shallowEqual
-  );
-  // const restaurantDetails = ownerMode ? ownerRestaurants : nearbyRestaurants;
-  const [currentPage, setCurrentPage] = useState(1);
-  const perPage = 10;
-  let restaurantDetails;
-  switch (mode) {
-    case "owner":
-      restaurantDetails = ownerRestaurants;
-      break;
-    case "all":
-      restaurantDetails = allRestaurants;
-      break;
-    case "nearby":
-    default:
-      restaurantDetails = nearbyRestaurants;
-      break;
-  }
+
+  const restaurantDetails = ownerMode ? ownerRestaurants : nearbyRestaurants;
+
   const restaurantIds = Object.keys(restaurantDetails);
 
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
@@ -89,24 +62,18 @@ export default function GetRestaurants({ mode = "nearby" }) {
     }
   }, [dispatch, userId]);
 
+
   useEffect(() => {
-    // Effect for 'nearby' and 'owner' modes
-    if (selectedLocation && (mode === "nearby" || mode === "owner")) {
+    if (selectedLocation) {
       const { lat, lng, city, state, country } = selectedLocation;
-      if (mode === "owner") {
+      if (ownerMode) {
         dispatch(thunkGetOwnerRestaurants());
       } else {
-        // mode is 'nearby'
         dispatch(thunkGetNearbyRestaurants(lat, lng, city, state, country));
       }
     }
-  }, [selectedLocation, mode, dispatch]);
+  }, [selectedLocation, dispatch, ownerMode]);
 
-  useEffect(() => {
-    if (mode === "all") {
-      dispatch(thunkGetAllRestaurants(currentPage, perPage));
-    }
-  }, [currentPage, perPage, mode, dispatch]);
   /**
    * handleFavoriteClick
    *
@@ -121,9 +88,8 @@ export default function GetRestaurants({ mode = "nearby" }) {
       dispatch(thunkToggleFavorite(userId, restaurantId));
     }
   };
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
+
+
   // Render the list of nearby restaurants
   return (
     <div className="restaurant-list">
@@ -181,7 +147,7 @@ export default function GetRestaurants({ mode = "nearby" }) {
                 </p>
               </div>
               {/* Conditionally render edit and delete buttons */}
-              {mode === "owner" && (
+              {ownerMode && (
                 <div className="owner-buttons">
                   <button
                     className="edit-rest-btn"
@@ -198,24 +164,6 @@ export default function GetRestaurants({ mode = "nearby" }) {
             </div>
           );
         })
-      )}
-      {mode === "all" && (
-        <div className="pagination-controls">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <span>Page {currentPage}</span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="pagination-button"
-          >
-            <FontAwesomeIcon icon={faArrowRight} />
-          </button>
-        </div>
       )}
     </div>
   );

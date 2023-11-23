@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { useDispatch } from "react-redux";
 import { thunkGetNearbyRestaurants } from "../../store/restaurants";
-import { useDynamicGreeting, useDynamicBackground } from "../../assets/helpers/helpers";
+import {
+  useDynamicGreeting,
+  useDynamicBackground,
+} from "../../assets/helpers/helpers";
 import "./home.css";
 
 // The Home component represents the main page of our application.
@@ -45,7 +48,6 @@ export default function Home() {
     dispatch(thunkGetNearbyRestaurants(lat, lng, city, state, country));
     // Navigate to the nearby restaurants page for the selected location.
     navigate("/restaurants/nearby");
-
   };
 
   // useCurrentLocation function is called when the "Use My Location" button is clicked.
@@ -68,8 +70,14 @@ export default function Home() {
       <h1 className="Search-bar-title">{greeting}</h1>
       <SearchBar onPlaceSelected={handlePlaceSelected} />
       <button className="use-my-location-btn" onClick={useCurrentLocation}>
-        <i className="fas fa-map-marker-alt use-my-location-icon"></i> 
+        <i className="fas fa-map-marker-alt use-my-location-icon"></i>
         Use My Location
+      </button>
+      <button
+        className="view-all-restaurants-btn"
+        onClick={() => navigate("/restaurants/all")}
+      >
+        View All Restaurants
       </button>
     </div>
   );

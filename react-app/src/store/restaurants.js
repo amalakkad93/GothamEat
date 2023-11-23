@@ -153,31 +153,36 @@ export const thunkGetNearbyRestaurants =
 //  Thunk to Fetch All Restaurants
 // ***************************************************************
 /** Fetches all restaurants and dispatches actions based on the result */
-export const thunkGetAllRestaurants = () => async (dispatch) => {
-  try {
-    const response = await fetch(`/api/restaurants`);
+export const thunkGetAllRestaurants =
+  (page = 1, perPage = 10) =>
+  async (dispatch) => {
+    try {
+      const queryParams = new URLSearchParams({ page, per_page: perPage });
+      const response = await fetch(
+        `/api/restaurants/all?${queryParams.toString()}`
+      );
 
-    if (response.ok) {
-      const restaurants = await response.json();
-      dispatch(actionGetAllRestaurants(restaurants));
-    } else {
-      const errors = await response.json();
-      console.error("Error fetching all restaurants:", errors);
+      if (response.ok) {
+        const restaurants = await response.json();
+        dispatch(actionGetAllRestaurants(restaurants.restaurants));
+      } else {
+        const errors = await response.json();
+        console.error("Error fetching all restaurants:", errors);
+        dispatch(
+          actionSetRestaurantError(
+            errors.error || "Error fetching all restaurants."
+          )
+        );
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching all restaurants:", error);
       dispatch(
         actionSetRestaurantError(
-          errors.message || "Error fetching all restaurants."
+          "An error occurred while fetching all restaurants."
         )
       );
     }
-  } catch (error) {
-    console.error("An error occurred while fetching all restaurants:", error);
-    dispatch(
-      actionSetRestaurantError(
-        "An error occurred while fetching all restaurants."
-      )
-    );
-  }
-};
+  };
 
 // ***************************************************************
 //  Thunk to Fetch Details of a Specific Restaurant
@@ -257,22 +262,25 @@ export const thunkGetOwnerRestaurants = () => async (dispatch) => {
 //  Thunk to Create a New Restaurant
 // ***************************************************************
 /** Creates a new restaurant and dispatches actions based on the result */
-export const thunkCreateRestaurant = (restaurantData, image) => async (dispatch) => {
-  try {
-    let imageUrl = null;
-    if (image) {
-      const presignedResponse = await csrfFetch(
-        `/s3/generate_presigned_url?filename=${encodeURIComponent(image.name)}&contentType=${encodeURIComponent(image.type)}`,
-        { method: 'GET' }
-      );
-      const presignedData = await presignedResponse.json();
-      await fetch(presignedData.presigned_url, {
-        method: 'PUT',
-        body: image,
-        headers: { 'Content-Type': image.type },
-      });
-      imageUrl = presignedData.file_url;
-    }
+export const thunkCreateRestaurant =
+  (restaurantData, image) => async (dispatch) => {
+    try {
+      let imageUrl = null;
+      if (image) {
+        const presignedResponse = await csrfFetch(
+          `/s3/generate_presigned_url?filename=${encodeURIComponent(
+            image.name
+          )}&contentType=${encodeURIComponent(image.type)}`,
+          { method: "GET" }
+        );
+        const presignedData = await presignedResponse.json();
+        await fetch(presignedData.presigned_url, {
+          method: "PUT",
+          body: image,
+          headers: { "Content-Type": image.type },
+        });
+        imageUrl = presignedData.file_url;
+      }
 
       const response = await csrfFetch("/api/restaurants", {
         method: "POST",
@@ -307,77 +315,81 @@ export const thunkCreateRestaurant = (restaurantData, image) => async (dispatch)
 //  Thunk to Update a Restaurant
 // ***************************************************************
 /** Updates a restaurant and dispatches actions based on the result */
-export const thunkUpdateRestaurant = (restaurantId, updatedData, newImage, existingImageUrl) => async (dispatch) => {
-  try {
-    let imageUrl = updatedData.banner_image_path;
+export const thunkUpdateRestaurant =
+  (restaurantId, updatedData, newImage, existingImageUrl) =>
+  async (dispatch) => {
+    try {
+      let imageUrl = updatedData.banner_image_path;
 
-    // Delete existing image
-    if (existingImageUrl && newImage) {
-      const deleteResponse = await csrfFetch("/s3/delete-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_url: existingImageUrl }),
-      });
+      // Delete existing image
+      if (existingImageUrl && newImage) {
+        const deleteResponse = await csrfFetch("/s3/delete-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_url: existingImageUrl }),
+        });
 
-      if (!deleteResponse.ok) {
-        const errorData = await deleteResponse.json();
-        dispatch(actionSetRestaurantError(errorData.error));
-        throw new Error(errorData.error);
-      }
-    }
-
-    // If there's a new image to upload
-    if (newImage) {
-      // Generate presigned URL and upload new image
-      const presignedResponse = await csrfFetch(
-        `/s3/generate_presigned_url?filename=${encodeURIComponent(newImage.name)}&contentType=${encodeURIComponent(newImage.type)}`,
-        { method: "GET" }
-      );
-
-      if (!presignedResponse.ok) {
-        const errorData = await presignedResponse.json();
-        dispatch(actionSetRestaurantError(errorData.error));
-        throw new Error(errorData.error);
+        if (!deleteResponse.ok) {
+          const errorData = await deleteResponse.json();
+          dispatch(actionSetRestaurantError(errorData.error));
+          throw new Error(errorData.error);
+        }
       }
 
-      const presignedData = await presignedResponse.json();
-      await fetch(presignedData.presigned_url, {
+      // If there's a new image to upload
+      if (newImage) {
+        // Generate presigned URL and upload new image
+        const presignedResponse = await csrfFetch(
+          `/s3/generate_presigned_url?filename=${encodeURIComponent(
+            newImage.name
+          )}&contentType=${encodeURIComponent(newImage.type)}`,
+          { method: "GET" }
+        );
+
+        if (!presignedResponse.ok) {
+          const errorData = await presignedResponse.json();
+          dispatch(actionSetRestaurantError(errorData.error));
+          throw new Error(errorData.error);
+        }
+
+        const presignedData = await presignedResponse.json();
+        await fetch(presignedData.presigned_url, {
+          method: "PUT",
+          body: newImage,
+          headers: { "Content-Type": newImage.type },
+        });
+        imageUrl = presignedData.file_url;
+      }
+
+      // Update restaurant details
+      const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
         method: "PUT",
-        body: newImage,
-        headers: { "Content-Type": newImage.type },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...updatedData, banner_image_path: imageUrl }),
       });
-      imageUrl = presignedData.file_url;
-    }
 
-    // Update restaurant details
-    const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...updatedData, banner_image_path: imageUrl }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      dispatch(actionUpdateRestaurant(data.entities.restaurants));
-      return { type: "SUCCESS", data };
-    } else {
-      const errors = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        dispatch(actionUpdateRestaurant(data.entities.restaurants));
+        return { type: "SUCCESS", data };
+      } else {
+        const errors = await response.json();
+        dispatch(
+          actionSetRestaurantError(
+            errors.error || `Error updating restaurant with ID ${restaurantId}.`
+          )
+        );
+        throw errors;
+      }
+    } catch (error) {
       dispatch(
         actionSetRestaurantError(
-          errors.error || `Error updating restaurant with ID ${restaurantId}.`
+          `An error occurred while updating restaurant with ID ${restaurantId}.`
         )
       );
-      throw errors;
+      throw error;
     }
-  } catch (error) {
-    dispatch(
-      actionSetRestaurantError(
-        `An error occurred while updating restaurant with ID ${restaurantId}.`
-      )
-    );
-    throw error;
-  }
-};
+  };
 
 // ***************************************************************
 //  Thunk to Delete a Restaurant
@@ -436,8 +448,26 @@ export default function restaurantsReducer(state = initialState, action) {
       newState.nearby = action.restaurants;
       return newState;
 
-    case GET_ALL_RESTAURANTS:
-      return { ...state, allRestaurants: action.restaurants };
+    case GET_ALL_RESTAURANTS: {
+      const byId = action.restaurants.byId;
+
+      const newById = {};
+      const newAllIds = [];
+
+      Object.keys(byId).forEach((id) => {
+        const restaurant = byId[id];
+        newById[id] = restaurant;
+        newAllIds.push(id);
+      });
+
+      return {
+        ...state,
+        allRestaurants: {
+          byId: newById,
+          allIds: newAllIds,
+        },
+      };
+    }
 
     case GET_SINGLE_RESTAURANT:
       return {

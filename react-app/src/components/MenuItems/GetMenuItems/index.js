@@ -30,7 +30,7 @@ export default function MenuSection({
   return (
     <div className="menu-section">
       {/* Display the type or category of the menu */}
-      <h3>{type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+      <h3 className="menu-section-h3">{type.charAt(0).toUpperCase() + type.slice(1)}</h3>
 
       {/* List all menu items under this section */}
       <ul>

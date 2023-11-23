@@ -7,6 +7,8 @@ from flask_caching import Cache
 from werkzeug.datastructures import CombinedMultiDict
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_, desc
+from sqlalchemy.exc import SQLAlchemyError
+from http import HTTPStatus
 import json
 from flask_login import current_user, login_user, logout_user, login_required
 from collections import OrderedDict
@@ -21,6 +23,58 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 restaurant_routes = Blueprint('restaurants', __name__)
+
+
+# ***************************************************************
+# Endpoint to Get All Restaurants
+# ***************************************************************
+@restaurant_routes.route('/all', methods=['GET'])
+def get_all_restaurants():
+    """
+    Retrieve all restaurants from the database with pagination and normalize the data.
+    Query Parameters:
+        - page (int): The page number for pagination.
+        - per_page (int): The number of items to display per page.
+    Returns:
+        Response: A JSON object with normalized restaurant data or an error message.
+    """
+    logger.info("Received request to fetch all restaurants.")
+
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+
+        if page < 1 or per_page < 1:
+            raise ValueError("Page number and per_page must be greater than 0")
+
+        pagination = Restaurant.query.paginate(page=page, per_page=per_page, error_out=False)
+       
+
+        all_restaurants_list = [restaurant.to_dict() for restaurant in pagination.items]
+        normalized_restaurants = hf.normalize_data(all_restaurants_list, 'id')
+
+        response = {
+            "restaurants": normalized_restaurants,
+            "total_items": pagination.total,
+            "total_pages": pagination.pages,
+            "current_page": page
+        }
+
+        return jsonify(response)
+
+    except SQLAlchemyError as e:
+        logger.error(f"SQLAlchemy error: {e}", extra={"page": page, "per_page": per_page})
+        return jsonify({"error": "Database query failed", "details": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    except ValueError as e:
+        logger.error(f"Value error: {e}", extra={"page": page, "per_page": per_page})
+        return jsonify({"error": "Invalid input", "details": str(e)}), HTTPStatus.BAD_REQUEST
+    except KeyError as e:
+        logger.error(f"Key error in data normalization: {e}")
+        return jsonify({"error": "Key error in processing data", "details": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 # ***************************************************************
 # Endpoint to Get All Nearby Restaurants
