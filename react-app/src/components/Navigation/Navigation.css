@@ -85,7 +85,7 @@
 }
 
 .login-btn:hover {
-  color: white;
+  /* color: white; */
   transform: scale(1.05);
   cursor: pointer;
 }

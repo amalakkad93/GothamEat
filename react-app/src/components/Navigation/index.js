@@ -65,12 +65,12 @@ function Navigation({ isLoaded }) {
           </>
         ) : (
           <>
-            <div className="login-btn">
+            <div className="login-btn1">
               <button className="login-btn" onClick={() => navigate(`/login`)}>
                 Log in
               </button>
             </div>
-            <div className="signup-btn">
+            <div className="signup-btn1">
               <button
                 className="signup-btn"
                 onClick={() => navigate(`/signup`)}
