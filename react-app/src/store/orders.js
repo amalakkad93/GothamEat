@@ -108,14 +108,10 @@ export const thunkCreateOrder =
         return data;
       } else {
         console.error("Error creating the order:", data.errors);
-        // Handle your error dispatching here, e.g., actionSetOrderError
-        // dispatch(actionSetOrderError(data.errors || "Error creating the order."));
         return data.errors;
       }
     } catch (error) {
       console.error("An error occurred while creating the order:", error);
-      // Handle your error dispatching here, e.g., actionSetOrderError
-      // dispatch(actionSetOrderError("An error occurred while creating the order."));
       return ["An error occurred while creating the order."];
     }
   };
@@ -192,7 +188,6 @@ export const thunkDeleteOrder = (orderId, userId) => async (dispatch) => {
       `An error occurred while deleting order ID ${orderId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -212,14 +207,12 @@ export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error updating status for order ID ${orderId}:`, errors);
-      // Handle your error dispatching here, if needed
     }
   } catch (error) {
     console.error(
       `An error occurred while updating status for order ID ${orderId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -241,7 +234,6 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
       `An error occurred while fetching orders for user ID ${userId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -258,14 +250,12 @@ export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error reordering order ID ${orderId}:`, errors);
-      // Handle your error dispatching here, if needed
     }
   } catch (error) {
     console.error(
       `An error occurred while reordering order ID ${orderId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -280,14 +270,12 @@ export const thunkGetOrderItems = (orderId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error fetching items for order ID ${orderId}:`, errors);
-      // Handle your error dispatching here, if needed
     }
   } catch (error) {
     console.error(
       `An error occurred while fetching items for order ID ${orderId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -302,14 +290,12 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error cancelling order ID ${orderId}:`, errors);
-      // Handle your error dispatching here, if needed
     }
   } catch (error) {
     console.error(
       `An error occurred while cancelling order ID ${orderId}:`,
       error
     );
-    // Handle your error dispatching here, if needed
   }
 };
 
@@ -317,13 +303,9 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/api/orders/${orderId}`);
-    // const response = await fetch(`/api/orders/${orderId}`);
+
     if (response.ok) {
       const orderDetails = await response.json();
-      console.log(
-        "🚀 ~ file: orders.js:322 ~ thunkGetOrderDetails ~ orderDetails:",
-        orderDetails
-      );
       dispatch(actionSetOrderDetails(orderDetails));
     } else {
       const errors = await response.json();
@@ -389,10 +371,9 @@ export default function ordersReducer(state = initialState, action) {
         }
         break;
 
-        case REMOVE_ORDER:
-          removeEntity(draft.orders, action.payload.orderId);
-          break;
-
+      case REMOVE_ORDER:
+        removeEntity(draft.orders, action.payload.orderId);
+        break;
 
       case UPDATE_ORDER:
         if (draft.orders.byId[action.orderId]) {
@@ -445,116 +426,3 @@ export default function ordersReducer(state = initialState, action) {
     }
   });
 }
-
-// // Helper function to merge normalized items into state
-// const mergeNormalizedItems = (state, entity, items) => ({
-//   ...state[entity],
-//   ...items.byId,
-//   allIds: Array.from(new Set([...(state[entity].allIds || []), ...items.allIds])),
-// });
-
-// export default function ordersReducer(state = initialState, action) {
-//   switch (action.type) {
-//     case ADD_ORDER: {
-//       const { order } = action;
-//       return {
-//         ...state,
-//         orders: {
-//           ...state.orders,
-//           [order.id]: order,
-//         },
-//       };
-//     }
-
-//     case SET_ORDERS: {
-//       const { orders } = action;
-//       return {
-//         ...state,
-//         orders: mergeNormalizedItems(state, 'orders', orders),
-//         orderItems: mergeNormalizedItems(state, 'orderItems', orders.orderItems),
-//         menuItems: mergeNormalizedItems(state, 'menuItems', orders.menuItems),
-//       };
-//     }
-//     case SET_CREATED_ORDER:
-//       return {
-//         ...state,
-//         createdOrder: action.payload,
-//       };
-//     case REMOVE_ORDER: {
-//       const { orderId } = action;
-//       const newOrders = { ...state.orders };
-//       delete newOrders[orderId];
-//       return {
-//         ...state,
-//         orders: newOrders,
-//       };
-//     }
-
-//     case UPDATE_ORDER: {
-//       const { orderId, status } = action;
-//       return {
-//         ...state,
-//         orders: {
-//           ...state.orders,
-//           [orderId]: {
-//             ...state.orders[orderId],
-//             status,
-//           },
-//         },
-//       };
-//     }
-//     case SET_USER_ORDERS: {
-//       const { orders } = action;
-//       return {
-//         ...state,
-//         orders: mergeNormalizedItems(state, 'orders', orders),
-//       };
-//     }
-//     case SET_ORDER_DETAILS: {
-//       const { orderDetails } = action;
-//       console.log('Reducer - Order Details:', orderDetails);
-//       return {
-//         ...state,
-//         orders: {
-//           ...state.orders,
-//           [orderDetails.order.id]: orderDetails.order,
-//         },
-//         orderItems: mergeNormalizedItems(state, 'orderItems', orderDetails.orderItems),
-//         menuItems: mergeNormalizedItems(state, 'menuItems', orderDetails.menuItems),
-//       };
-//     }
-//     case REORDER_PAST_ORDER: {
-//       const { order } = action;
-//       return {
-//         ...state,
-//         orders: {
-//           ...state.orders,
-//           [order.id]: order,
-//         },
-//       };
-//     }
-//     case SET_ORDER_ITEMS: {
-//       const { orderItems } = action;
-//       return {
-//         ...state,
-//         orderItems: mergeNormalizedItems(state, 'orderItems', orderItems),
-//       };
-//     }
-//     case CANCEL_ORDER: {
-//       const { orderId } = action;
-//       return {
-//         ...state,
-//         orders: {
-//           ...state.orders,
-//           [orderId]: {
-//             ...state.orders[orderId],
-//             status: "Cancelled",
-//           },
-//         },
-//       };
-//     }
-
-// default:
-//   return state;
-//   }
-// }

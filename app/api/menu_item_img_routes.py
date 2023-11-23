@@ -12,6 +12,9 @@ from ..helper_functions import (review_image_exists, associated_review_exists,
 # Blueprint for routes related to Menu Item Images
 menu_item_img_routes = Blueprint('menu_item_img', __name__)
 
+# ***************************************************************
+# Endpoint to Delete a Menu Item Image
+# ***************************************************************
 @menu_item_img_routes.route('/<int:id>', methods=["DELETE"])
 @login_required
 def delete_menu_item_image(id):

@@ -28,15 +28,11 @@ export default function GetRestaurants({ ownerMode = false }) {
   const navigate = useNavigate();
   const lastFetchedUserIdRef = useRef(null);
 
-
-
-
   // Component state to manage the user's selected location
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Extracting necessary data from the Redux state
   const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
-  // const ownerRestaurants = useSelector((state) => state.restaurants.owner || {});
   const ownerRestaurants = useSelector((state) => state.restaurants.owner?.byId || {}, shallowEqual);
 
   const nearbyRestaurants = useSelector(
@@ -44,20 +40,10 @@ export default function GetRestaurants({ ownerMode = false }) {
   );
 
   const restaurantDetails = ownerMode ? ownerRestaurants : nearbyRestaurants;
-  console.log("Restaurant details:", restaurantDetails);
 
   const restaurantIds = Object.keys(restaurantDetails);
 
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
-
-  //********************************************************************************************** */
-  // // Effect to initialize user location and fetch favorites if user is logged in
-  // useEffect(() => {
-  //   setSelectedLocation(JSON.parse(localStorage.getItem("userLocation")));
-  //   if (userId) {
-  //     dispatch(thunkFetchAllFavorites(userId));
-  //   }
-  // }, [dispatch, userId]);
 
   useEffect(() => {
     try {
@@ -76,25 +62,7 @@ export default function GetRestaurants({ ownerMode = false }) {
     }
   }, [dispatch, userId]);
 
-  //********************************************************************************************** */
-//   useEffect(() => {
-//     // Check if the current userId is different from the last fetched user ID
-//     if (userId && userId !== lastFetchedUserIdRef.current) {
-//         dispatch(thunkFetchAllFavorites(userId));
 
-//         // Update the last fetched user ID
-//         lastFetchedUserIdRef.current = userId;
-//     }
-// }, [dispatch, userId]);
-
-
-  // Effect to fetch nearby restaurants based on the user's selected location
-  // useEffect(() => {
-  //   if (selectedLocation) {
-  //     const { lat, lng, city, state, country } = selectedLocation;
-  //     dispatch(thunkGetNearbyRestaurants(lat, lng, city, state, country));
-  //   }
-  // }, [selectedLocation, dispatch]);
   useEffect(() => {
     if (selectedLocation) {
       const { lat, lng, city, state, country } = selectedLocation;
@@ -120,14 +88,7 @@ export default function GetRestaurants({ ownerMode = false }) {
       dispatch(thunkToggleFavorite(userId, restaurantId));
     }
   };
-  console.log("*********************************",{
-    userId,
-    selectedLocation,
-    favoritesById,
-    ownerRestaurants,
-    nearbyRestaurants,
-    restaurantIds,
-  });
+
 
   // Render the list of nearby restaurants
   return (
@@ -198,14 +159,6 @@ export default function GetRestaurants({ ownerMode = false }) {
                     Edit
                   </button>
                   <DeleteRestaurant restaurantId={id} />
-                  {/* <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Add your delete function here
-                    }}
-                  >
-                    Delete
-                  </button> */}
                 </div>
               )}
             </div>
@@ -215,54 +168,3 @@ export default function GetRestaurants({ ownerMode = false }) {
     </div>
   );
 }
-
-//   return (
-//     <div className="restaurant-list">
-//       {restaurantIds &&
-//         restaurantIds.map((id) => {
-//           console.log("favoritesByIds:", favoritesById);
-//           const restaurant = restaurantDetails[id];
-//           const isFavorite = !!Object.values(favoritesById).find(
-//             (fav) => fav.restaurant_id === parseInt(id)
-//           );
-
-//           const restaurantKey = restaurant.google_place_id || id;
-//           return (
-//             <Link
-//               to={`/restaurants/${id}`}
-//               key={restaurantKey}
-//               className="restaurant-card"
-//               title={restaurant.name}
-//             >
-//               <div
-//                 key={restaurantKey}
-//                 className="restaurant-card"
-//                 title={restaurant.name}
-//               >
-//                 <img
-//                   src={restaurant.banner_image_path}
-//                   alt="Restaurant Icon"
-//                   className="restaurant-image"
-//                 />
-//                 <FontAwesomeIcon
-//                   icon={isFavorite ? solidHeart : regularHeart}
-//                   className={`favorite-heart`}
-//                   onClick={(e) => handleFavoriteClick(e, id)}
-//                 />
-//                 <div className="restaurant-details">
-//                   <h3 className="restaurant-name">{restaurant.name}</h3>
-//                   <p className="restaurant-address">
-//                     Address: {restaurant.street_address}
-//                   </p>
-//                   <p className="restaurant-rating">
-//                     Rating: {restaurant.average_rating} (
-//                     {restaurant.user_ratings_total} ratings)
-//                   </p>
-//                 </div>
-//               </div>
-//             </Link>
-//           );
-//         })}
-//     </div>
-//   );
-// }

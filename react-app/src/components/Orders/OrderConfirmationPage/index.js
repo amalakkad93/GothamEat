@@ -7,19 +7,11 @@ import './OrderConfirmationPage.css'
 const OrderConfirmationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-
   const { order, delivery, payment } = location.state;
-  console.log("🚀 ~ file: index.js:12 ~ OrderConfirmationPage ~ order:", order)
-
   const orderAndDeliverySubtotal = parseFloat(order.total_price?.toFixed(2)) + parseFloat(delivery?.cost);
   const orderTaxAmount = calculateTax(orderAndDeliverySubtotal);
   const totalWithTax = orderAndDeliverySubtotal + orderTaxAmount;
   const formattedFinalTotal = totalWithTax?.toFixed(2);
-
-  console.log("type of subtotal", typeof subtotal)
-  console.log("type of tax", typeof tax)
-  console.log("type of finalTotal", typeof finalTotal)
 
   return (
     <div className="order-confirmation-page">

@@ -9,7 +9,7 @@ import { ModalProvider, Modal } from "./context/Modal";
 import PersistorContext from './context/PersistorContext';
 import configureStore from "./store";
 import App from "./App";
-import Spinner from "./components/Spinner"; // Make sure this is the correct path to your Spinner component
+import Spinner from "./components/Spinner"; 
 
 import "./index.css";
 
@@ -23,8 +23,8 @@ const Root = () => {
     configureStore().then(({ store, persistor }) => {
       setStore(store);
       setPersistor(persistor);
-      // Simulate a delay if you want to see the loading spinner for testing
-      setTimeout(() => setLoading(false), 500); // Remove this line for production
+
+      setTimeout(() => setLoading(false), 500);
 
       // Expose store for debugging purposes
       if (process.env.NODE_ENV !== "production") {

@@ -6,7 +6,6 @@
   margin-bottom: 0px;
   border: black solid 4px;
   border-radius: 10px;
-  /* height: 243px; */
   height: 283px;
   width: 337px;
   margin-top: 0px;
@@ -71,7 +70,6 @@
     display:flex;
     justify-content: center;
     align-items: center;
-    /* margin-top: -46px; */
   }
   .delete-item-h1-tag {
     font-weight: bold;

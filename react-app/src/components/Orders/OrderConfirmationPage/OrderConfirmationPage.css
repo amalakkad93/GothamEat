@@ -6,7 +6,7 @@
   padding: 20px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1); /* Enhanced shadow for 3D effect */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -30,10 +30,10 @@
 }
 
 .order-summary, .delivery-info, .payment-status {
-  background: #eef2f7; /* Slight color for differentiation */
+  background: #eef2f7;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1); /* Deeper shadow for depth */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1); 
   text-align: left;
   margin-bottom: 20px;
 }

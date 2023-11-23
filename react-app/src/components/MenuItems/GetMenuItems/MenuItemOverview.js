@@ -56,29 +56,12 @@ export default function MenuItemOverview() {
     shallowEqual
   );
 
-  // Redux state: Loading and error statuses
-  // const isLoading = useSelector(
-  //   (state) => state.menuItems?.isLoading,
-  //   shallowEqual
-  // );
   const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-
-  // Fetching data using effect hook
-  // useEffect(() => {
-  //   dispatch(thunkGetMenuItemDetails(itemId));
-  // }, [dispatch, itemId]);
-
-  // useEffect(() => {
-  //   setIsLoading(true); // Start loading when data fetching begins
-  //   dispatch(thunkGetMenuItemDetails(itemId))
-  //     .then(() => setIsLoading(false)) // Stop loading on success
-  //     .catch(() => setIsLoading(false)); // Stop loading on error
-  // }, [dispatch, itemId]);
 useEffect(() => {
   let isMounted = true; // Flag to track mounted state
 
@@ -124,11 +107,6 @@ useEffect(() => {
     setQuantity(e.target.value);
   };
 
-  // const handleOrderSubmission = () => {
-  //   // Dispatch the thunk action to create an order
-  //   dispatch(thunkCreateOrder(userId, menuItem.price * quantity, [{ menu_item_id: menuItemId, quantity }]));
-  // };
-
   /**
    * handleAddToCart
    *
@@ -145,7 +123,7 @@ useEffect(() => {
       `Attempting to add to cart: menuItemId=${menuItemId}, quantity=${quantity}, restaurantId=${restaurantId}`
     );
     try {
-      // const message = await dispatch(thunkAddItemToCart(menuItemId, quantity));
+
       const message = await dispatch(
         thunkAddItemToCart(menuItemId, quantity, restaurantId)
       );
@@ -167,10 +145,8 @@ useEffect(() => {
   };
 
   // Rendering
-  // if (isLoading) return <p>Loading...</p>;
-
-  if (!menuItem) return <p>Item not found.</p>;
-  if (isLoading) return <p>Loading...</p>;
+  if (!menuItem) return <p className="menuItemOverview-p-tag">Item not found.</p>;
+  if (isLoading) return <p className="menuItemOverview-p-tag">Loading...</p>;
 
 
   return (
@@ -195,21 +171,20 @@ useEffect(() => {
       {/* Container for the text content of the menu item */}
       <div className="overview-text-content">
         {/* Display menu item's name and description */}
-        <h1>{`${menuItem.name}®(${menuItem.description})`}</h1>
+        <h1 className="menuItemOverview-h1-tag">{`${menuItem.name}®(${menuItem.description})`}</h1>
         <hr className="gray-line" />
 
         {/* Display the price of the menu item */}
-        <p>Price: ${menuItem.price}</p>
+        <p className="menuItemOverview-p-tag">Price: ${menuItem.price}</p>
         <hr className="gray-line" />
 
         {/* <ShoppingCart menuItemId={menuItemId} /> */}
 
         {/* Dropdown for selecting the quantity of the menu item */}
-        <p>
+        <p className="menuItemOverview-p-tag">
           Quantity:
           <select
             value={quantity}
-            // onChange handler commented out
             onChange={handleQuantityChange}
           >
             {
@@ -223,7 +198,6 @@ useEffect(() => {
           </select>
         </p>
         <hr className="gray-line" />
-        {/* <button onClick={handleOrderSubmission}>Add {quantity} to order • ${menuItem.price * quantity}</button> */}
 
         {/* Button to add the menu item to the shopping cart */}
         <div className="button-container">

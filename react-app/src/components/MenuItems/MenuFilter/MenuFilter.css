@@ -1,116 +1,80 @@
 .menu-filter-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  padding: 15px;
-  background-color: black;
-  color: white;
-  margin-top: 71px;
-
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
 }
 
-.menu-filter-form input[type="checkbox"] {
+.type-filters {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  flex-direction: column;
+}
+
+.type-filters label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  background: #f6f6f6;
+  border-radius: 20px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.type-filters input[type="checkbox"] {
+  accent-color: black;
   margin-right: 5px;
 }
 
-.menu-filter-form label {
-  display: flex;
-  align-items: center;
-  color: white; /* Labels are white to contrast against the black background */
+.price-range-slider {
+  margin-bottom: 15px;
 }
 
-.menu-filter-form input[type="range"] {
-  width: 100%;
-  /* Customize the range input to fit the theme */
-}
-
-.menu-filter-form button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.menu-filter-form button:hover {
-  background-color: #218838; /* A darker green when hovered */
-}
-
-.menu-filter-form button[type="button"] {
-  background-color: #dc3545; /* A reddish color for the reset button */
-}
-
-.menu-filter-form button[type="button"]:hover {
-  background-color: #c82333; /* A darker red when hovered */
+.price-range-slider label {
+  display: block;
+  margin-bottom: 5px;
 }
 
 .price-range-slider input[type="range"] {
-  /* Style the slider to match the theme */
-  background-color: #333; /* Dark background for the slider */
-  border-radius: 5px;
-  -webkit-appearance: none; /* Override default appearance */
-}
-
-.price-range-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background: #28a745; /* Green thumb */
-  cursor: pointer;
-  border-radius: 50%;
-}
-
-.price-range-slider input[type="range"]::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  background: #28a745;
-  cursor: pointer;
-  border-radius: 50%;
-}
-
-/* .menu-filter-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  padding: 15px;
-}
-
-.menu-filter-form input[type="checkbox"] {
-  margin-right: 5px;
-}
-
-.menu-filter-form label {
-  display: flex;
-  align-items: center;
-}
-
-.menu-filter-form input[type="range"] {
   width: 100%;
+  accent-color: black;
 }
 
-.menu-filter-form button {
-  padding: 8px 15px;
+.apply-filter-btn, .reset-filter-btn {
+  background-color: black;
+  color: #fff;
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
-  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.menu-filter-form button:hover {
-  background-color: #0056b3;
+.apply-filter-btn:hover {
+  background-color: black
 }
 
-.menu-filter-form button[type="button"] {
-  background-color: #6c757d;
+.reset-filter-btn:hover {
+  background-color: black;
 }
 
-.menu-filter-form button[type="button"]:hover {
-  background-color: #5a6268;
-} */
+.reset-filter-btn[type="button"] {
+  background-color: #666;
+  margin-left: 10px;
+}
+
+.reset-filter-btn[type="button"]:hover {
+  background-color: #555;
+}
+.apply-filter-btn[type="button"] {
+  background-color: #666;
+  margin-left: 10px;
+}
+
+.apply-filter-btn[type="button"]:hover {
+  background-color: #555;
+}

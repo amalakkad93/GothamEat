@@ -89,9 +89,9 @@ export const thunkCreateDelivery = (deliveryData) => async (dispatch) => {
 
     const delivery = await response.json();
     dispatch(actionAddDelivery(delivery));
-    return { payload: delivery }; // Ensure to return the payload
+    return { payload: delivery };
   } catch (error) {
-    return { error }; // Return an error object
+    return { error };
   }
 };
 
@@ -142,7 +142,6 @@ export const thunkDeleteDelivery = (deliveryId) => async (dispatch) => {
       throw new Error(errMessage);
     }
 
-    // No need to parse JSON for a DELETE request, assuming no content in response
     dispatch(actionRemoveDelivery(deliveryId));
   } catch (error) {
     if (!navigator.onLine) {

@@ -63,18 +63,15 @@ export const thunkCreatePayment = (paymentData) => async (dispatch) => {
     }
 
     const paymentResponse = await response.json();
-    console.log("Payment response:", paymentResponse); // Log the API response
 
     // Dispatch the payment data contained within the 'data' key
     dispatch(actionAddPayment(paymentResponse.data));
-    return { payload: paymentResponse.data }; // Return the correct payload
+    return { payload: paymentResponse.data };
   } catch (error) {
     console.error("Error creating payment:", error);
     return { error };
   }
 };
-
-
 
 export const thunkEditPayment = (paymentId, paymentData) => async (dispatch) => {
   try {

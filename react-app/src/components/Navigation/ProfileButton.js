@@ -61,11 +61,9 @@ export default function ProfileButton(props) {
       .then(() => {
         console.log("Persisted state cleared");
         setPurgeSuccessful(true); // Trigger to show the confirmation message
-        // Additional actions after purging can be implemented here
       })
       .catch((error) => {
         console.error("Failed to clear persisted state", error);
-        // Handle any errors that occur during the purge
       });
   };
 

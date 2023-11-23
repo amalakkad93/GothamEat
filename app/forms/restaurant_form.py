@@ -13,10 +13,12 @@ def validate_longitude(form, field):
             raise ValidationError('Longitude must be between -180 and 180.')
 
 
+
 class RestaurantForm(FlaskForm):
     name = StringField('Restaurant Name', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Description', validators=[DataRequired()])
     banner_image_path = StringField('Banner Image URL', validators=[Optional(), URL(), Length(max=500)])
+    image = FileField("Upload Image")
     street_address = StringField('Street Address', validators=[DataRequired(), Length(max=255)])
     city = StringField('City', validators=[DataRequired(), Length(max=100)])
     state = StringField('State', validators=[DataRequired(), Length(max=100)])
@@ -31,3 +33,7 @@ class RestaurantForm(FlaskForm):
     closing_time = TimeField('Closing Time', format='%H:%M', validators=[DataRequired()])
     food_type = StringField('Food Type', validators=[DataRequired(), Length(max=100)])
     submit = SubmitField("Create Restaurant")
+    
+    def validate_image(self, field):
+        if not self.image.data and not self.banner_image_path:
+            raise ValidationError('Either upload an image or provide an image URL')

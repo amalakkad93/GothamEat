@@ -39,7 +39,7 @@
 }
 
 .login-signup-form-input:focus {
-  border-color: #007BFF;
+  border-color:goldenrod;
   outline: none;
 }
 
@@ -103,53 +103,3 @@
     max-width: 700px;
   }
 }
-
-/* Base styles for Desktops */
-/* .login-signup-form-pages-top-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  margin-top: -7.6px;
-  width: 1008px;
-  padding: 0px 20px;
-  background-color: black;
-}
-
-.login-signup-logo-h1-first {
-  font-weight: 300;
-  font-size: 1.5rem;
-  color: white;
-}
-
-.login-signup-logo-h1-second {
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: green;
-}
-
-@media screen and (max-width: 991px) {
-  .login-signup-form-pages-top-banner {
-      width: 80%;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .login-signup-form-pages-top-banner {
-      width: 90%;
-
-  }
-}
-
-@media screen and (max-width: 575px) {
-  .login-signup-form-pages-top-banner {
-      width: 100%;
-      padding: 0px 10px;
-
-  }
-
-  .login-signup-logo-h1-first,
-  .login-signup-logo-h1-second {
-      font-size: 1rem;
-  }
-} */

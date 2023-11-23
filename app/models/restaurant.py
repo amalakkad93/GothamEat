@@ -38,6 +38,7 @@ class Restaurant(db.Model):
 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True, cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='restaurant', lazy=True)
+   
 
     # # Add the get_delivery_times method to retrieve delivery times for this restaurant
     # def get_delivery_times(self):

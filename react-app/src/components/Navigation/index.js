@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, shallowEqual } from "react-redux";
 import ProfileButton from "./ProfileButton";
-// import SlidingModalRight from "../Modals/SlidingModal/SlidingModalRight";
-import SlidingModalRight1 from "../Modals/SlidingModal/SlidingModalRight1";
+import SlidingModalRight from "../Modals/SlidingModal/SlidingModalRight";
 import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
@@ -51,7 +50,7 @@ function Navigation({ isLoaded }) {
             <button
               className="cart-btn"
               type="button"
-              onClick={toggleCartModal} // This will toggle the visibility of the modal
+              onClick={toggleCartModal}
             >
               <FontAwesomeIcon
                 icon={faShoppingCart}
@@ -60,9 +59,9 @@ function Navigation({ isLoaded }) {
               Cart
             </button>
             {/* Sliding Modal for Shopping Cart */}
-            <SlidingModalRight1 isVisible={cartVisible} onClose={toggleCartModal}>
+            <SlidingModalRight isVisible={cartVisible} onClose={toggleCartModal}>
               <ShoppingCart onClose={toggleCartModal} />
-            </SlidingModalRight1>
+            </SlidingModalRight>
           </>
         ) : (
           <>

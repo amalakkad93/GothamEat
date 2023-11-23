@@ -1,6 +1,7 @@
 from .db import db, environment, SCHEMA
 from .user import User
 from .restaurant import Restaurant
+
 from .favorite import Favorite
 from .review import Review
 from .menu_item import MenuItem

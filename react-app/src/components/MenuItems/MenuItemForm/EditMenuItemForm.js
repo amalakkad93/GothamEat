@@ -6,18 +6,12 @@ import MenuItemForm from './index';
 import { thunkGetMenuItemDetails } from '../../../store/menuItems';
 
 export default function EditMenuItemForm({ restaurantId, imageId, menuItemId, setReloadPage }) {
-    // const { restaurantId, menuItemId } = useParams();
-    const dispatch = useDispatch();
-    // const { closeModal } = useModal();
-    const menuItem = useSelector(state => state.menuItems.singleMenuItem.byId[menuItemId], shallowEqual);
-console.log("************EditMenuItemForm: imageId", imageId);
 
-// console.log("************EditMenuItemForm: restaurantId", restaurantId);
-// console.log("************EditMenuItemForm: menuItemId", menuItemId);
-// console.log("************EditMenuItemForm: menuItem", menuItem);
+    const dispatch = useDispatch();
+    const menuItem = useSelector(state => state.menuItems.singleMenuItem.byId[menuItemId], shallowEqual);
+
     useEffect(() => {
         if (menuItemId) {
-            console.log("Dispatching thunkGetMenuItemDetails from EditMenuItemForm", menuItemId);
             dispatch(thunkGetMenuItemDetails(menuItemId));
         }
     }, [dispatch, menuItemId]);
@@ -34,16 +28,3 @@ console.log("************EditMenuItemForm: imageId", imageId);
         />
     );
 }
-
-
-// export default function EditMenuItemForm() {
-//     const { restaurantId, menuItemId } = useParams();
-
-//     return (
-//         <MenuItemForm
-//             formType="Edit"
-//             restaurantId={restaurantId}
-//             menuItemId={menuItemId}
-//         />
-//     );
-// }

@@ -5,7 +5,7 @@ import {
   thunkGetReviewDetails,
   thunkUpdateReview,
   thunkGetReviewsByRestaurantId,
-  actionUploadReviewImage, // Import if needed, depends on where you handle this
+  actionUploadReviewImage, 
 } from '../../../store/reviews';
 import StarRatingInput from '../StarRatingInput';
 import './EditReview.css';
@@ -15,13 +15,13 @@ export default function EditReview({
   restaurantId,
   imageId,
   setReloadPage,
-  // onReviewUpdate, // Uncomment if you have this callback implemented
+  // onReviewUpdate,
 }) {
   const dispatch = useDispatch();
   const { closeModal } = useModal();
   // const reviewData = useSelector(state => state.reviews.singleReview.byId[reviewId] || {});
   const fetchedReviewData = useSelector(state => state.reviews.singleReview.byId[reviewId]);
-  // console.log("🚀 ~ file: index.js:23 ~ reviewData:", reviewData)
+
   const [review, setReview] = useState('');
   const [stars, setStars] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -29,37 +29,13 @@ export default function EditReview({
   const [message, setMessage] = useState('');
   const [initialReview, setInitialReview] = useState({});
 
-  console.log("🚀 ~ file: index.js:29 ~   reviewId:",   reviewId)
-
-  console.log("🚀 ~ file: index.js:30 ~  restaurantId:",  restaurantId)
-
-  console.log("🚀 ~ file: index.js:31 ~ imageId:", imageId)
-
-
-  // useEffect(() => {
-  //   dispatch(thunkGetReviewDetails(reviewId))
-  //     .then((data) => {
-  //       console.log('Fetched review data:', data);
-
-  //       if (data) {
-  //         setReview(data.review || '');
-  //         setStars(data.rating || 0);
-  //         // setExistingImageUrl(data.imageUrl || '');
-  //         setInitialReview(data);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error('Failed to load review details:', error);
-  //       setMessage('Failed to load review details.');
-  //     });
-  // }, [dispatch, reviewId]);
 
   useEffect(() => {
     dispatch(thunkGetReviewDetails(reviewId, (fetchedData) => {
       setReview(fetchedData.review || '');
       setStars(fetchedData.stars || 0);
       setInitialReview(fetchedData);
-      
+
     }));
   }, [dispatch, reviewId]);
 
@@ -73,18 +49,10 @@ export default function EditReview({
     };
 
     try {
-      // Pass all necessary parameters to the thunk
       await dispatch(thunkUpdateReview(reviewId, updatedReviewData, selectedImage, existingImageUrl));
-
-      // Assuming you want to refresh the reviews list
       await dispatch(thunkGetReviewsByRestaurantId(restaurantId));
-
-      // Close the modal and trigger any necessary state updates
       closeModal();
       setReloadPage((prev) => !prev);
-      // if (onReviewUpdate) {
-      //   onReviewUpdate();
-      // }
     } catch (error) {
       console.error(error);
       setMessage('Failed to update the review.');

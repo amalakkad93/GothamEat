@@ -1,14 +1,16 @@
 import React from 'react';
-import './SlidingModalRight.css';
+import { AiOutlineClose } from 'react-icons/ai';
+import "./SlidingModalRight.css";
 
-export default function SlidingModalRight({ isVisible, onClose, children }) {
+export default function SlidingModalRight1({ isVisible, onClose, children }) {
+  if (!isVisible) return null;
+
   return (
-    <div className={`sliding-modal-Right ${isVisible ? 'visible' : ''}`}>
-      <div className="sliding-modal-backdrop-Right" onClick={onClose}></div>
-      <div className="sliding-modal-content">
+    <div className="modal-sidebar-overlay" onClick={onClose}>
+      <div className="modal-sidebar-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-close-icon" onClick={onClose}><AiOutlineClose size={24} /></div>
         {children}
       </div>
-      <button className="close-btn" onClick={onClose}>✕</button>
     </div>
   );
 }

@@ -22,89 +22,6 @@ logger = logging.getLogger(__name__)
 
 restaurant_routes = Blueprint('restaurants', __name__)
 
-# # ***************************************************************
-# # Endpoint to Get All Nearby Restaurants
-# # ***************************************************************
-# This endpoint aggregates nearby restaurants from various sources and returns them.
-# Import necessary modules for handling logging, exceptions, and other functions.
-# @restaurant_routes.route('/nearby', methods=['GET'])
-# def get_nearby_restaurants():
-#     """
-#     Endpoint to fetch nearby restaurants.
-#     Aggregates results from UberEats, Google Places, and the local database.
-
-#     Returns:
-#         Response: A JSON list of aggregated nearby restaurants.
-#     """
-
-#     # Retrieve user-provided parameters: latitude, longitude, and city name.
-#     latitude = request.args.get('latitude')
-#     longitude = request.args.get('longitude')
-#     city_name = request.args.get('city')
-
-#     # List to store aggregated restaurant results from all sources.
-#     results = []
-
-#     # Fetching restaurant data from UberEats.
-#     try:
-#         # Obtain the access token required for the UberEats API.
-#         access_token = hf.get_uber_access_token()
-
-#         # Fetch nearby restaurants from UberEats using the provided location.
-#         restaurants_from_ubereats = hf.fetch_from_ubereats_by_location(latitude, longitude, access_token)
-
-#         # If there are restaurants from UberEats, format the data and add it to the results.
-#         if restaurants_from_ubereats:
-#             mapped_ubereats_data = [hf.map_ubereats_to_restaurant_model(restaurant) for restaurant in restaurants_from_ubereats]
-#             results.extend(mapped_ubereats_data)
-#     except Exception as e:
-#         # Log any errors encountered during the UberEats data retrieval process.
-#         logger.error(f"Error fetching data from UberEats: {e}")
-
-#     # Fetching restaurant data from Google Places.
-#     try:
-#         # Access the Google API key stored in app configuration.
-#         google_api_key = current_app.config['MAPS_API_KEY']
-
-#         # Build the API URL for fetching nearby restaurants from Google Places.
-#         endpoint = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=restaurant&key={google_api_key}"
-
-#         # Fetch data from Google Places.
-#         response = requests.get(endpoint)
-#         data = response.json()
-
-#         # If the response is successful and contains data, format and add it to results.
-#         if response.status_code == 200 and data.get('status', '') == "OK":
-#             mapped_google_data = [hf.map_google_place_to_restaurant_model(restaurant) for restaurant in data['results']]
-#             results.extend(mapped_google_data)
-#     except Exception as e:
-#         # Log any errors encountered during the Google Places data retrieval process.
-#         logger.error(f"Error fetching data from Google Places: {e}")
-
-#     # Fetching restaurant data from the local database.
-#     try:
-#         # If a city name was provided, retrieve restaurants from the database associated with that city.
-#         if city_name:
-#             restaurants_from_db = hf.fetch_from_database_by_location(city_name)
-
-#             # Convert the database results to a standard dictionary format and add to results.
-#             db_restaurants_list = [restaurant.to_dict() for restaurant in restaurants_from_db]
-#             results.extend(db_restaurants_list)
-#     except OperationalError as oe:
-#         # Specifically handle database operational errors.
-#         logger.error(oe)
-#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
-#     except Exception as e:
-#         # Log other exceptions related to database operations.
-#         logger.error(f"Error fetching data from database: {e}")
-
-#     # If no restaurants were found from any source, return an appropriate error message.
-#     if not results:
-#         return jsonify({"error": "No restaurants found nearby."}), 404
-
-#     # Return the combined restaurant data from all sources.
-#     return jsonify(results)
-
 # ***************************************************************
 # Endpoint to Get All Nearby Restaurants
 # ***************************************************************
@@ -171,32 +88,6 @@ def get_nearby_restaurants():
 # ***************************************************************
 # Endpoint to Get Restaurants of Current User
 # ***************************************************************
-# @restaurant_routes.route('/owned')
-# def get_owned_restaurants():
-#     """
-#     Retrieves the restaurants owned by the currently logged-in user.
-
-#     Returns:
-#         Response: A dictionary of restaurants that the current user owns.
-#     """
-#     try:
-#         # Fetching all restaurants owned by the current user
-#         owned_restaurants = Restaurant.query.filter_by(owner_id=current_user.id).all()
-
-#         # Convert the restaurants to dictionary format
-#         restaurants_dict = {restaurant.id: restaurant.to_dict() for restaurant in owned_restaurants}
-
-#         return jsonify({"Restaurants": restaurants_dict})
-
-#     except OperationalError as oe:
-#         # Database operational errors (e.g., failed SQL query)
-#         print(oe)
-#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
-#     except Exception as e:
-#         # General errors (e.g., unexpected data issues)
-#         print(e)
-#         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
-
 @restaurant_routes.route('/owned')
 def get_owned_restaurants():
     """
@@ -218,16 +109,13 @@ def get_owned_restaurants():
         return jsonify(normalized_results)
 
     except OperationalError as oe:
-        # Database operational errors (e.g., failed SQL query)
+        # Database operational errors (failed SQL query)
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500
     except Exception as e:
-        # General errors (e.g., unexpected data issues)
+        # General errors (unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching the restaurants."}), 500
-
-
-
 
 # ***************************************************************
 # Endpoint to Get Details of a Restaurant by Id or Google Place Id
@@ -284,15 +172,13 @@ def get_restaurant_detail(id):
         return jsonify(normalized_data)
 
     except OperationalError as oe:
-        # Database operational errors (e.g., failed SQL query)
+        # Database operational errors (failed SQL query)
         print(oe)
         return jsonify({"error": "Database operation failed. Please try again later."}), 500
     except Exception as e:
-        # General errors (e.g., unexpected data issues)
+        # General errors (unexpected data issues)
         print(e)
         return jsonify({"error": "An error occurred while fetching restaurant detail."}), 500
-
-
 
 # ***************************************************************
 # Endpoint to Edit a Restaurant's Details
@@ -429,7 +315,7 @@ def delete_restaurant(id):
         db.session.commit()
         return jsonify({
             "message": "Restaurant deleted successfully",
-            "deletedRestaurantId": id  # Only send the deleted restaurant's ID
+            "deletedRestaurantId": id
         }), 200
 
     except OperationalError as oe:
@@ -648,43 +534,10 @@ def get_menu_items_by_restaurant_id(id):
         print(e)
         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
 
-# @restaurant_routes.route('/<int:id>/menu-items/filter')
-# def filter_menu_items_by_type(id):
-#     """
-#     Retrieves filtered menu items for a specific restaurant based on type and price range.
 
-#     Args:
-#         id (int): The ID of the restaurant.
-
-#     Returns:
-#         Response: A collection of filtered menu items for the specified restaurant.
-#     """
-#     try:
-#         menu_item_type = request.args.get('type', None)
-#         min_price = request.args.get('min_price', type=float)
-#         max_price = request.args.get('max_price', type=float)
-
-#         ic('menu_item_type',menu_item_type)
-#         ic('min_price',min_price)
-#         ic('max_price',max_price)
-
-
-
-#         if not menu_item_type:
-#             return jsonify({"error": "Menu item type is required for filtering."}), 400
-
-#         # Fetch filtered menu items
-#         filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_type, min_price, max_price)
-#         ic('filtered_menu_data',filtered_menu_data)
-#         return jsonify(filtered_menu_data)
-
-#     except OperationalError as oe:
-#         print(oe)
-#         return jsonify({"error": "Database operation failed. Please try again later."}), 500
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"error": "An error occurred while fetching the menu items."}), 500
-
+# ***************************************************************
+# Endpoint to Filter Menu Items by Type and Price Range
+# ***************************************************************
 @restaurant_routes.route('/<int:id>/menu-items/filter')
 def filter_menu_items_by_type(id):
     """
@@ -695,7 +548,6 @@ def filter_menu_items_by_type(id):
         Response: A collection of filtered menu items for the specified restaurant.
     """
     try:
-        # menu_item_type = request.args.get('type', None)
         menu_item_types = request.args.getlist('type')
         min_price = request.args.get('min_price', type=float)
         max_price = request.args.get('max_price', type=float)
@@ -704,13 +556,10 @@ def filter_menu_items_by_type(id):
         ic('min_price', min_price)
         ic('max_price', max_price)
 
-        # if not menu_item_type:
-        #     return jsonify({"error": "Menu item type is required for filtering."}), 400
         if not menu_item_types:
             return jsonify({"error": "Menu item type is required for filtering."}), 400
 
         # Fetch filtered menu items
-        # filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_type, min_price, max_price)
         filtered_menu_data = hf.fetch_filtered_menu_items(id, menu_item_types, min_price, max_price)
         ic('filtered_menu_data', filtered_menu_data)
 

@@ -55,7 +55,6 @@ const actionSetReviewError = (error) => ({
   error,
 });
 
-// Define the action creators somewhere in your codebase
 const actionGetSingleReview = (review) => ({
   type: "GET_SINGLE_REVIEW",
   review,
@@ -67,18 +66,15 @@ const actionHasUserPostedReview = () => ({
 });
 
 // The thunk for fetching review details
-// export const thunkGetReviewDetails = (reviewId) => async (dispatch) => {
 export const thunkGetReviewDetails =
   (reviewId, callback) => async (dispatch) => {
     try {
       const response = await fetch(`/api/reviews/${reviewId}`);
       const data = await response.json();
-      console.log("********************data", data);
       if (response.ok) {
         const { byId, allIds } = data;
 
         const review = byId[allIds[0]];
-        console.log("********************review", review);
         dispatch(actionGetSingleReview(review));
         callback(review);
       } else {
@@ -110,11 +106,11 @@ export const thunkGetReviewDetails =
 export const thunkGetReviewsByRestaurantId =
   (restaurantId) => async (dispatch) => {
     try {
-      // console.log('Fetching reviews for restaurant:', restaurantId); // Add this
+
       const response = await csrfFetch(
         `/api/restaurants/${restaurantId}/reviews`
       );
-      const data = await response.json(); // Move this outside of the if condition
+      const data = await response.json();
       if (response.ok) {
         dispatch(
           actionSetReviews(
@@ -124,11 +120,11 @@ export const thunkGetReviewsByRestaurantId =
           )
         );
       } else {
-        console.error("Server responded with error:", data.error); // Add this
+        console.error("Server responded with error:", data.error);
         dispatch(actionSetReviewError(data.error));
       }
     } catch (error) {
-      console.error("Error while fetching reviews:", error); // Add this
+      console.error("Error while fetching reviews:", error);
       dispatch(
         actionSetReviewError(
           "An unexpected error occurred while fetching the reviews."
@@ -167,13 +163,9 @@ export const thunkCreateReview = (restaurantId, review, stars, image) => {
         dispatch(actionHasUserPostedReview());
         if (image && reviewData.reviewId) {
           // 2. Fetch the presigned URL
-          // console.log("Fetching presigned URL...");
-
           const presignedResponse = await csrfFetch(
             `/s3/generate_presigned_url?filename=${image.name}&contentType=${image.type}`
           );
-
-          // console.log("Response from presigned URL:", presignedResponse);
 
           if (
             !presignedResponse.headers
@@ -233,7 +225,7 @@ export const thunkUpdateReview = (
 ) => {
   return async (dispatch) => {
     try {
-      // Optional: Delete existing image
+      // Delete existing image
       if (existingImageUrl) {
         const deleteResponse = await csrfFetch("/s3/delete-image", {
           method: "POST",
@@ -243,7 +235,7 @@ export const thunkUpdateReview = (
 
         if (!deleteResponse.ok) {
           const data = await deleteResponse.json();
-          dispatch(actionSetReviewError(data.error)); // Update this action creator for reviews
+          dispatch(actionSetReviewError(data.error));
           throw new Error(data.error);
         }
       }
@@ -257,7 +249,7 @@ export const thunkUpdateReview = (
 
       if (!reviewResponse.ok) {
         const data = await reviewResponse.json();
-        dispatch(actionSetReviewError(data.error)); // Update this action creator for reviews
+        dispatch(actionSetReviewError(data.error));
         throw new Error(data.error);
       }
 
@@ -274,7 +266,7 @@ export const thunkUpdateReview = (
 
         if (!presignedResponse.ok) {
           const data = await presignedResponse.json();
-          dispatch(actionSetReviewError(data.error)); // Update this action creator for reviews
+          dispatch(actionSetReviewError(data.error));
           throw new Error(data.error);
         }
 
@@ -294,7 +286,7 @@ export const thunkUpdateReview = (
           throw new Error("Failed to upload image to S3.");
         }
 
-        // Update the image URL in your application's backend
+        // Update the image URL in the application's backend
         const updateImageResponse = await csrfFetch(
           `/api/reviews/${reviewId}/images`,
           {
@@ -306,17 +298,11 @@ export const thunkUpdateReview = (
 
         if (!updateImageResponse.ok) {
           const errorData = await updateImageResponse.json();
-          dispatch(actionSetReviewError(errorData.error)); // Update this action creator for reviews
+          dispatch(actionSetReviewError(errorData.error));
           throw new Error(errorData.error);
         }
 
         const updateImageData = await updateImageResponse.json();
-        console.log(
-          "**********Dispatching image upload action:",
-          updateImageData.id,
-          file_url,
-          reviewId
-        );
         if (updateImageData.status === "success") {
           dispatch(
             actionUploadReviewImage(
@@ -324,7 +310,7 @@ export const thunkUpdateReview = (
               updateImageData.image_url,
               reviewId
             )
-          ); // Update this action creator for reviews
+          );
         }
       }
 
@@ -336,7 +322,7 @@ export const thunkUpdateReview = (
           error.message ||
             "An unexpected error occurred while updating the review."
         )
-      ); // Update this action creator for reviews
+      );
       throw error;
     }
   };
@@ -386,8 +372,6 @@ const initialState = {
 
 // Reducer
 export default function reviewsReducer(state = initialState, action) {
-  console.log("++Action received in Review Reducer", action);
-  console.log("Current state in Review Reducer", state);
   switch (action.type) {
     case GET_SINGLE_REVIEW:
       console.log("Updating state with review:", action.review);
@@ -398,34 +382,6 @@ export default function reviewsReducer(state = initialState, action) {
           allIds: [action.review.id],
         },
       };
-
-    // case SET_REVIEWS:
-    //   console.log('SET_REVIEWS action', action);
-    //   return {
-    //     ...state,
-    //     reviews: {
-    //       byId: {
-    //         ...state.reviews.byId,
-    //         ...action.reviews.byId // Adjusted from action.payload.entities.reviews.byId
-    //       },
-    //       allIds: action.reviews.allIds // Adjusted from action.payload.entities.reviews.allIds
-    //     },
-    //     reviewImages: {
-    //       byId: {
-    //         ...state.reviewImages.byId,
-    //         ...action.images.byId // Adjusted from action.payload.entities.reviewImages.byId
-    //       },
-    //       allIds: action.images.allIds // Adjusted from action.payload.entities.reviewImages.allIds
-    //     },
-    //     users: {
-    //       byId: {
-    //         ...state.users.byId,
-    //         ...action.users.byId // Adjusted from action.payload.entities.users.byId
-    //       },
-    //       allIds: action.users.allIds // Adjusted from action.payload.entities.users.allIds
-    //     }
-    //   };
-
     case SET_REVIEWS:
       return {
         ...state,
@@ -456,18 +412,6 @@ export default function reviewsReducer(state = initialState, action) {
         users: newUsers,
       };
     }
-    // case UPLOAD_REVIEW_IMAGE: {
-    //   // console.log("Received ADD_REVIEW_IMAGE action:", action);
-    //   const newReviewImages = {
-    //     ...state.reviewImages,
-    //     [action.reviewId]: action.imageUrl,
-    //   };
-    //   return {
-    //     ...state,
-    //     reviewImages: newReviewImages,
-    //   };
-    // }
-    //*********************************************************
     case UPLOAD_REVIEW_IMAGE: {
       const { imageId, imageUrl, reviewId } = action.payload;
 
@@ -488,7 +432,7 @@ export default function reviewsReducer(state = initialState, action) {
       if (review) {
         const updatedReview = {
           ...review,
-          imageId, // Assuming you want to replace it with the new image ID
+          imageId,
         };
 
         // Update the state with the new review details
@@ -503,14 +447,13 @@ export default function reviewsReducer(state = initialState, action) {
           reviews: updatedReviews,
         };
       } else {
-        // If the review doesn't exist, simply update the reviewImages state
+        // If the review doesn't exist, update the reviewImages state
         return {
           ...state,
           reviewImages: newReviewImages,
         };
       }
     }
-    //*********************************************************
 
     case DELETE_REVIEW: {
       const { [action.reviewId]: _, ...newById } = state.reviews.byId;
@@ -528,26 +471,7 @@ export default function reviewsReducer(state = initialState, action) {
         userHasReview: false,
       };
     }
-
-    // case DELETE_REVIEW: {
-    //   const newReviews = { ...state.reviews };
-    //   delete newReviews[action.reviewId];
-    //   return {
-    //     ...state,
-    //     reviews: newReviews,
-    //     userHasReview: false,
-    //   };
-    // }
-    // case DELETE_REVIEW_IMAGE: {
-    //   const newReviewImages = { ...state.reviewImages };
-    //   delete newReviewImages[action.imageId];
-    //   return {
-    //     ...state,
-    //     reviewImages: newReviewImages,
-    //   };
-    // }
     case DELETE_REVIEW_IMAGE: {
-      // This assumes reviewImages has a direct property with the imageId, which is not the case.
       const newReviewImages = { ...state.reviewImages.byId };
       delete newReviewImages[action.imageId];
       return {

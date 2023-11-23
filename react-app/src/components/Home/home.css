@@ -17,7 +17,6 @@
     animation: float 3s ease-in-out infinite;
 }
 
-/* Search Input with Icon */
 .search-input-container {
     position: relative;
     width: 100%;
@@ -61,7 +60,6 @@
     background-color: #fff;
   }
 
-  /* Use My Location Button with Icon */
   .use-my-location-btn {
     background-color:black;
     color: #ffffff;
@@ -124,76 +122,3 @@
         font-size: 0.9em;
     }
 }
-
-
-
-/* @keyframes backgroundZoom {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
-}
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-
-  background-size: cover;
-
-  animation: backgroundZoom 30s infinite alternate ease-in-out;
-}
-
-.Search-bar-title {
-  font-size: 2em;
-  color: #fff;
-  text-shadow: 2px 2px 4px #000;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  padding: 10px 15px;
-  width: 400px;
-  max-width: 90%;
-  font-size: 1em;
-  border: none;
-  border-radius: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.use-my-locaction-btn {
-  background-color: #56ccf2;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.use-my-locaction-btn:hover {
-  background-color: #2d9cdb;
-}
-
-@media (max-width: 768px) {
-  .search-input {
-    width: 90%;
-  }
-
-  .Search-bar-title {
-    font-size: 1.5em;
-  }
-}
-
-@media (max-width: 480px) {
-  .search-input {
-    width: 85%;
-  }
-
-  .Search-bar-title {
-    font-size: 1.2em;
-  }
-} */

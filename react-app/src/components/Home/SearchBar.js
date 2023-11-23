@@ -29,7 +29,7 @@ function SearchBar({ onPlaceSelected }) {
     <LoadScript googleMapsApiKey={apiKey} libraries={['places']}>
       <StandaloneSearchBox onLoad={(ref) => (searchBoxRef.current = ref)} onPlacesChanged={onPlacesChanged}>
         <div className="search-input-container">
-          <i className="fas fa-search search-input-icon"></i> {/* FontAwesome icon */}
+          <i className="fas fa-search search-input-icon"></i> 
           <input type="text" className="search-input" placeholder="Enter a delivery address" />
         </div>
       </StandaloneSearchBox>

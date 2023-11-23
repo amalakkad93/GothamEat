@@ -3,15 +3,17 @@
   align-items: center;
   gap: 5px;
   padding: 10px 15px;
-  background-color: #007bff;
+  background-color: black;
   color: white;
   border-radius: 25px;
   text-decoration: none;
   transition: background-color 0.3s;
+  margin-left: 74;
 }
 
 .Back-to-Nearby-Restaurant a:hover {
-  background-color: #0056b3;
+  background-color: goldenrod;
+
 }
 
 .restaurant-list {
@@ -23,7 +25,7 @@
 }
 
 .restaurant-list.with-favorites {
-  background-color: #f4f4f4;
+  background-color: black
 }
 
 .restaurant-list.no-favorites {
@@ -63,7 +65,7 @@
   right: 15px;
   font-size: 24px;
   color: white;
-  /* color: black; */
+
   cursor: pointer;
   transition: color 0.3s;
 }

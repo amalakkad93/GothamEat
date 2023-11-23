@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { login } from "../../store/session";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
-import FormContainer, {
-  // validateCommonFields,
-} from "../CustomTags/FormContainer";
+import FormContainer from "../CustomTags/FormContainer";
 import "./LoginForm.css";
 
 function LoginFormPage() {
@@ -20,7 +18,8 @@ function LoginFormPage() {
     return null;
   }
 
-  const isLoginDisabled = !email.trim() || !password.trim() || password.length < 6;
+  const isLoginDisabled =
+    !email.trim() || !password.trim() || password.length < 6;
 
   const loginFields = [
     {
@@ -69,7 +68,7 @@ function LoginFormPage() {
     let errors = {};
 
     validations.forEach((validation) => {
-      const field = fields.find(f => f.name === validation.fieldName);
+      const field = fields.find((f) => f.name === validation.fieldName);
       const value = field ? field.value : null;
 
       if (value && validation.rule(value)) {
@@ -108,26 +107,30 @@ function LoginFormPage() {
         </NavLink>
       </div>
       <div className="form-login">
-      {/* {errors.map((error, idx) => <div key={idx} className="error">{error}</div>)} */}
-      <FormContainer
-        fields={loginFields}
-        onSubmit={handleSubmit}
-        isSubmitDisabled={isLoginDisabled}
-        errors={errors}
-        validations={loginValidations}
-        className="login-signup-form"
-        inputClassName="login-signup-form-input"
-        submitLabel="Log In"
-        submitButtonClass="login-signup-form-btn"
-        formTitle="Log In"
-      />
-      <button className="log-In-btn demo-user-btn" type="submit" onClick={(e) => {
-          setEmail("demo@io.com");
-          setPassword("password")
-        }}>Demo User</button>
-
+        {/* {errors.map((error, idx) => <div key={idx} className="error">{error}</div>)} */}
+        <FormContainer
+          fields={loginFields}
+          onSubmit={handleSubmit}
+          isSubmitDisabled={isLoginDisabled}
+          errors={errors}
+          validations={loginValidations}
+          className="login-signup-form"
+          inputClassName="login-signup-form-input"
+          submitLabel="Log In"
+          submitButtonClass="login-signup-form-btn"
+          formTitle="Log In"
+        />
+        <button
+          className="log-In-btn demo-user-btn"
+          type="submit"
+          onClick={(e) => {
+            setEmail("demo@io.com");
+            setPassword("password");
+          }}
+        >
+          Demo User
+        </button>
       </div>
-
     </>
   );
 }

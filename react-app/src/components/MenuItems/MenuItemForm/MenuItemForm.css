@@ -1,11 +1,6 @@
-/* FormContainer.css */
-
-/* General container styles */
-
-
 .form-container {
   width: 100%;
-  max-width: 600px; /* You can adjust this */
+  max-width: 600px;
   margin: 20px auto;
   padding: 20px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
@@ -62,7 +57,3 @@ button[type="submit"]:hover {
   background-color: black;
 }
 
-/* button[type="submit"]:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-} */

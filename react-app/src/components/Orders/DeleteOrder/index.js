@@ -17,11 +17,11 @@ const DeleteOrder = ({ orderId }) => {
     try {
       await dispatch(thunkDeleteOrder(orderId, userId));
       // await dispatch(thunkGetUserOrders(userId));
-      
+
       // navigate('/orders');
       closeModal();
     } catch (error) {
-      toast.error("Failed to cancel order: " + (error.message || error)); // Show error message
+      toast.error("Failed to cancel order: " + (error.message || error)); 
     }
   };
 

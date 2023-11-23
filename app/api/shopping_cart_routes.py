@@ -83,7 +83,7 @@ def get_cart():
 # ***************************************************************
 # Endpoint to Add an Item to the Current User's Shopping Cart
 # ***************************************************************
-@login_required  # Ensure the user is logged in to access this endpoint
+@login_required
 @shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
 def add_item_to_cart(id):
     """
@@ -147,6 +147,10 @@ def add_item_to_cart(id):
     except Exception as e:
         current_app.logger.error(f"Unexpected error in add_item_to_cart: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while adding item to the cart."}), 500
+
+# ***************************************************************
+# Endpoint to Add Multiple Items to the Current User's Shopping Cart
+# ***************************************************************
 @login_required
 @shopping_cart_routes.route('/items', methods=['POST'])
 def add_items_to_cart():
@@ -172,7 +176,6 @@ def add_items_to_cart():
         # Process each item in the payload
         new_items = []
         for item_data in data:
-            # You could also use a form or a schema to validate the item_data
             menu_item_id = item_data.get('menu_item_id')
             quantity = item_data.get('quantity')
             if not menu_item_id or not quantity:
@@ -212,7 +215,7 @@ def add_items_to_cart():
 # Endpoint to Update a Specific Item in the Current User's Shopping Cart
 # ***************************************************************
 
-@login_required  # Ensure the user is logged in to access this endpoint
+@login_required
 @shopping_cart_routes.route('/items/<int:item_id>', methods=['PUT'])
 def update_cart_item(item_id):
     """
@@ -251,7 +254,7 @@ def update_cart_item(item_id):
                "entities": {
                    "shoppingCartItems": normalize_data([cart_item.to_dict()], 'id')
                },
-               "totalPrice": shopping_cart.calculate_total_price() 
+               "totalPrice": shopping_cart.calculate_total_price()
             }), 200
 
         # If the form doesn't validate, return the form errors
@@ -270,7 +273,7 @@ def update_cart_item(item_id):
 # ***************************************************************
 # Endpoint to Remove a Specific Item from the Current User's Shopping Cart
 # ***************************************************************
-@login_required  # Ensure the user is logged in to access this endpoint
+@login_required
 @shopping_cart_routes.route('/items/<int:item_id>', methods=['DELETE'])
 def delete_cart_item(item_id):
     """
@@ -328,7 +331,7 @@ def delete_cart_item(item_id):
 # ***************************************************************
 # Endpoint to Clear All Items from the Current User's Shopping Cart
 # ***************************************************************
-@login_required  # Ensure the user is logged in to access this endpoint
+@login_required 
 @shopping_cart_routes.route('/current/clear', methods=['DELETE'])
 def clear_cart():
     """

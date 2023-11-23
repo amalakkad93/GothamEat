@@ -9,7 +9,6 @@
 
 .navBar-inner-container {
   display: flex;
-  /* justify-content: space-between; */
   align-items: center;
   box-sizing: border-box;
   width: 100%;
@@ -19,7 +18,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* gap: 5px; */
 }
 
 .navBar-left {
@@ -65,8 +63,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-color: #000000;
-  color: white; */
 }
 
 /* Login Button */
@@ -86,12 +82,9 @@
   transition: background-color 0.3s, transform 0.3s;
   font-family: 'Roboto', sans-serif;
   background-color: white;
-  /* border: 1px solid #000000; */
-  /* color: #000; */
 }
 
 .login-btn:hover {
-  /* background-color: #555; */
   color: white;
   transform: scale(1.05);
   cursor: pointer;
@@ -155,12 +148,6 @@
   border: none;
   border-top: 1px solid #e0e0e0;
 }
-
-/* .fas {
-  font-size: 24px;
-  cursor: pointer;
-} */
-
 .navbar-logo {
   text-decoration: none;
   color: #000;

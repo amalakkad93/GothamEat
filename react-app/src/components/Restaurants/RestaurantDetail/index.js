@@ -9,10 +9,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHeart as solidHeart,
-  faHeart as regularHeart,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import MoreInfoModal from "./MoreInfoModal";
 import OpenModalButton from "../../Modals/OpenModalButton";
 import MenuSection from "../../MenuItems/GetMenuItems";
@@ -50,9 +48,7 @@ export default function RestaurantDetail() {
     (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {},
     shallowEqual
   );
-  const menuItemsForRestaurant = menuItemsByRestaurant
-    ? menuItemsByRestaurant[restaurantId] || []
-    : [];
+  const menuItemsForRestaurant = menuItemsByRestaurant?.[restaurantId] ?? [];
   const menuItemImages = useSelector(
     (state) => state.menuItems?.menuItemImages || {},
     shallowEqual
@@ -79,12 +75,6 @@ export default function RestaurantDetail() {
     shallowEqual
   );
   const noReviews = !reviews || Object.keys(reviews).length === 0;
-
-  // const userHasReview = currentUser
-  //   ? Object.values(reviews).some(
-  //       (review) => review?.user_id === currentUser?.id
-  //     )
-  //   : false;
   const userHasReview = useSelector((state) => state.reviews.userHasReview);
   const filteredMenuItems = useSelector(
     (state) => state.menuItems?.filteredMenuItems
@@ -166,23 +156,6 @@ export default function RestaurantDetail() {
     }
   };
 
-  // // Handle filter change
-  // const handleFilterChange = (filters) => {
-  //   if (!filters.type && !filters.minPrice && !filters.maxPrice) {
-  //     // Reset filter: fetch all menu items
-  //     dispatch(thunkGetMenuItemsByRestaurantId(restaurantId));
-  //   } else {
-  //     // Apply filters
-  //     dispatch(
-  //       thunkGetFilteredMenuItems(
-  //         restaurantId,
-  //         filters.type,
-  //         filters.minPrice,
-  //         filters.maxPrice
-  //       )
-  //     );
-  //   }
-  // };
   const handleFilterChange = (filters) => {
     const { types, minPrice, maxPrice } = filters;
     if (types.length === 0 && !minPrice && !maxPrice) {
@@ -203,6 +176,7 @@ export default function RestaurantDetail() {
   // Render
   // **************************************************************************************
   if (!restaurant) return <p>Restaurant not found.</p>;
+  if (menuItemsByRestaurant === undefined) return null;
 
   return (
     <div className="restaurant-detail-container">
@@ -248,7 +222,6 @@ export default function RestaurantDetail() {
             </div>
           )}
         </div>
-
         {currentUser && restaurant?.owner_id === currentUser?.id && (
           <OpenModalButton
             className="add-menu-item-btn"
@@ -288,10 +261,9 @@ export default function RestaurantDetail() {
                     restaurantId={restaurantId}
                   />
                 ))
-              : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
-                  const itemsOfType = itemIds
-                    .map((id) => menuItemsByRestaurant?.byId[id])
-
+              : Object.entries(menuItemsTypes ?? {}).map(([type, itemIds]) => {
+                const itemsOfType = itemIds
+                    .map((id) => menuItemsByRestaurant?.byId?.[id])
                     .filter(Boolean);
                   return (
                     <MenuSection
@@ -352,134 +324,3 @@ export default function RestaurantDetail() {
     </div>
   );
 }
-
-//   return (
-//     <div className="restaurant-detail-container">
-//       <div
-//         className="restaurant-banner"
-//         style={{ backgroundImage: `url(${restaurant?.banner_image_path})` }}
-//       >
-//         <FontAwesomeIcon
-//           icon={isFavorite ? solidHeart : regularHeart}
-//           className="favorite-heart"
-//           onClick={(e) => handleFavoriteClick(e, restaurantId)}
-//         />
-//       </div>
-
-//       <h1 className="restaurant-name">{restaurant.name}</h1>
-
-//       <div className="avgRating-numberOfReviews-container">
-//         <span className="avgRating-numberOfReviews-span">
-//           ★{" "}
-//           {restaurant.average_rating ? (
-//             restaurant.average_rating
-//           ) : (
-//             <span className="boldText">New</span>
-//           )}
-//         </span>
-
-//         {restaurant && restaurant.num_reviews > 0 && (
-//           <div className="num_reviews-food_type-moreInfo-div">
-//             {`(${restaurant.num_reviews}${
-//               restaurant.num_reviews === 1 ? " review" : " reviews"
-//             }) • ${restaurant.food_type} ɵ`}
-//             <OpenModalButton
-//               modalComponent={<MoreInfoModal restaurant={restaurant} />}
-//               buttonText="More info"
-//             />
-//           </div>
-//         )}
-//       </div>
-
-//       {currentUser && restaurant?.owner_id === currentUser?.id && (
-//         <OpenModalButton
-//           className="add-menu-item-btn"
-//           buttonText="Add Menu Item"
-//           modalComponent={
-//             <CreateMenuItemForm
-//               restaurantId={restaurantId}
-//               setReloadPage={setReloadPage}
-//             />
-//           }
-//         />
-//       )}
-
-//       <div className="restaurant-detail-sidebar">
-//         {/* MenuFilter */}
-//         <MenuFilter
-//           onFilterChange={handleFilterChange}
-//           onFilterReset={handleFilterReset}
-//           menuTypes={menuItemsTypes}
-//         />
-//       </div>
-//       <div className="restaurant-detail-main-content">
-//         {/* MenuSection */}
-//         <div className="menu-items-container">
-//           {isFilterApplied
-//             ? Object.entries(groupedFilteredItems).map(([type, items]) => (
-//                 <MenuSection
-//                   key={type}
-//                   type={type}
-//                   items={items}
-//                   menuItemImages={menuItemImages}
-//                   setReloadPage={setReloadPage}
-//                   restaurantId={restaurantId}
-//                 />
-//               ))
-//             : Object.entries(menuItemsTypes)?.map(([type, itemIds]) => {
-//                 const itemsOfType = itemIds
-//                   .map((id) => menuItemsByRestaurant?.byId[id])
-//                   .filter(Boolean);
-//                 return (
-//                   <MenuSection
-//                     key={type}
-//                     type={type}
-//                     items={itemsOfType}
-//                     menuItemImages={menuItemImages}
-//                     setReloadPage={setReloadPage}
-//                     restaurantId={restaurantId}
-//                   />
-//                 );
-//               })}
-//         </div>
-
-// {/* Reviews */}
-// <div className="reviews-section">
-//   <h2 className="avgRating-numofReviews">
-//     ★{" "}
-//     {restaurant.average_rating ? (
-//       restaurant.average_rating.toFixed(1)
-//     ) : (
-//       <span className="boldText">New</span>
-//     )}
-//     {restaurant.num_reviews === 0 && ` · No reviews, be the first!`}
-//     {restaurant.num_reviews === 1 && ` · 1 review`}
-//     {restaurant.num_reviews > 1 &&
-//       ` · ${restaurant.num_reviews} reviews`}
-//   </h2>
-
-//   {!userHasReview &&
-//     currentUser &&
-//     currentUser.id !== restaurant.owner_id && (
-//       <OpenModalButton
-//         className="post-delete-review-btn"
-//         buttonText="Post Your Review"
-//         modalComponent={
-//           <CreateReview
-//             restaurantId={restaurantId}
-//             setReloadPage={setReloadPage}
-//           />
-//         }
-//       />
-//     )}
-
-//   <GetReviews
-//     restaurantId={restaurantId}
-//     reviewImages={reviewImages}
-//     setReloadPage={setReloadPage}
-//   />
-// </div>
-//       </div>
-//     </div>
-//   );
-// }

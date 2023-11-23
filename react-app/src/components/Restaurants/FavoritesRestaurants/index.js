@@ -27,9 +27,13 @@ export default function FavoritesRestaurants() {
   const userId = useSelector((state) => state.session.user?.id, shallowEqual);
 
   // Extract favorite restaurants and all restaurant details from the Redux store
-  const favoritesById = useSelector((state) => state.favorites?.byId, shallowEqual);
+  const favoritesById = useSelector(
+    (state) => state.favorites?.byId,
+    shallowEqual
+  );
   const allRestaurants = useSelector(
-    (state) => state.favorites.allRestaurants?.byId, shallowEqual
+    (state) => state.favorites.allRestaurants?.byId,
+    shallowEqual
   );
 
   // Extract all restaurants that are marked as favorites
@@ -63,8 +67,11 @@ export default function FavoritesRestaurants() {
   return (
     <>
       {/* Navigation link to go back to the main page */}
-      <div className="Back-to-Nearby-Restaurant">
-        <a href="/">
+      <div
+        className="Back-to-Nearby-Restaurant"
+        style={{ marginLeft: "73px", color: "black" }}
+      >
+        <a href="/"  style={{color: "black" }}>
           <FontAwesomeIcon icon={faArrowLeft} /> Back to Main Page
         </a>
       </div>

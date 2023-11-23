@@ -10,20 +10,18 @@
  * @param {Object} menuItemImgs - The images associated with menu items.
  */
 import React from "react";
-import MenuItem from "./ MenuItem"
-// import './MenuItem.css'
-import "./MenuItem1.css";
+import MenuItem from "./ MenuItem";
 
-export default function MenuSection({ type, items, menuItemImages, restaurantId, setReloadPage }) {
- console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ setReloadPage:", setReloadPage)
- console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ restaurantId:", restaurantId)
- console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ menuItemImages:", menuItemImages)
- console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ items:", items)
- console.log("🚀 ~ file: index.js:18 ~ MenuSection ~ type:", type)
+import "./MenuItem.css";
 
+export default function MenuSection({
+  type,
+  items,
+  menuItemImages,
+  restaurantId,
+  setReloadPage,
+}) {
   // Check to ensure the items prop is an array
-
-
   if (!Array.isArray(items)) {
     console.error("Items is not an array:", items);
     return null; // Return null to not render anything if items is not an array
@@ -36,12 +34,14 @@ export default function MenuSection({ type, items, menuItemImages, restaurantId,
 
       {/* List all menu items under this section */}
       <ul>
-        {items.map(item => (
-          // <MenuItem key={item.id} item={item} menuItemImgs={menuItemImgs} />
-          // <MenuItem key={item.id + Date.now()} item={item} menuItemImgs={menuItemImgs} />
-          <MenuItem key={item.id} item={item} menuItemImages={menuItemImages} restaurantId={restaurantId} setReloadPage={setReloadPage} />
-
-
+        {items.map((item) => (
+          <MenuItem
+            key={item.id}
+            item={item}
+            menuItemImages={menuItemImages}
+            restaurantId={restaurantId}
+            setReloadPage={setReloadPage}
+          />
         ))}
       </ul>
     </div>

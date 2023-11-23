@@ -5,7 +5,7 @@ const ADD_ITEM_TO_CART = "shoppingCart/ADD_ITEM_TO_CART";
 const ADD_TO_CART = "ADD_TO_CART";
 const ADD_MORE_ITEMS_TO_CART = "shoppingCart/ADD_MORE_ITEMS_TO_CART";
 const SET_CURRENT_CART = "shoppingCart/SET_CURRENT_CART";
-const SET_TOTAL_PRICE = 'SET_TOTAL_PRICE';
+const SET_TOTAL_PRICE = "SET_TOTAL_PRICE";
 const DELETE_ITEM_FROM_CART = "shoppingCart/DELETE_ITEM_FROM_CART";
 const UPDATE_ITEM_IN_CART = "shoppingCart/UPDATE_ITEM_IN_CART";
 const CLEAR_CART = "shoppingCart/CLEAR_CART";
@@ -87,9 +87,7 @@ export const thunkAddItemToCart =
 
       if (response.ok) {
         const data = await response.json();
-        console.log("+++-Thunk API response data From thunkAddItemToCart:", data);
         const itemId = Object.keys(data.entities.shoppingCartItems.byId)[0];
-        console.log("+++-Dispatching actionAddItemToCart with itemId From thunkAddItemToCart:", itemId);
         dispatch(actionAddItemToCart(itemId, quantity, restaurantId));
         dispatch(thunkFetchCurrentCart());
         return data.message;
@@ -110,7 +108,7 @@ export const thunkAddItemsToCart =
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(items), // items is an array of { menu_item_id, quantity }
+        body: JSON.stringify(items),
       });
 
       if (response.ok) {
@@ -144,7 +142,6 @@ export const thunkFetchCurrentCart = () => async (dispatch) => {
     if (response.ok) {
       const data = await response.json();
       dispatch(actionSetCurrentCart(data.entities.shoppingCartItems.byId));
-      // Assuming the total price comes in the response under data.metadata.totalPrice
       dispatch(actionSetTotalPrice(data.metadata.totalPrice));
     } else {
       const data = await response.json();
@@ -160,7 +157,6 @@ export const thunkFetchCurrentCart = () => async (dispatch) => {
     dispatch(setCartNotLoading());
   }
 };
-
 
 // ***************************************************************
 //  Thunk to delete an item from the cart
@@ -295,7 +291,7 @@ export default function shoppingCartReducer(state = initialState, action) {
       return newState;
     }
     case ADD_MORE_ITEMS_TO_CART: {
-      const { items } = action.payload; // 'items' would be an array of item objects
+      const { items } = action.payload;
       const updatedItemsById = { ...state.items.byId };
       const updatedAllIds = [...state.items.allIds];
 
@@ -356,19 +352,6 @@ export default function shoppingCartReducer(state = initialState, action) {
         isLoading: false,
       };
     }
-    // case SET_CURRENT_CART: {
-    //   const allIds = Object.keys(action.cartItems);
-    //   return {
-    //     ...state,
-    //     items: {
-    //       byId: {
-    //         ...state.items.byId,
-    //         ...action.cartItems,
-    //       },
-    //       allIds: allIds,
-    //     },
-    //   };
-    // }
     case SET_CURRENT_CART: {
       const newCartItemsById = action.cartItems;
       const newAllIds = Object.keys(newCartItemsById);
@@ -418,9 +401,6 @@ export default function shoppingCartReducer(state = initialState, action) {
         totalPrice: 0,
         restaurantId: null,
       };
-      // return {
-      //   ...initialState, // Reset to initialState which will also reset the restaurantId
-      // };
     }
     case SET_TOTAL_PRICE: {
       return {

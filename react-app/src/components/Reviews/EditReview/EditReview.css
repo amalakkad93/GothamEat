@@ -1,7 +1,7 @@
 /* Universal Styles */
 * {
   box-sizing: border-box;
-  font-family: Arial, sans-serif; /* A basic sans-serif font; you might want to use a different font based on your design */
+  font-family: Arial, sans-serif;
 }
 
 /* Review Form */
@@ -31,7 +31,7 @@
   height: 111px;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
-  resize: none; /* Prevents resizing of textarea */
+  resize: none;
 }
 
 .star-container {
@@ -90,7 +90,7 @@
 
 .star-container span {
   color: gray;
-  transition: color 0.3s; /* Smooth color transition on hover */
+  transition: color 0.3s; 
 }
 
 .star-container span:hover,

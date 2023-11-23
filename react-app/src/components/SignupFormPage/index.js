@@ -214,16 +214,3 @@ useEffect(() => {
 
 export default SignupFormPage;
 
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   if (password === confirmPassword) {
-//     const data = await dispatch(signUp(firstName, lastName, username, email, password));
-//     if (data) {
-//       setErrors(data);
-//     }
-//   } else {
-//     setErrors([
-//       "Confirm Password field must be the same as the Password field",
-//     ]);
-//   }
-// };

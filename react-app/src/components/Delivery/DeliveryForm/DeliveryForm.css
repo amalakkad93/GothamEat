@@ -39,7 +39,7 @@
 }
 
 .ShippingForm button:hover {
-  background-color: #0056b3;
+  background-color: goldenrod;
 }
 
 .ShippingForm .AmountDisplay {
@@ -48,7 +48,6 @@
   margin-bottom: 1rem;
 }
 
-/* Responsive design adjustments */
 @media (max-width: 768px) {
   .ShippingForm {
     margin: 1rem;

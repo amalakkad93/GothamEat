@@ -38,14 +38,12 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Additional styling for expanded order details */
 .order-detail-expanded {
   border-top: 1px solid #e9ecef;
   margin-top: 15px;
   padding-top: 15px;
 }
 
-/* Styling for the Cancel Order Button, if you choose to include it */
 .cancel-order-button {
   background-color: #dc3545;
   color: white;

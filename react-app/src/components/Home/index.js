@@ -40,18 +40,12 @@ export default function Home() {
     const city = cityComponent?.long_name;
     const state = stateComponent?.long_name;
     const country = countryComponent?.long_name;
-
-    //************************************************************************************* */
-    // // Update the selectedLocation state with the extracted details.
-    // setSelectedLocation({ lat, lng, city, state, country });
-
-    // // Navigate to the nearby restaurants page for the selected location.
-    // navigate('/restaurants/nearby');
     const location = { lat, lng, city, state, country };
     localStorage.setItem("userLocation", JSON.stringify(location));
     dispatch(thunkGetNearbyRestaurants(lat, lng, city, state, country));
+    // Navigate to the nearby restaurants page for the selected location.
     navigate("/restaurants/nearby");
-    //************************************************************************************* */
+
   };
 
   // useCurrentLocation function is called when the "Use My Location" button is clicked.
@@ -61,19 +55,10 @@ export default function Home() {
       // Extract latitude and longitude from the geolocation position.
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-
-      //******************************************************************************************* */
-      // // Update the selectedLocation state with the user's current location.
-      // setSelectedLocation({ latitude, longitude });
-
-      // // Navigate to the nearby restaurants page using the current location.
-      // navigate('/restaurants/nearby');
-
       const location = { lat: latitude, lng: longitude };
       localStorage.setItem("userLocation", JSON.stringify(location));
       dispatch(thunkGetNearbyRestaurants(latitude, longitude));
       navigate("/restaurants/nearby");
-      //******************************************************************************************* */
     });
   };
 
@@ -83,7 +68,7 @@ export default function Home() {
       <h1 className="Search-bar-title">{greeting}</h1>
       <SearchBar onPlaceSelected={handlePlaceSelected} />
       <button className="use-my-location-btn" onClick={useCurrentLocation}>
-        <i className="fas fa-map-marker-alt use-my-location-icon"></i> {/* FontAwesome icon */}
+        <i className="fas fa-map-marker-alt use-my-location-icon"></i> 
         Use My Location
       </button>
     </div>

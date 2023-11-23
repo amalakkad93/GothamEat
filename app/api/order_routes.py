@@ -245,127 +245,9 @@ def create_order_logic(data):
 
         return total_price, new_order
 
-
-# # ++++++++++++++++++++++++++++
-# # Helper Function to Create an Order From Cart
-# def create_order_logic(data):
-#     with db.session.begin_nested():  # Starts a nested transaction
-#         shopping_cart = ShoppingCart.query.options(
-#             joinedload(ShoppingCart.items)
-#         ).filter_by(user_id=current_user.id).first()
-
-#         if not shopping_cart or not shopping_cart.items:
-#             raise ValueError("Shopping cart is empty")
-
-#         total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-
-#         delivery_id = data.get('delivery_id')
-#         payment_id = data.get('payment_id')
-
-#         new_order = Order(
-#             user_id=current_user.id,
-#             total_price=total_price,
-#             delivery_id=delivery_id,
-#             payment_id=payment_id,
-#             status='Pending',
-            # created_at=datetime.datetime.now(datetime.timezone.utc),
-            # updated_at=datetime.datetime.now(datetime.timezone.utc),
-#             is_deleted=False
-#         )
-#         db.session.add(new_order)
-#         db.session.commit()
-
-#         return total_price, new_order
-
-
-
-# # ***************************************************************
-# # Endpoint to Get Order Details
-# # ***************************************************************
-# @login_required
-# @order_routes.route('/<int:order_id>')
-# def get_order_details(order_id):
-#     """
-#     Retrieve details for a specific order, including its associated items and menu items.
-#     Args:
-#         order_id (int): The ID of the order to retrieve.
-#     Returns:
-#         Response: A JSON representation of the order details, including associated items
-#                   and menu items, or an error message.
-#     """
-#     try:
-#         order = Order.query.options(
-#             joinedload(Order.items).joinedload(OrderItem.menu_item)
-#         ).get(order_id)
-
-#         if not order:
-#             abort(404, description="Order not found or you don't have permission to view it.")
-
-#         # Building order_items and menu_items
-#         order_items_data = []
-#         menu_items_data = {}
-#         for item in order.items:
-#             order_item_dict = item.to_dict()
-#             order_items_data.append(order_item_dict)
-
-#             menu_item_dict = item.menu_item.to_dict()
-#             menu_items_data[menu_item_dict['id']] = menu_item_dict
-
-#         ic("Order Items Data:", order_items_data)
-#         ic("Menu Items Data:", menu_items_data)
-
-#         normalized_order_items = {"byId": {item['id']: item for item in order_items_data}, "allIds": [item['id'] for item in order_items_data]}
-#         normalized_menu_items = {"byId": menu_items_data, "allIds": list(menu_items_data.keys())}
-
-#         normalized_order_details = {
-#             'order': order.to_dict(),
-#             'orderItems': normalized_order_items,
-#             'menuItems': normalized_menu_items
-#         }
-
-    #     return jsonify(normalized_order_details)
-
-    # except ValueError as ve:
-    #     return error_response(str(ve), 404)
-    # except PermissionError as pe:
-    #     return error_response(str(pe), 403)
-    # except Exception as e:
-    #     return error_response("An unexpected error occurred.", 500)
-
-# @login_required
-# @order_routes.route('/<int:order_id>')
-# def get_order_details(order_id):
-#     # Try to fetch the order with its items
-#     order = Order.query.get(order_id)
-
-#     if not order:
-#         abort(404, "Order not found.")
-
-#     # Fetch order items and menu items directly
-#     order_items = OrderItem.query.filter_by(order_id=order_id).all()
-#     menu_item_ids = [oi.menu_item_id for oi in order_items]
-#     menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all() if menu_item_ids else []
-
-#     # Convert to dictionary
-#     order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
-#     menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
-
-#     ic("order:", order)
-#     ic("order_items:", order_items)
-#     ic("menu_item_ids:", menu_item_ids)
-#     ic("order_items_dict:", order_items_dict)
-#     ic("menu_items_dict:", menu_items_dict)
-
-#     # Prepare the normalized order details
-#     normalized_order_details = {
-#         'order': order.to_dict(),
-#         'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
-#         'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
-#     }
-
-#     return jsonify(normalized_order_details)
-
-
+# ***************************************************************
+# Endpoint to Get Order Details
+# ***************************************************************
 @login_required
 @order_routes.route('/<int:order_id>', methods=['GET'])
 def get_order_details(order_id):
@@ -375,10 +257,6 @@ def get_order_details(order_id):
 
         if not order:
             abort(404, f"Order with ID {order_id} not found.")
-
-        # Additional check: Verify if the current user is authorized to view this order
-        # if not is_authorized(current_user, order):
-        #     abort(403, "You are not authorized to access this order.")
 
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
         menu_item_ids = [oi.menu_item_id for oi in order_items]
@@ -419,74 +297,6 @@ def get_order_details(order_id):
         db.session.rollback()
         print(f"Unexpected Error: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
-
-# Additional function (if needed) to check user authorization
-# def is_authorized(user, order):
-#     return user.id == order.user_id  # Example condition
-
-
-
-
-
-
-
-
-
-    # try:
-
-    #     # Fetch the order with eager loading of items and menu items
-    #     order = Order.query.options(
-    #         joinedload(Order.items).joinedload(OrderItem.menu_item)
-    #     ).get(order_id)
-
-    #     # Check if the order exists and belongs to the current user
-    #     if not order:
-    #         abort(404, description="Order not found or you don't have permission to view it.")
-
-    #     # Prepare the order details including the items and their menu item details
-    #     order_details = order.to_dict()
-    #     order_details['items'] = [
-    #         {
-    #             **item.to_dict(),
-    #             'menu_item': item.menu_item.to_dict()
-    #         } for item in order.items
-    #     ]
-
-    #     # Return the order details
-    #     return jsonify(order_details)
-
-    # except ValueError as ve:
-    #     # You can use logging here instead of print
-    #     print(f'ValueError: {str(ve)}')
-    #     traceback.print_exc()
-    #     return error_response(str(ve), 404)
-
-    # except PermissionError as pe:
-    #     # You can use logging here instead of print
-    #     print(f'PermissionError: {str(pe)}')
-    #     traceback.print_exc()
-    #     return error_response(str(pe), 403)
-
-    # except Exception as e:
-    #     # You can use logging here instead of print
-    #     print(f'Unexpected Exception: {str(e)}')
-    #     traceback.print_exc()  # This will print the stack trace
-    #     return error_response("An unexpected error occurred.", 500)
-
-    # except ValueError as ve:
-    #     return error_response(str(ve), 404)
-    # except PermissionError as pe:
-    #     return error_response(str(pe), 403)
-    # except Exception as e:
-    #     return error_response("An unexpected error occurred.", 500)
-# **************************************************************************************
-    # except HTTPException as http_ex:
-    #     # Return the HTTP error raised by abort
-    #     return jsonify({"error": http_ex.description}), http_ex.code
-    # except Exception as e:
-    #     # Catch any other unexpected exceptions
-    #     return jsonify({"error": "An unexpected error occurred: " + str(e)}), 500
-
 
 # ***************************************************************
 # Endpoint to Reorder Past Order
@@ -735,8 +545,6 @@ def update_order_status(order_id):
     Returns:
         Response: A JSON representation of the updated order or an error message.
     """
-
-    # has the right to access the order and returns the order object and a boolean flag.
     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
 
     if not order:

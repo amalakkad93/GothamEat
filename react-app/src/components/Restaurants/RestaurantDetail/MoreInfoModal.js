@@ -6,7 +6,6 @@
  * The visual representation is enhanced with icons for better user experience.
  */
 
-// Import necessary libraries and assets
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import mapImage from "../../../assets/mapImage.png";

@@ -17,7 +17,7 @@ export const getKey = () => async (dispatch) => {
     // console.log("Received API Key:", data.googleMapsAPIKey);
     dispatch(loadApiKey(data.google_maps_api_key));
   } else {
-    console.error("Failed to load API key:", await res.text());  // Log the error message
+    console.error("Failed to load API key:", await res.text());  
   }
 };
 

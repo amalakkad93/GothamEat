@@ -12,7 +12,7 @@
  * - Reducer (to modify the state based on actions)
  */
 import { csrfFetch } from "./csrf";
-import {removeEntityFromSection} from '../assets/helpers/helpers'
+import { removeEntityFromSection } from "../assets/helpers/helpers";
 // =========================================================
 //                  ****action types****
 // =========================================================
@@ -91,7 +91,6 @@ const actionDeleteRestaurant = (restaurantId) => ({
   restaurantId,
 });
 
-
 /** Creates an action to handle errors during restaurant operations */
 const actionSetRestaurantError = (errorMessage) => ({
   type: SET_RESTAURANT_ERROR,
@@ -113,7 +112,6 @@ const actionSetRestaurantError = (errorMessage) => ({
  */
 export const thunkGetNearbyRestaurants =
   (latitude, longitude, city, state, country) => async (dispatch) => {
-
     let url = `/api/restaurants/nearby`;
 
     if (latitude && longitude) {
@@ -198,7 +196,6 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
 
       // Return the fetched restaurant details.
       return restaurant;
-
     } else {
       const errors = await response.json();
       console.error(
@@ -239,7 +236,6 @@ export const thunkGetOwnerRestaurants = () => async (dispatch) => {
 
       // dispatch(actionGetOwnerRestaurants(restaurants.Restaurants));
       dispatch(actionGetOwnerRestaurants(restaurants));
-
     } else {
       const errors = await response.json();
       dispatch(
@@ -261,30 +257,122 @@ export const thunkGetOwnerRestaurants = () => async (dispatch) => {
 //  Thunk to Create a New Restaurant
 // ***************************************************************
 /** Creates a new restaurant and dispatches actions based on the result */
-export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
+export const thunkCreateRestaurant = (restaurantData, image) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/restaurants`, {
-      method: "POST",
+    let imageUrl = null;
+    if (image) {
+      const presignedResponse = await csrfFetch(
+        `/s3/generate_presigned_url?filename=${encodeURIComponent(image.name)}&contentType=${encodeURIComponent(image.type)}`,
+        { method: 'GET' }
+      );
+      const presignedData = await presignedResponse.json();
+      await fetch(presignedData.presigned_url, {
+        method: 'PUT',
+        body: image,
+        headers: { 'Content-Type': image.type },
+      });
+      imageUrl = presignedData.file_url;
+    }
+
+      const response = await csrfFetch("/api/restaurants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...restaurantData,
+          banner_image_path: imageUrl,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch(actionCreateRestaurant(data.entities.restaurants));
+        return { type: "SUCCESS", data };
+      } else {
+        const errors = await response.json();
+        dispatch(
+          actionSetRestaurantError(errors.error || "Error creating restaurant.")
+        );
+        throw errors;
+      }
+    } catch (error) {
+      dispatch(
+        actionSetRestaurantError(
+          "An error occurred while creating the restaurant."
+        )
+      );
+      throw error;
+    }
+  };
+// ***************************************************************
+//  Thunk to Update a Restaurant
+// ***************************************************************
+/** Updates a restaurant and dispatches actions based on the result */
+export const thunkUpdateRestaurant = (restaurantId, updatedData, newImage, existingImageUrl) => async (dispatch) => {
+  try {
+    let imageUrl = updatedData.banner_image_path;
+
+    // Delete existing image
+    if (existingImageUrl && newImage) {
+      const deleteResponse = await csrfFetch("/s3/delete-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: existingImageUrl }),
+      });
+
+      if (!deleteResponse.ok) {
+        const errorData = await deleteResponse.json();
+        dispatch(actionSetRestaurantError(errorData.error));
+        throw new Error(errorData.error);
+      }
+    }
+
+    // If there's a new image to upload
+    if (newImage) {
+      // Generate presigned URL and upload new image
+      const presignedResponse = await csrfFetch(
+        `/s3/generate_presigned_url?filename=${encodeURIComponent(newImage.name)}&contentType=${encodeURIComponent(newImage.type)}`,
+        { method: "GET" }
+      );
+
+      if (!presignedResponse.ok) {
+        const errorData = await presignedResponse.json();
+        dispatch(actionSetRestaurantError(errorData.error));
+        throw new Error(errorData.error);
+      }
+
+      const presignedData = await presignedResponse.json();
+      await fetch(presignedData.presigned_url, {
+        method: "PUT",
+        body: newImage,
+        headers: { "Content-Type": newImage.type },
+      });
+      imageUrl = presignedData.file_url;
+    }
+
+    // Update restaurant details
+    const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(restaurantData),
+      body: JSON.stringify({ ...updatedData, banner_image_path: imageUrl }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(actionCreateRestaurant(data.entities.restaurants));
+      dispatch(actionUpdateRestaurant(data.entities.restaurants));
       return { type: "SUCCESS", data };
     } else {
       const errors = await response.json();
       dispatch(
-        actionSetRestaurantError(errors.error || "Error creating restaurant.")
+        actionSetRestaurantError(
+          errors.error || `Error updating restaurant with ID ${restaurantId}.`
+        )
       );
       throw errors;
     }
   } catch (error) {
-    // console.log("Entered catch block", error);
     dispatch(
       actionSetRestaurantError(
-        "An error occurred while creating the restaurant."
+        `An error occurred while updating restaurant with ID ${restaurantId}.`
       )
     );
     throw error;
@@ -292,74 +380,38 @@ export const thunkCreateRestaurant = (restaurantData) => async (dispatch) => {
 };
 
 // ***************************************************************
-//  Thunk to Update a Restaurant
-// ***************************************************************
-/** Updates a restaurant and dispatches actions based on the result */
-export const thunkUpdateRestaurant = (updatedData) => async (dispatch) => {
-    try {
-      const response = await csrfFetch(`/api/restaurants/${updatedData.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        dispatch(actionUpdateRestaurant(data.entities.restaurants));
-        return { type: "SUCCESS", data };
-      } else {
-        const errors = await response.json();
-        dispatch(
-          actionSetRestaurantError(
-            errors.error || `Error updating restaurant with ID ${updatedData.id}.`
-          )
-        );
-        throw errors;
-      }
-    } catch (error) {
-      dispatch(
-        actionSetRestaurantError(
-          `An error occurred while updating restaurant with ID ${updatedData.id}.`
-        )
-      );
-      throw error;
-    }
-  };
-
-// ***************************************************************
 //  Thunk to Delete a Restaurant
 // ***************************************************************
 /** Deletes a restaurant and dispatches actions based on the result */
 export const thunkDeleteRestaurant = (restaurantId) => async (dispatch) => {
   try {
-      const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
-          method: "DELETE",
-      });
+    const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
+      method: "DELETE",
+    });
 
-      if (response.ok) {
-          const data = await response.json();
+    if (response.ok) {
+      const data = await response.json();
 
-          // Dispatch the action to update the Redux state after a successful deletion
-          dispatch(actionDeleteRestaurant(restaurantId));
+      // Dispatch the action to update the Redux state after a successful deletion
+      dispatch(actionDeleteRestaurant(restaurantId));
 
-          return { type: "SUCCESS" };
-      } else {
-          const errors = await response.json();
-          dispatch(
-              actionSetRestaurantError(errors.error || "Error deleting restaurant.")
-          );
-          throw errors;
-      }
-  } catch (error) {
+      return { type: "SUCCESS" };
+    } else {
+      const errors = await response.json();
       dispatch(
-          actionSetRestaurantError(
-              `An error occurred while deleting the restaurant with ID ${restaurantId}.`
-          )
+        actionSetRestaurantError(errors.error || "Error deleting restaurant.")
       );
-      throw error;
+      throw errors;
+    }
+  } catch (error) {
+    dispatch(
+      actionSetRestaurantError(
+        `An error occurred while deleting the restaurant with ID ${restaurantId}.`
+      )
+    );
+    throw error;
   }
 };
-
 
 // =========================================================
 //                   ****Reducer****
@@ -388,21 +440,17 @@ export default function restaurantsReducer(state = initialState, action) {
       return { ...state, allRestaurants: action.restaurants };
 
     case GET_SINGLE_RESTAURANT:
-      // console.log("Processing GET_SINGLE_RESTAURANT:", action.restaurant);
       return {
-          ...state,
-          singleRestaurant: { ...state.singleRestaurant, ...action.restaurant.entities.restaurants }
+        ...state,
+        singleRestaurant: {
+          ...state.singleRestaurant,
+          ...action.restaurant.entities.restaurants,
+        },
       };
-
-      // case GET_OWNER_RESTAURANTS:
-      //   newState = { ...state, owner: [] };
-      //   newState.owner = action.restaurants;
-      //   return newState;
-      case GET_OWNER_RESTAURANTS:
-        newState = { ...state, owner: [] };
-        newState.owner = action.restaurants;
-        return newState;
-
+    case GET_OWNER_RESTAURANTS:
+      newState = { ...state, owner: [] };
+      newState.owner = action.restaurants;
+      return newState;
 
     case CREATE_RESTAURANT:
       return {
@@ -425,70 +473,37 @@ export default function restaurantsReducer(state = initialState, action) {
         },
       };
 
+    case DELETE_RESTAURANT: {
+      const newState = { ...state };
+      delete newState.allRestaurants.byId[action.restaurantId];
 
-      case DELETE_RESTAURANT: {
-        // console.log("DELETE_RESTAURANT action received. Current state:", state);
-        // console.log("Restaurant ID to delete:", action.restaurantId);
+      if (
+        newState.allRestaurants.allIds &&
+        Array.isArray(newState.allRestaurants.allIds)
+      ) {
+        newState.allRestaurants.allIds = newState.allRestaurants.allIds.filter(
+          (id) => id !== action.restaurantId
+        );
+      } else {
+        console.error("allRestaurants.allIds is not an array or is undefined!");
+        newState.allRestaurants.allIds = [];
+      }
 
-        const newState = { ...state };
+      if (newState.owner.byId) {
+        delete newState.owner.byId[action.restaurantId];
+      }
 
-        // Logging and handling for allRestaurants slice
-        // console.log("allRestaurants.byId before deletion:", newState.allRestaurants.byId);
-        // console.log("allRestaurants.allIds before deletion:", newState.allRestaurants.allIds);
+      if (newState.owner.allIds && Array.isArray(newState.owner.allIds)) {
+        newState.owner.allIds = newState.owner.allIds.filter(
+          (id) => id !== action.restaurantId
+        );
+      } else {
+        console.error("owner.allIds is not an array or is undefined!");
+        newState.owner.allIds = [];
+      }
 
-        delete newState.allRestaurants.byId[action.restaurantId];
-
-        if (newState.allRestaurants.allIds && Array.isArray(newState.allRestaurants.allIds)) {
-            newState.allRestaurants.allIds = newState.allRestaurants.allIds.filter(
-                (id) => id !== action.restaurantId
-            );
-        } else {
-            console.error("allRestaurants.allIds is not an array or is undefined!");
-            newState.allRestaurants.allIds = [];
-        }
-
-        // Logging and handling for owner slice
-        // console.log("owner.byId before deletion:", newState.owner.byId);
-        // console.log("owner.allIds before deletion:", newState.owner.allIds);
-
-        if (newState.owner.byId) {
-            delete newState.owner.byId[action.restaurantId];
-        }
-
-        if (newState.owner.allIds && Array.isArray(newState.owner.allIds)) {
-            newState.owner.allIds = newState.owner.allIds.filter(
-                (id) => id !== action.restaurantId
-            );
-        } else {
-            console.error("owner.allIds is not an array or is undefined!");
-            newState.owner.allIds = [];
-        }
-
-        // console.log("State after deletion:", newState);
-
-        return newState;
+      return newState;
     }
-
-
-
-
-
-
-
-
-
-
-      // case DELETE_RESTAURANT:
-      //   const { restaurantId } = action;
-
-      //   return {
-      //       ...state,
-      //       nearby: removeEntityFromSection(state.nearby, restaurantId),
-      //       owner: removeEntityFromSection(state.owner, restaurantId),
-      //       allRestaurants: removeEntityFromSection(state.allRestaurants, restaurantId),
-      //       singleRestaurant: removeEntityFromSection(state.singleRestaurant, restaurantId),
-      //   };
-
     case SET_RESTAURANT_ERROR:
       return { ...state, error: action.payload };
 

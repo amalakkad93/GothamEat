@@ -39,8 +39,8 @@
   top: 15px;
   right: 15px;
   font-size: 24px;
-  color: white;
-  /* color: black; */
+  /* color: white; */
+  color:goldenrod;
   cursor: pointer;
   transition: color 0.3s;
 }
@@ -69,8 +69,6 @@
 .owner-buttons {
   display: flex;
   gap: 20px;
-  /* justify-content: space-around; */
-
 }
 .edit-rest-btn {
     background-color: goldenrod;
