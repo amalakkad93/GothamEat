@@ -182,8 +182,8 @@ def seed_menu_items():
     all_menu_items = []
 
     # 2. Loop through numbers 1 to 50 (representing restaurant IDs).
-    # for restaurant_id in range(1, 51):
-    for restaurant_id in range(1, 13):
+    for restaurant_id in range(1, 51):
+    # for restaurant_id in range(1, 13):
         # 3. For each restaurant ID, create menu items for each type (drink, entree, dessert, sides).
         menu_items = create_menu_items(restaurant_id, "drinks", drinks) + \
                      create_menu_items(restaurant_id, "entrees", entrees) + \

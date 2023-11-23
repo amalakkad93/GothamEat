@@ -26,6 +26,7 @@
 
 .form-login {
   margin-top: 15%;
+  
 }
 
 .login-signup-form-input {
@@ -50,7 +51,10 @@
   height: 40px;
 
 }
-
+.demo-user-btn{
+  margin-left: 908px;
+  margin-top: 0px;
+}
 .login-signup-form-btn:hover {
   background-color: #C0C0C0;
 }

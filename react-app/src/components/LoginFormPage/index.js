@@ -25,17 +25,20 @@ function LoginFormPage() {
     {
       type: "text",
       name: "email",
-      label: "Email",
+      // label: "Email",
+      placeholder: "Email",
       setter: setEmail,
       value: email,
       required: true,
       className: "",
       inputClassName: "login-signup-form-input",
+
     },
     {
       type: "text",
       name: "password",
-      label: "Password",
+      // label: "Password",
+      placeholder: "Password",
       setter: setPassword,
       value: password,
       required: true,

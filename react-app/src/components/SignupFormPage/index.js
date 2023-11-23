@@ -55,7 +55,7 @@ useEffect(() => {
     {
       type: "text",
       name: "firstName",
-      label: "First Name",
+      placeholder: "First Name",
       setter: setFirstName,
       value: firstName,
       required: true,
@@ -65,7 +65,7 @@ useEffect(() => {
     {
       type: "text",
       name: "lastName",
-      label: "Last Name",
+      placeholder: "Last Name",
       setter: setLastName,
       value: lastName,
       required: true,
@@ -75,7 +75,7 @@ useEffect(() => {
     {
       type: "text",
       name: "email",
-      label: "Email",
+      placeholder: "Email",
       setter: setEmail,
       value: email,
       required: true,
@@ -85,7 +85,7 @@ useEffect(() => {
     {
       type: "text",
       name: "username",
-      label: "Username",
+      placeholder: "Username",
       setter: setUsername,
       value: username,
       required: true,
@@ -95,7 +95,7 @@ useEffect(() => {
     {
       type: "password",
       name: "password",
-      label: "Password",
+      placeholder: "Password",
       setter: setPassword,
       value: password,
       required: true,
@@ -105,7 +105,7 @@ useEffect(() => {
     {
       type: "password",
       name: "confirmPassword",
-      label: "Confirm Password",
+      placeholder: "Confirm Password",
       setter: setConfirmPassword,
       value: confirmPassword,
       required: true,
@@ -213,4 +213,3 @@ useEffect(() => {
 }
 
 export default SignupFormPage;
-
