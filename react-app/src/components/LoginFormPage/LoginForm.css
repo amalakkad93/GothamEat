@@ -19,7 +19,11 @@
 .login-signup-logo-h1-second {
   font-weight: 700;
   font-size: 1.2rem;
-  color: green;
+  color: goldenrod;
+}
+
+.login-signup-form {
+  margin-botton: 20px;
 }
 
 /* *************************************Log in Form************************************* */
@@ -52,7 +56,8 @@
 
 }
 .demo-user-btn{
-  margin-left: 908px;
+
+  margin-left: 703px;
   margin-top: 0px;
 }
 .login-signup-form-btn:hover {
