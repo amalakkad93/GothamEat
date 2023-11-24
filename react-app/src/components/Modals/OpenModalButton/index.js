@@ -22,8 +22,8 @@ function OpenModalButton({
   };
 
   return (
-    // <button className="more-info-button" onClick={onClick}>{buttonText}</button>
-    <span className="more-info-text" onClick={onClick}>{buttonText}</span>
+    <button className="more-info-button" onClick={onClick}>{buttonText}</button>
+    // <span className="more-info-text" onClick={onClick}>{buttonText}</span>
   );
 }
 

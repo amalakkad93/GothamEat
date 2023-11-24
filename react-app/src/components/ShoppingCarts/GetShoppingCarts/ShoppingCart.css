@@ -78,6 +78,7 @@ select {
   background: #f7f7f7;
 }
 
+
 /* Button styles */
 .checkout-button,
 .add-items-button {
@@ -91,25 +92,25 @@ select {
 }
 
 .checkout-button:hover {
-  background: #218838;
+  background: rgb(76, 76, 76);
 }
-.add-items-button:hover {
-  background: #218838;
-}
+
 
 .checkout-button {
   margin-top: 10px;
   background: black;
   color: #ffffff;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .add-items-button {
-  background: grey;
+  background: goldenrod;
 
 }
 
 .add-items-button:hover {
-  background: #0069d9;
+  background: rgb(248, 188, 36);
 }
 
 /* When cart is empty */

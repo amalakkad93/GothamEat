@@ -1,0 +1,14 @@
+.button-dots {
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-dots:focus {
+  outline: none;
+}

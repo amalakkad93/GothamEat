@@ -1,7 +1,9 @@
 .stepper-container {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  /* justify-content: space-around; */
+  justify-content: space-evenly;
+  padding: 0 841px;
 }
 
 .step {

@@ -78,65 +78,102 @@ const OrderDetailPage = ({ orderIdProp }) => {
       </div>
 
       <div className="order-body">
-        <div className="order-items">
-          {itemsList.map((item, index) => (
-            <div className="item-card" key={index}>
-              <h3>{item.name}</h3>
-              <p>Quantity: {item.quantity}</p>
-              <p>Price: ${item.price?.toFixed(2)}</p>
+        <div className="order-summary">
+          <h2>Order Summary</h2>
+          <div className="order-items">
+            {itemsList.map((item, index) => (
+              <div className="item-card" key={index}>
+                <div className="item-name">{item.name}</div>
+                <div className="item-quantity-price">
+                  <span>Qty: {item.quantity}</span>
+                  <span>${item.price?.toFixed(2)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="summary-costs">
+            <div className="cost-item">
+              <span>Subtotal:</span>
+              <span>${order.total_price.toFixed(2)}</span>
             </div>
-          ))}
+            <div className="cost-item">
+              <span>Tax:</span>
+              <span>${orderTaxAmount.toFixed(2)}</span>
+            </div>
+            <div className="cost-item">
+              <span>Delivery Fee:</span>
+              <span>${parseFloat(order.delivery?.cost || 0).toFixed(2)}</span>
+            </div>
+            <div className="total-cost">
+              <strong>Total:</strong>
+              <strong>${formattedFinalTotal}</strong>
+            </div>
+          </div>
         </div>
+
         <div className="additional-info">
           <div className="delivery-info">
             <h3>
               <FaMapMarkerAlt /> Delivery Information
             </h3>
-            <p>
-              Address: {order.delivery?.street_address}, {order.delivery?.city},{" "}
-              {order.delivery?.state}, {order.delivery?.country}
-            </p>
-            <p>Postal Code: {order.delivery?.postal_code}</p>
-            <p>Tracking Number: {order.delivery?.tracking_number}</p>
+            <div className="info-detail">
+              <strong>Address:</strong>
+              <p>
+                {order.delivery?.street_address}, {order.delivery?.city},{" "}
+                {order.delivery?.state}, {order.delivery?.country}
+              </p>
+            </div>
+            <div className="info-detail">
+              <strong>Postal Code:</strong>
+              <p>{order.delivery?.postal_code}</p>
+            </div>
+            <div className="info-detail">
+              <strong>Tracking Number:</strong>
+              <p>{order.delivery?.tracking_number}</p>
+            </div>
           </div>
 
           <div className="payment-info">
             <h3>
               <FaCreditCard /> Payment Details
             </h3>
-            <p>Method: {order.payment?.gateway}</p>
-            <p>Transaction ID: {order.payment?.id}</p>
+            <div className="info-detail">
+              <strong>Method:</strong>
+              <p>{order.payment?.gateway}</p>
+            </div>
+            <div className="info-detail">
+              <strong>Transaction ID:</strong>
+              <p>{order.payment?.id}</p>
+            </div>
           </div>
         </div>
-        <div className="order-summary">
-          <h2>Order Summary</h2>
-          <p>Subtotal: ${order.total_price.toFixed(2)}</p>
-          <p>Tax: ${orderTaxAmount.toFixed(2)}</p>
-          <p>
-            Delivery Fee: ${parseFloat(order.delivery?.cost || 0).toFixed(2)}
-          </p>
-          <h3>Total: ${formattedFinalTotal}</h3>
-        </div>
-      </div>
 
-      <div className="order-footer">
-        <button className="back-button" onClick={() => navigate("/orders")}>
-          <FaArrowLeft /> Back to Orders
-        </button>
-        {order.status === "Pending" && (
-          <OpenModalButton
-            className="cancel-button"
-            buttonText="Cancel Order"
-            modalComponent={<CancelOrderButton orderId={order.id} className="cancel-button" />}
-          />
-        )}
-        {order.status === "Cancelled" && (
-          <OpenModalButton
-            className="cancel-button"
-            buttonText="Delete Order"
-            modalComponent={<DeleteOrder orderId={order.id} className="cancel-button" />}
-          />
-        )}
+        <div className="order-footer">
+          <button className="back-button" onClick={() => navigate("/orders")}>
+            <FaArrowLeft /> Back to Orders
+          </button>
+          {order.status === "Pending" && (
+            <OpenModalButton
+              className="cancel-button"
+              buttonText="Cancel Order"
+              modalComponent={
+                <CancelOrderButton
+                  orderId={order.id}
+                  className="cancel-button"
+                />
+              }
+            />
+          )}
+          {order.status === "Cancelled" && (
+            <OpenModalButton
+              className="cancel-button"
+              buttonText="Delete Order"
+              modalComponent={
+                <DeleteOrder orderId={order.id} className="cancel-button" />
+              }
+            />
+          )}
+        </div>
       </div>
     </div>
   );

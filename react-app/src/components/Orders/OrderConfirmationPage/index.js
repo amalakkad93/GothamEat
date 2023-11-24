@@ -16,11 +16,10 @@ const OrderConfirmationPage = () => {
   return (
     <div className="order-confirmation-page">
       <h1>Thank you for your order!</h1>
-      <img src={ConfirmationBanner} alt="Order Success" className="confirmation-illustration" />
 
       <p className="personalized-message">We're preparing your items and will send them out soon.</p>
 
-      <div className="order-summary">
+      <div className="order-summary-confirmation-page">
         <h2>Order Summary</h2>
         <p>Order ID: {order.order_id}</p>
         <ul>
@@ -36,13 +35,13 @@ const OrderConfirmationPage = () => {
         <h3>Total: ${formattedFinalTotal}</h3>
       </div>
 
-      <div className="delivery-info">
+      <div className="delivery-info-confirmation-page">
         <h2>Delivery Information</h2>
         <p>Address: {delivery.street_address}, {delivery.city}, {delivery.state}, {delivery.country}</p>
         <p>Postal Code: {delivery.postal_code}</p>
       </div>
 
-      <div className="payment-status">
+      <div className="payment-status-confirmation-page">
         <h2>Payment Status</h2>
         <p>Gateway: {payment.gateway}</p>
         <p>Status: {order.status}</p>

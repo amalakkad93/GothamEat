@@ -29,34 +29,20 @@ export default function MenuItemOverview() {
   // React router hook for navigation
   const navigate = useNavigate();
 
-  // User data from Redux state
-  const userId = useSelector((state) => state.session.user.id, shallowEqual);
-
   // Menu item data from Redux state
   const allIds = useSelector(
-    (state) => state.menuItems.singleMenuItem.allIds,
+    (state) => state.menuItems?.singleMenuItem?.allIds,
     shallowEqual
   );
   const byId = useSelector(
-    (state) => state.menuItems.singleMenuItem.byId,
-    shallowEqual
-  );
-  const menuItemImgs = useSelector(
-    (state) => state.menuItems?.menuItemImages?.byId || {},
+    (state) => state.menuItems?.singleMenuItem?.byId,
     shallowEqual
   );
 
+  const userId = useSelector((state) => state.session?.user?.id, shallowEqual);
   // Derive menu item details based on fetched data
-  const menuItemId = allIds[0];
+  const menuItemId = allIds?.[0];
   const menuItem = byId ? byId[menuItemId] : undefined;
-
-  // Get the most recent state for the menu item using its ID
-  const currentMenuItem = useSelector(
-    (state) => state.menuItems.singleMenuItem.byId[menuItemId],
-    shallowEqual
-  );
-
-  const error = useSelector((state) => state.menuItems?.error, shallowEqual);
 
   // Local state to manage the selected quantity for the menu item
   const [quantity, setQuantity] = useState(1);
@@ -119,6 +105,14 @@ useEffect(() => {
       console.error("Menu item data not yet available.");
       return;
     }
+
+    // Check if user is logged in
+  if (!userId) {
+    console.log("User not logged in. Redirecting to login page.");
+    navigate("/login"); 
+    return;
+  }
+
     console.log(
       `Attempting to add to cart: menuItemId=${menuItemId}, quantity=${quantity}, restaurantId=${restaurantId}`
     );
@@ -202,12 +196,12 @@ useEffect(() => {
         {/* Button to add the menu item to the shopping cart */}
         <div className="button-container">
           <button
-            className="menuItemOverview-btn"
+            className="menuItemOverview-back-btn"
             onClick={() => navigate(`/restaurants/${restaurantId}`)}
           >
             Back to the Menu
           </button>
-          <button className="menuItemOverview-btn" onClick={handleAddToCart}>
+          <button className="menuItemOverview-add-btn" onClick={handleAddToCart}>
             Add to Cart
           </button>
         </div>

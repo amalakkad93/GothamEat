@@ -13,7 +13,7 @@
 .order-confirmation-page h1 {
   font-size: 2.5rem;
   animation: fadeIn 1s ease-in-out;
-  color: #007bff;
+  color:goldenrod;
   margin-bottom: 20px;
 }
 
@@ -25,31 +25,33 @@
 
 .personalized-message {
   font-size: 1.2rem;
-  color: #007bff;
+  color: black;
   margin-bottom: 30px;
 }
 
-.order-summary, .delivery-info, .payment-status {
-  background: #eef2f7;
+.order-summary-confirmation-page, .delivery-info-confirmation-page, .payment-status-confirmation-page {
+  background: linear-gradient(to right, #333, goldenrod, #333);
+  /* color: white; */
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1); 
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   text-align: left;
   margin-bottom: 20px;
 }
 
-.order-summary h2, .delivery-info h2, .payment-status h2 {
-  color: #007bff;
+
+.order-summary-confirmation-page h2, .delivery-info-confirmation-page h2, .payment-status-confirmation-page h2 {
+  color: #fff;
   font-size: 1.8rem;
   margin-bottom: 15px;
 }
 
-.order-summary ul {
+.order-summary-confirmation-page ul {
   list-style: none;
   padding: 0;
 }
 
-.order-summary li {
+.order-summary-confirmation-page li {
   background: #ffffff;
   padding: 10px;
   margin-bottom: 10px;
@@ -57,8 +59,8 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.order-summary p, .delivery-info p, .payment-status p {
-  color: #555;
+.order-summary-confirmation-page p, .delivery-info-confirmation-page p, .payment-status-confirmation-page p {
+  color: #fff;
   margin-bottom: 10px;
 }
 
@@ -69,7 +71,7 @@
 }
 
 .order-confirmation-btn {
-  background-color: #007bff;
+  background-color:goldenrod;
   color: white;
   padding: 12px 25px;
   border: none;
@@ -81,7 +83,7 @@
 }
 
 .order-confirmation-btn:hover {
-  background-color: #0056b3;
+  background-color: rgb(255, 190, 27);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }

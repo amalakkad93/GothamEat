@@ -26,22 +26,6 @@
   color: #c0c4cc;
 }
 
-.PaymentForm button {
-  padding: 1rem;
-  border: none;
-  background-color: black;
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.PaymentForm button:hover {
-  background-color: #0056b3;
-}
-
 .PaymentForm .AmountDisplay {
   font-size: 1.2rem;
   font-weight: bold;
@@ -73,6 +57,38 @@
   margin-bottom: 0;
 }
 
+.payment-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+.payment-confirm-btn {
+  padding: 1rem;
+  border: none;
+  background-color:black;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+.payment-confirm-btn:hover {
+  background-color: rgb(40, 39, 39);
+}
+.payment-back-btn {
+  padding: 1rem;
+  border: none;
+  background-color:goldenrod;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+.payment-back-btn:hover {
+  background-color:rgb(177, 141, 49);
+}
 /* Responsive design adjustments */
 @media (max-width: 768px) {
   .PaymentForm {

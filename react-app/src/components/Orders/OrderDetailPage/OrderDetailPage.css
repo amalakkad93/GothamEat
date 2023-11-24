@@ -1,3 +1,4 @@
+/* Global Styles */
 .order-detail-page {
   font-family: 'San Francisco', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333;
@@ -9,15 +10,17 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
 }
 
+/* Order Header Styles */
 .order-header {
   text-align: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 1px solid #eaeaea;
+  background-color: #f8f8f8;
 }
 
 .order-header h1 {
-  color: #007bff;
+  color: goldenrod;
   font-size: 2rem;
   margin-bottom: 5px;
   font-weight: 600;
@@ -39,43 +42,124 @@
   margin-top: 10px;
 }
 
+/* Order Body Styles */
 .order-body {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: 71px;
+  /* gap: 30px; */
   margin-top: 30px;
   justify-content: space-between;
+  background-color: #ffffff;
+
 }
 
-.order-items, .order-summary, .additional-info {
-  background: #f7f7f7;
-  padding: 20px;
+.order-items, .additional-info {
+  flex: 1 1 250px;
   border-radius: 10px;
+  /* background-color: #fffbe6; */
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
+/* Item Card Styles */
 .item-card, .additional-info > div {
-  background: #ffffff;
   padding: 20px;
   margin-bottom: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.item-card h3, .additional-info h3, .order-summary h2 {
-  color: #007bff;
+.item-card h3, .additional-info h3 {
+  color: black;
   margin-bottom: 10px;
   font-weight: 600;
 }
 
-.order-footer {
+.item-card .item-detail strong, .additional-info .info-detail strong {
+  display: block;
+  font-weight: 600;
+}
+
+.item-card .item-detail p, .additional-info .info-detail p {
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #f2f2f2;
+}
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #f2f2f2;
+}
+/* Order Summary Styles */
+.order-summary {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  /* background-color: ; */
+}
+
+.order-summary h2 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.5em;
+}
+
+.order-items .item-card {
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.order-items .item-card:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.item-quantity-price {
   display: flex;
   justify-content: space-between;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.summary-costs .cost-item, .summary-costs .total-cost {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 1em;
+}
+
+.summary-costs .total-cost {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Footer Styles */
+.order-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
   margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eaeaea;
 }
 
 .back-button, .cancel-button {
-  background-color: #007bff;
+  display: inline-block;
+  background-color: black;
   color: white;
   padding: 12px 25px;
   border: none;
@@ -85,11 +169,13 @@
 }
 
 .back-button:hover, .cancel-button:hover {
-  background-color: #0056b3;
+  background-color: rgb(39, 38, 38);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.12);
 }
 
+
+/* Responsive Styles */
 @media (max-width: 768px) {
   .order-body, .additional-info {
     flex-direction: column;

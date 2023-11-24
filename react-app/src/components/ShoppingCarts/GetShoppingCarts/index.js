@@ -54,13 +54,12 @@ export default function GetShoppingCart({ onClose }) {
 
   // Handler to create an order from the cart
   const handleGoToCheckout = () => {
-
-    navigate('/checkout', {
+    navigate("/checkout", {
       state: {
         cartItems: cartItemsById,
         totalAmount: cartTotalPrice,
-        restaurantData: restaurantData
-      }
+        restaurantData: restaurantData,
+      },
     });
 
     // dispatch(thunkClearCart());
@@ -87,29 +86,29 @@ export default function GetShoppingCart({ onClose }) {
             <ClearShoppingCart handleAddItems={handleAddItems} />
           </div>
           <div className="shopping-cart-summary">
-            <span>{cartItemIds.length} item(s)</span>
+            <span>{cartItemIds?.length} item(s)</span>
             <span>Total: ${cartTotalPrice.toFixed(2)}</span>
           </div>
           <ul className="shopping-cart-ul" ref={ulRef}>
-            {cartItemIds.map((itemId) => {
+            {cartItemIds?.map((itemId) => {
               const item = cartItemsById[itemId];
               if (!item) {
                 console.error(`No item found for id ${itemId}`, cartItemsById);
                 return null;
               }
 
-              const menuItemDetails = menuItem[item.menu_item_id];
+              const menuItemDetails = menuItem[item?.menu_item_id];
               if (!menuItemDetails) {
                 console.error(
-                  `No menu item details found for menu item id ${item.menu_item_id}`,
+                  `No menu item details found for menu item id ${item?.menu_item_id}`,
                   menuItem
                 );
                 return null;
               }
 
-              const itemName = menuItemDetails.name;
-              const itemImage = menuItemDetails.image_paths
-                ? menuItemDetails.image_paths[0]
+              const itemName = menuItemDetails?.name;
+              const itemImage = menuItemDetails?.image_paths
+                ? menuItemDetails?.image_paths[0]
                 : "";
 
               return (
@@ -127,7 +126,7 @@ export default function GetShoppingCart({ onClose }) {
                   <div className="cart-item-details">
                     <EditShoppingCart itemId={itemId} />
                     <span>
-                      ${(menuItemDetails.price * item.quantity).toFixed(2)}
+                      ${(menuItemDetails?.price * item?.quantity)?.toFixed(2)}
                     </span>
                   </div>
                 </li>
@@ -138,12 +137,14 @@ export default function GetShoppingCart({ onClose }) {
             <strong>Total</strong>
             <span>${cartTotalPrice.toFixed(2)}</span>
           </div>
-          <button onClick={handleGoToCheckout} className="checkout-button">
-          Go to checkout
-          </button>
-          <button onClick={handleAddItems} className="add-items-button">
-            Add items
-          </button>
+          <div className="shopping-cart-btns">
+            <button onClick={handleGoToCheckout} className="checkout-button">
+              Go to checkout
+            </button>
+            <button onClick={handleAddItems} className="add-items-button">
+              Add items
+            </button>
+          </div>
         </>
       ) : (
         <p className="message-empty-cart-p">Your cart is empty.</p>

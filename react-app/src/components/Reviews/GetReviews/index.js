@@ -65,6 +65,7 @@ export default function GetReviews({
             <div key={review.id} className="review-item">
               {/* Header section for each review */}
               <div className="review-header">
+                <div className="review-user-card">
                 <span className="review-username">
                   {user ? user.username : "Unknown user"}
                 </span>
@@ -76,6 +77,7 @@ export default function GetReviews({
                     readOnly={true}
                     key={`rating-${review.id}`}
                   />
+                </div>
                 </div>
 
                 {/* If the current user is the author of a review, show options to delete review or its image */}

@@ -1,21 +1,21 @@
-
-/* .post-delete-review-btn:hover{
-  background-color:  #FF5A5F;
-}
-.post-delete-review-btn {
-background-color: grey;
-border: black solid 1px;
-box-shadow: 1px 1px 1px black;
-margin-bottom: 20px;
-height: 30px;
-color: white;
-cursor: pointer;
-} */
 .more-info-text {
   display: inline-block;
   text-decoration: underline;
   cursor: pointer;
   color: black;
-  /* font-weight: bold; */
   font-family: 'Roboto', sans-serif;
+  border-radius: 5px;
+}
+.more-info-button {
+  display: inline-block;
+  color: black;
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }

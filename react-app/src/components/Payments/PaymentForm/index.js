@@ -4,6 +4,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { thunkCreatePayment } from "../../../store/payments";
 import { thunkCreateOrderFromCart } from "../../../store/orders";
 import { thunkClearCart } from "../../../store/shoppingCarts";
+import { FaArrowLeft } from "react-icons/fa";
+
 import "./PaymentForm.css";
 
 function PaymentForm({
@@ -11,6 +13,7 @@ function PaymentForm({
   deliveryCost,
   totalAmount,
   onSubmit,
+  onBack,
   // onPaymentSubmit,
   // onOrderCreation,
   // onNext,
@@ -110,8 +113,12 @@ function PaymentForm({
           <p>Delivery Fee: ${deliveryCost?.toFixed(2)}</p>
           <p>Total with Delivery: ${totalWithDeliveryCost?.toFixed(2)}</p>
         </div>
-
-        <button type="submit">Confirm Payment</button>
+        <div className="payment-buttons">
+          <button className="payment-back-btn" type="button" onClick={onBack}>
+          <FaArrowLeft /> Back to Delivery
+          </button>
+          <button className="payment-confirm-btn" type="submit">Confirm Payment</button>
+        </div>
       </form>
     </div>
   );

@@ -50,7 +50,21 @@
   margin-top: 20px;
 }
 
-.menuItemOverview-btn {
+.menuItemOverview-back-btn {
+  padding: 10px 15px;
+  background-color:goldenrod;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.menuItemOverview-back-btn:hover {
+  background-color: rgb(255, 190, 27);
+  transform: scale(1.05);
+}
+.menuItemOverview-add-btn {
   padding: 10px 15px;
   background-color:black;
   color: white;
@@ -60,8 +74,8 @@
   transition: background-color 0.3s, transform 0.3s;
 }
 
-.menuItemOverview-btn:hover {
-  background-color: goldenrod;
+.menuItemOverview-add-btn:hover {
+  background-color: rgb(75, 73, 73);
   transform: scale(1.05);
 }
 .menuItemOverview-h1-tag {

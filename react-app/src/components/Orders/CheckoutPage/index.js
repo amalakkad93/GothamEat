@@ -36,6 +36,25 @@ const CheckoutPage = () => {
     (totalAmount + deliveryCost).toFixed(2)
   );
 
+  useEffect(() => {
+    if (!deliveryData) {
+      setCurrentStep(0);
+    }
+  }, [deliveryData]);
+
+  useEffect(() => {
+    if (deliveryData && !paymentData) {
+      setCurrentStep(1);
+    }
+  }, [deliveryData, paymentData]);
+
+  useEffect(() => {
+    if (paymentData && deliveryData) {
+      createOrder();
+    }
+  }, [paymentData, deliveryData]);
+
+
   const handleDeliverySubmit = async (deliveryFormData) => {
     try {
       const deliveryResponse = await dispatch(
@@ -51,7 +70,7 @@ const CheckoutPage = () => {
         return;
       }
       setDeliveryData(deliveryResponse.payload);
-      setCurrentStep(2);
+      setCurrentStep(1);
     } catch (error) {
       console.error("Delivery submission error:", error);
       alert(
@@ -60,18 +79,6 @@ const CheckoutPage = () => {
       );
     }
   };
-
-  useEffect(() => {
-    if (deliveryData && !paymentData) {
-      setCurrentStep(1);
-    }
-  }, [deliveryData, paymentData]);
-
-  useEffect(() => {
-    if (paymentData && deliveryData) {
-      createOrder();
-    }
-  }, [paymentData, deliveryData]);
 
   const handlePaymentAndOrderCreation = async (paymentFormData) => {
     try {
@@ -88,6 +95,7 @@ const CheckoutPage = () => {
         return;
       }
       setPaymentData(paymentResponse.payload);
+      setCurrentStep(2);
     } catch (error) {
       console.error(
         "An unexpected error occurred while creating the order:",
@@ -95,6 +103,9 @@ const CheckoutPage = () => {
       );
       alert("An unexpected error occurred: " + error.message);
     }
+  };
+  const handleGoBackToDelivery = () => {
+    setCurrentStep(0);
   };
 
   const createOrder = async () => {
@@ -167,6 +178,7 @@ const CheckoutPage = () => {
           // onOrderCreation={handleOrderCreation}
           // onSubmit={onPaymentFormSubmit}
           onSubmit={handlePaymentAndOrderCreation}
+          onBack={handleGoBackToDelivery}
         />
       )}
     </div>

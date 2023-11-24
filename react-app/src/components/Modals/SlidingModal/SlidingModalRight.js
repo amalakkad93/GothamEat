@@ -8,7 +8,13 @@ export default function SlidingModalRight1({ isVisible, onClose, children }) {
   return (
     <div className="modal-sidebar-overlay" onClick={onClose}>
       <div className="modal-sidebar-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-close-icon" onClick={onClose}><AiOutlineClose size={24} /></div>
+        <div
+          className="modal-close-icon"
+          onClick={onClose}
+          style={{ position: 'relative', top: '10px', right: '-3px' }}
+        >
+          <AiOutlineClose size={24} />
+        </div>
         {children}
       </div>
     </div>

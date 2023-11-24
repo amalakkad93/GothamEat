@@ -109,7 +109,7 @@
 
 .menu-item-actions button {
   border: none;
-  background-color: #007bff;
+  background-color: black;
   color: white;
   padding: 5px 15px;
   border-radius: 5px;
@@ -118,7 +118,7 @@
 }
 
 .menu-item-actions button:hover {
-  background-color: #0056b3;
+  background-color: goldenrod;
 }
 
 @media screen and (max-width: 768px) {
