@@ -122,17 +122,20 @@ function LoginFormPage() {
           submitLabel="Log In"
           submitButtonClass="login-signup-form-btn"
           formTitle="Log In"
+          extraElements={
+            <button
+              className="demo-user-btn"
+              type="button" 
+              onClick={(e) => {
+                setEmail("demo@io.com");
+                setPassword("password");
+              }}
+            >
+              Demo User
+            </button>
+          }
         />
-        <button
-          className="log-In-btn demo-user-btn"
-          type="submit"
-          onClick={(e) => {
-            setEmail("demo@io.com");
-            setPassword("password");
-          }}
-        >
-          Demo User
-        </button>
+
       </div>
     </>
   );

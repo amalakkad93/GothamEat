@@ -22,23 +22,38 @@
   color: goldenrod;
 }
 
-.login-signup-form {
-  margin-botton: 20px;
-}
+
 
 /* *************************************Log in Form************************************* */
 
 .form-login {
   margin-top: 15%;
-
+  display: flex;
+  flex-direction: column;
 }
 
-.login-signup-form-input {
+.login-signup-form-input,.login-signup-form-btn {
   padding: 10px 15px;
   border: 1px solid black;
   border-radius: 5px;
 }
+.demo-user-btn {
+  background-color:goldenrod;
+  color: white;
+  border-radius: 5px;
+  height: 40px;
+  margin-top: 10px;
+}
+.login-signup-form-btn {
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  height: 40px;
 
+}
+.login-signup-form-btn:hover {
+  background-color: #C0C0C0;
+}
 .login-signup-form-input.error {
   border-color: transparent;
 }
@@ -48,21 +63,7 @@
   outline: none;
 }
 
-.login-signup-form-btn {
-  background-color: black;
-  color: white;
-  border-radius: 5px;
-  height: 40px;
 
-}
-.demo-user-btn{
-
-  margin-left: 703px;
-  margin-top: 0px;
-}
-.login-signup-form-btn:hover {
-  background-color: #C0C0C0;
-}
 
 
 
