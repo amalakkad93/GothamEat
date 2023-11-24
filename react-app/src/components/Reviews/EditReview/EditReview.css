@@ -90,10 +90,35 @@
 
 .star-container span {
   color: gray;
-  transition: color 0.3s; 
+  transition: color 0.3s;
 }
 
 .star-container span:hover,
 .star-container span:hover ~ span {
   color: black;
+}
+
+/* Media query for mobile views */
+@media (max-width: 600px) {
+  #form-review {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .review-form-h2 {
+    font-size: 1.2em;
+  }
+
+  #form-review textarea {
+    height: 90px;
+  }
+
+  .star-container span {
+    font-size: 1.2em;
+  }
+
+  #submit-review-btn {
+    height: 40px;
+    font-size: 0.9rem; 
+  }
 }

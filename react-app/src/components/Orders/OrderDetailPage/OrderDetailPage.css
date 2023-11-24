@@ -174,10 +174,32 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.12);
 }
 
-
-/* Responsive Styles */
 @media (max-width: 768px) {
+  .order-header h1, .order-summary h2 {
+    font-size: 1.5rem;
+  }
+
+  .order-date, .order-status,
+  .item-card h3, .additional-info h3,
+  .item-card .item-detail p, .additional-info .info-detail p {
+    font-size: 0.9rem;
+  }
+
   .order-body, .additional-info {
     flex-direction: column;
+  }
+
+  .back-button, .cancel-button {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
+
+  .item-card, .additional-info > div, .order-summary {
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+
+  .order-summary .total-cost, .summary-costs .cost-item {
+    font-size: 0.9em;
   }
 }

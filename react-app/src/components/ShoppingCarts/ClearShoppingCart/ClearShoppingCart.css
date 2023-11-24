@@ -12,3 +12,11 @@
 .button-dots:focus {
   outline: none;
 }
+
+/* Media query for mobile views */
+@media (max-width: 600px) {
+  .button-dots {
+    padding: 8px;
+    font-size: 0.8em; 
+  }
+}

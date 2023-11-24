@@ -15,7 +15,7 @@
   border: 0;
   border-top: 1px solid gray;
   margin: 10px 0;
-  width: 90%; 
+  width: 90%;
 }
 
 
@@ -40,4 +40,24 @@ h1 {
 p {
   margin-bottom: 8px;
   font-size: 16px;
+}
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .more-info-modal-content {
+    height: auto;
+    width: 90%;
+    padding: 15px;
+  }
+
+  .map-image {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 14px; 
+  }
 }

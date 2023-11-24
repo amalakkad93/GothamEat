@@ -33,3 +33,18 @@
   color: grey;
   font-style: italic;
 } */
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .form-container {
+    width: 90%;
+    margin: 10px auto;
+  }
+  .form-container .input-wrapper.half,
+  .form-container .textarea-wrapper.half {
+    width: 100%;
+    float: none;
+  }
+  .form-container .error {
+    font-size: 14px;
+  }
+}

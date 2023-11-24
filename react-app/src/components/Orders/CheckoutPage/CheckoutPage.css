@@ -80,10 +80,27 @@
   background-color: goldenrod;
 }
 
+/* Media query for mobile views */
 @media (max-width: 768px) {
   .shipping-header,
   .payment-header {
     margin: 1rem;
     padding: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .shipping-form input,
+  .payment-form input,
+  .shipping-form select,
+  .payment-form select {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .next-button,
+  .previous-button,
+  .place-order-button {
+    padding: 8px 15px;
+    font-size: 0.9rem; 
   }
 }

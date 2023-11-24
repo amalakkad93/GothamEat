@@ -89,10 +89,43 @@
 .payment-back-btn:hover {
   background-color:rgb(177, 141, 49);
 }
-/* Responsive design adjustments */
+
 @media (max-width: 768px) {
   .PaymentForm {
     margin: 1rem;
     padding: 1rem;
+    max-width: 90%;
+  }
+
+  .PaymentForm select,
+  .PaymentForm input {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .PaymentForm .AmountDisplay {
+    font-size: 1rem;
+  }
+
+  .amounts-div {
+    padding: 0.8rem;
+  }
+
+  .amounts-div p {
+    font-size: 0.9rem;
+  }
+
+  .amounts-div p:last-child {
+    font-size: 1rem;
+  }
+
+  .payment-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .payment-confirm-btn, .payment-back-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
   }
 }

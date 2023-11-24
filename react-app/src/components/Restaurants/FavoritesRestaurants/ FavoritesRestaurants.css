@@ -90,3 +90,43 @@
   font-size: 15px;
   color: #ff9800;
 }
+
+@media (max-width: 768px) {
+  .Back-to-Nearby-Restaurant a {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    margin-left: 10px;
+  }
+
+  .restaurant-list {
+    padding: 15px;
+    gap: 20px;
+  }
+
+  .restaurant-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .restaurant-image {
+    height: 150px;
+  }
+
+  .favorite-heart {
+    font-size: 20px;
+  }
+
+  .restaurant-details {
+    padding: 0 10px;
+  }
+
+  .restaurant-name {
+    font-size: 18px;
+  }
+
+  .restaurant-address,
+  .restaurant-rating {
+    font-size: 14px; 
+  }
+}

@@ -77,3 +77,25 @@
     justify-content: center;
     align-items: center
   }
+
+  /* Media query for mobile views */
+@media (max-width: 600px) {
+  .tile-parent-delete-item {
+    width: 90%;
+    height: auto;
+    padding: 15px;
+  }
+
+  .modal__buttons {
+    gap: 5px;
+  }
+
+  #delete-item-btn, #cancel-item-btn {
+    height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .delete-item-h1-p-tag {
+    font-size: 1.2rem; 
+  }
+}

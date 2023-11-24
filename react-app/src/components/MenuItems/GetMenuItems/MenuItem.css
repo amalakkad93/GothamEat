@@ -121,18 +121,38 @@
   background-color: goldenrod;
 }
 
+/* Media query for tablet views */
 @media screen and (max-width: 768px) {
-  .menu-item {
-    width: calc(50% - 20px);
-  }
-
-  .menu-section {
-    transform: perspective(500px) rotateY(5deg);
+  .menu-item-main-container {
+    width: calc(50% - 20px); /* Each card takes half width on tablet views */
   }
 }
-@media (max-width: 600px) {
+
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .menu-item-main-container {
+    width: 100%; /* Each card takes full width on mobile views */
+  }
+
   .menu-section-h3 {
-    font-size: 1.2em; /* Adjust font size for smaller screens */
+    font-size: 1.2em; /* Adjust font size for mobile views */
     padding: 10px;
+  }
+
+  .menu-item-name {
+    font-size: 1.2em; /* Adjust font size for mobile views */
+  }
+
+  .menu-item-price {
+    font-size: 1em; /* Adjust font size for mobile views */
+  }
+
+  .menu-item-description {
+    font-size: 0.9em; /* Adjust font size for mobile views */
+  }
+
+  .menu-item-actions button {
+    padding: 8px 10px; /* Adjust button padding for mobile views */
+    font-size: 0.9em; /* Adjust font size for button text */
   }
 }

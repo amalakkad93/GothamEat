@@ -1,0 +1,27 @@
+
+
+/* Media Queries for Mobile Devices */
+@media screen and (max-width: 768px) {
+  .login-signup-logo-h1-first,
+  .login-signup-logo-h1-second {
+      font-size: 1em;
+  }
+
+  .form-login {
+      padding: 10px;
+  }
+
+  .login-signup-form {
+      padding: 15px;
+  }
+
+  .login-signup-form-input,
+  .login-signup-form-btn {
+      padding: 8px;
+  }
+
+  .login-signup-logo-h1-first,
+  .login-signup-logo-h1-second {
+      font-size: smaller;
+  }
+}

@@ -68,3 +68,33 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* Media query for mobile views */
+@media (max-width: 600px) {
+  .reviews-container, .reviews-list {
+    width: 95%;
+    padding: 10px;
+    margin-left: 5px;
+  }
+
+  .review-item {
+    padding: 10px 0;
+  }
+
+  .review-username {
+    font-size: 1em;
+  }
+
+  .review-date {
+    font-size: 0.8em;
+  }
+
+  .review-content {
+    font-size: 0.9em;
+  }
+
+  .review-image-container {
+    width: 250px;
+    height: 250px; 
+  }
+}

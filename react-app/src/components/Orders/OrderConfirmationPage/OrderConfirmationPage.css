@@ -101,3 +101,24 @@
     font-size: 2rem;
   }
 }
+@media (max-width: 768px) {
+  .order-confirmation-page {
+    padding: 10px;
+  }
+  .order-confirmation-page h1 {
+    font-size: 2rem;
+  }
+  .confirmation-illustration {
+    max-width: 80%;
+  }
+  .personalized-message,
+  .order-summary-confirmation-page p,
+  .delivery-info-confirmation-page p,
+  .payment-status-confirmation-page p {
+    font-size: 1rem;
+  }
+  .order-confirmation-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}

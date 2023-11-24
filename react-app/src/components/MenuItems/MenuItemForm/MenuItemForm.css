@@ -57,3 +57,26 @@ button[type="submit"]:hover {
   background-color: black;
 }
 
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .form-container {
+    padding: 15px;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select,
+  .form-input-file {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .error {
+    font-size: 13px;
+  }
+
+  button[type="submit"] {
+    padding: 8px 16px;
+    font-size: 14px; 
+  }
+}

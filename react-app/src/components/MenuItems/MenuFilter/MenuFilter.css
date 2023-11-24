@@ -78,3 +78,26 @@
 .apply-filter-btn[type="button"]:hover {
   background-color: #555;
 }
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .menu-filter-form {
+    padding: 15px;
+    font-size: 0.8rem;
+  }
+
+  .type-filters label {
+    margin-right: 10px;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+  }
+
+  .price-range-slider label {
+    margin-bottom: 3px;
+  }
+
+  .apply-filter-btn, .reset-filter-btn {
+    margin-top: 10px;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+}

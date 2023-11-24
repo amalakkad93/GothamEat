@@ -97,3 +97,27 @@
   color: black;
 }
 
+/* Media query for mobile views */
+@media (max-width: 600px) {
+  #form-review {
+    width: auto; 
+    padding: 15px;
+  }
+
+  .review-form-h2 {
+    font-size: 1.2em;
+  }
+
+  #form-review textarea {
+    margin: 5px;
+  }
+
+  .star-container span {
+    font-size: 1.2em;
+  }
+
+  #submit-review-btn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+  }
+}

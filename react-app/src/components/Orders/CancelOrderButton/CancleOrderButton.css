@@ -56,3 +56,24 @@
 #cancel-order-btn:hover {
   background-color: #5a6268;
 }
+/* Media query for mobile views */
+@media screen and (max-width: 600px) {
+  .tile-parent-cancel-order {
+    width: 90%;
+    padding: 15px;
+    max-width: none;
+  }
+
+  .cancel-order-h1-tag {
+    font-size: 1.5rem;
+  }
+
+  .cancel-order-p-tag {
+    font-size: 0.9rem;
+  }
+
+  .cancel-keep-order-cancel-btn button {
+    padding: 8px 12px;
+    font-size: 0.9rem; 
+  }
+}
