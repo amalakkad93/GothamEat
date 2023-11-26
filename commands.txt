@@ -6,6 +6,8 @@ flask db migrate
 flask db upgrade
 flask seed all
 
+****** for flask-login ******
+pip freeze > requirements.txt
 
 ****** for boto3 AWS S3 bucket ******
 
