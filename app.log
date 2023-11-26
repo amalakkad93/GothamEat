@@ -58,3 +58,4 @@ Distance to restaurant Alfred's Fine Eats: 0.9661713812022502 km
 Distance to restaurant Harley's Circus Grill: 0.9661713812022502 km
 Distance to restaurant Harley's Hysterical Diner: 0.9661713812022502 km
 Filtered restaurants count (after haversine check): 4
+Unexpected error in get_cart: 'AnonymousUserMixin' object has no attribute 'id'
