@@ -25,13 +25,6 @@
   border-radius: inherit;
 }
 
-
-@keyframes gradientWave {
-  0% {background-position: 100% 50%;}
-  50% {background-position: 0 50%;}
-  100% {background-position: 100% 50%;}
-}
-
 /* Base Styles */
 .restaurant-detail-container {
   font-family: "Arial", sans-serif;
@@ -41,6 +34,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+
 }
 
 .restaurant-detail-body {
@@ -51,10 +45,11 @@
   flex: 1;
   max-width: 300px;
   margin-top: 120px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 .restaurant-detail-main-content {
   flex: 3;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 h2 {
   font-size: 20px;
@@ -138,16 +133,31 @@ h2 {
   border-radius: 10px;
 }
 
-.menu-items-container, .reviews-section {
+.reviews-section {
   background-color: #fff;
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  margin-right: 36px;
+  margin-left: 36px;
 }
+
+.menu-items-container {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+@keyframes gradientWave {
+  0% {background-position: 100% 50%;}
+  50% {background-position: 0 50%;}
+  100% {background-position: 100% 50%;}
+}
+
 @media screen and (max-width: 768px) {
   .menu-item-card {
-    flex: 0 0 100%; /* Each card takes full width */
-    max-width: 100%; /* Maximum width set to 100% */
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }

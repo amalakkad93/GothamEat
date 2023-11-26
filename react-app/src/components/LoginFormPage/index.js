@@ -3,6 +3,8 @@ import { login } from "../../store/session";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import FormContainer from "../CustomTags/FormContainer";
+import GoogleLoginComponent from "../GoogleLogin";
+
 import "./LoginForm.css";
 
 function LoginFormPage() {
@@ -32,7 +34,6 @@ function LoginFormPage() {
       required: true,
       className: "",
       inputClassName: "login-signup-form-input",
-
     },
     {
       type: "text",
@@ -125,7 +126,7 @@ function LoginFormPage() {
           extraElements={
             <button
               className="demo-user-btn"
-              type="button" 
+              type="button"
               onClick={(e) => {
                 setEmail("demo@io.com");
                 setPassword("password");
@@ -135,7 +136,7 @@ function LoginFormPage() {
             </button>
           }
         />
-
+        {/* <GoogleLoginComponent /> */}
       </div>
     </>
   );

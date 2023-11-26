@@ -124,35 +124,35 @@
 /* Media query for tablet views */
 @media screen and (max-width: 768px) {
   .menu-item-main-container {
-    width: calc(50% - 20px); /* Each card takes half width on tablet views */
+    /* width: calc(50% - 20px);  */
   }
 }
 
 /* Media query for mobile views */
 @media screen and (max-width: 600px) {
   .menu-item-main-container {
-    width: 100%; /* Each card takes full width on mobile views */
+    width: 100%;
   }
 
   .menu-section-h3 {
-    font-size: 1.2em; /* Adjust font size for mobile views */
+    font-size: 1.2em;
     padding: 10px;
   }
 
   .menu-item-name {
-    font-size: 1.2em; /* Adjust font size for mobile views */
+    font-size: 1.2em;
   }
 
   .menu-item-price {
-    font-size: 1em; /* Adjust font size for mobile views */
+    font-size: 1em;
   }
 
   .menu-item-description {
-    font-size: 0.9em; /* Adjust font size for mobile views */
+    font-size: 0.9em;
   }
 
   .menu-item-actions button {
-    padding: 8px 10px; /* Adjust button padding for mobile views */
-    font-size: 0.9em; /* Adjust font size for button text */
+    padding: 8px 10px;
+    font-size: 0.9em;
   }
 }

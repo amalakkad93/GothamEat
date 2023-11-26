@@ -43,6 +43,9 @@ app.config.from_object(Config)
 # print(app.config['SECRET_KEY'])
 s3_client = app.config['S3_CLIENT']
 s3_location = app.config['S3_LOCATION']
+# maps_api_key = app.config['MAPS_API_KEY']
+google_client_id = app.config['GOOGLE_CLIENT_ID']
+google_client_secret = app.config['GOOGLE_CLIENT_SECRET']
 cache.init_app(app)
 
 

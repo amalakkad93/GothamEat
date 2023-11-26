@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 44ae807b99fe
+Revision ID: 05c8c2e1f659
 Revises:
-Create Date: 2023-11-20 20:21:38.114110
+Create Date: 2023-11-24 19:00:27.870751
 
 """
 from alembic import op
@@ -14,7 +14,7 @@ SCHEMA = os.environ.get("SCHEMA")
 
 
 # revision identifiers, used by Alembic.
-revision = '44ae807b99fe'
+revision = '05c8c2e1f659'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,11 +43,12 @@ def upgrade():
 
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('first_name', sa.String(length=255), nullable=False),
-    sa.Column('last_name', sa.String(length=255), nullable=False),
+    sa.Column('first_name', sa.String(length=255), nullable=True),
+    sa.Column('last_name', sa.String(length=255), nullable=True),
     sa.Column('username', sa.String(length=40), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('hashed_password', sa.String(length=255), nullable=False),
+    sa.Column('hashed_password', sa.String(length=255), nullable=True),
+    sa.Column('is_google_user', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
@@ -232,6 +233,8 @@ def downgrade():
     op.drop_table('users')
     op.drop_table('payments')
     # ### end Alembic commands ###
+
+
 
 
 

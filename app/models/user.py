@@ -16,11 +16,16 @@ class User(db.Model, UserMixin):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(255), nullable=False)
-    last_name = db.Column(db.String(255), nullable=False)
+    # first_name = db.Column(db.String(255), nullable=False)
+    # last_name = db.Column(db.String(255), nullable=False)
+    first_name = db.Column(db.String(255), nullable=True)
+    last_name = db.Column(db.String(255), nullable=True)
     username = db.Column(db.String(40), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
-    hashed_password = db.Column(db.String(255), nullable=False)
+    # hashed_password = db.Column(db.String(255), nullable=False)
+    hashed_password = db.Column(db.String(255), nullable=True)
+    is_google_user = db.Column(db.Boolean, default=False, nullable=False)
+
     # role = db.Column(Enum(RoleType), default=RoleType.CUSTOMER, nullable=False)
 
     # Relationships
@@ -46,6 +51,7 @@ class User(db.Model, UserMixin):
             'last_name': self.last_name,
             'username': self.username,
             'email': self.email,
+            'is_google_user': self.is_google_user, 
             # 'role': self.role.name,
         }
 

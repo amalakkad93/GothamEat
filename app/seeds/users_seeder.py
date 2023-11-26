@@ -2,7 +2,6 @@ from app.models import db, User, environment, SCHEMA
 from sqlalchemy.sql import text
 
 users=[
-    User(first_name="John", last_name="Doe", username='Demo', password="password", email='demo@io.com'),
     User(first_name="Alfred", last_name="Pennyworth", username='Butler', password="password", email='alfred@waynemanor.com'),
     User(first_name="Harleen", last_name="Quinzel", username='HarleyQuinn', password="password", email='harley@arkham.com'),
     User(first_name="Dick", last_name="Grayson", username='Nightwing', password="password", email='nightwing@gotham.com'),
@@ -21,6 +20,7 @@ users=[
     User(first_name="Damian", last_name="Wayne", username='DamianWayne', password="password", email='damian@waynemanor.com'),
     User(first_name="Cassandra", last_name="Cain", username='Batgirl', password="password", email='cassandra@gotham.com'),
     User(first_name="Anas", last_name="Alakkad", username='amala', password="password", email='amalakkad@gmail.com'),
+    User(first_name="John", last_name="Doe", username='Demo', password="password", email='demo@io.com'),
 ]
 def seed_users():
     db.session.add_all(users)

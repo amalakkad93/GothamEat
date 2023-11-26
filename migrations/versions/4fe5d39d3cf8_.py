@@ -1,20 +1,16 @@
 """empty message
 
-Revision ID: bd89e5878393
-Revises:
-Create Date: 2023-11-23 00:47:25.311786
+Revision ID: 4fe5d39d3cf8
+Revises: 
+Create Date: 2023-11-26 12:17:17.313480
 
 """
 from alembic import op
 import sqlalchemy as sa
-import os
-
-environment = os.getenv("FLASK_ENV")
-SCHEMA = os.environ.get("SCHEMA")
 
 
 # revision identifiers, used by Alembic.
-revision = 'bd89e5878393'
+revision = '4fe5d39d3cf8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,25 +32,20 @@ def upgrade():
     sa.Column('postal_code', sa.String(length=20), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),
     sa.Column('status', sa.String(length=255), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
+    sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE payments SET SCHEMA {SCHEMA};")
-
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('first_name', sa.String(length=255), nullable=False),
-    sa.Column('last_name', sa.String(length=255), nullable=False),
+    sa.Column('first_name', sa.String(length=255), nullable=True),
+    sa.Column('last_name', sa.String(length=255), nullable=True),
     sa.Column('username', sa.String(length=40), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('hashed_password', sa.String(length=255), nullable=False),
+    sa.Column('hashed_password', sa.String(length=255), nullable=True),
+    sa.Column('is_google_user', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE users SET SCHEMA {SCHEMA};")
-
     op.create_table('deliveries',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -71,9 +62,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE deliveries SET SCHEMA {SCHEMA};")
-
     op.create_table('restaurants',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('google_place_id', sa.String(length=255), nullable=True),
@@ -97,18 +85,12 @@ def upgrade():
     sa.UniqueConstraint('google_place_id'),
     sa.UniqueConstraint('ubereats_store_id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE restaurants SET SCHEMA {SCHEMA};")
-
     op.create_table('shopping_carts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE shopping_carts SET SCHEMA {SCHEMA};")
-
     op.create_table('favorites',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -120,9 +102,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'restaurant_id', name='unique_user_restaurant')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE favorites SET SCHEMA {SCHEMA};")
-
     op.create_table('menu_items',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('restaurant_id', sa.Integer(), nullable=True),
@@ -133,9 +112,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE menu_items SET SCHEMA {SCHEMA};")
-
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -152,9 +128,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE orders SET SCHEMA {SCHEMA};")
-
     op.create_table('reviews',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -167,9 +140,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE reviews SET SCHEMA {SCHEMA};")
-
     op.create_table('menu_item_imgs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('menu_item_id', sa.Integer(), nullable=True),
@@ -177,9 +147,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['menu_item_id'], ['menu_items.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE menu_item_imgs SET SCHEMA {SCHEMA};")
-
     op.create_table('order_items',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('menu_item_id', sa.Integer(), nullable=True),
@@ -189,9 +156,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE order_items SET SCHEMA {SCHEMA};")
-
     op.create_table('review_imgs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('review_id', sa.Integer(), nullable=True),
@@ -199,9 +163,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['review_id'], ['reviews.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE review_imgs SET SCHEMA {SCHEMA};")
-
     op.create_table('shopping_cart_items',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('menu_item_id', sa.Integer(), nullable=True),
@@ -211,8 +172,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['shopping_cart_id'], ['shopping_carts.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    if environment == "production":
-        op.execute(f"ALTER TABLE shopping_cart_items SET SCHEMA {SCHEMA};")
     # ### end Alembic commands ###
 
 

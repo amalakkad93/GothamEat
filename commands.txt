@@ -24,6 +24,8 @@ pip install requests
 ******Caching the results of the Geocoding API calls******
 pip install Flask-Caching
 
+****** for google auth ******
+pip install google-auth google-auth-oauthlib
 
 ******************************************Frontend******************************************
 ****** for react-google-maps ******
@@ -49,6 +51,8 @@ npm install react-toastify
 npm install react-spinners
 
 npm install immer
+
+npm install react-google-login
 
 
 window.persistor.purge(); // to clear the local storage

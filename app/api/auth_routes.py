@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, session, request
+from flask import Blueprint, jsonify, session, request,  current_app
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf.csrf import generate_csrf
 from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
+from google.oauth2 import id_token
+from google.auth.transport import requests
 import logging
 
 
@@ -115,3 +117,41 @@ def unauthorized():
     Returns unauthorized JSON when flask-login authentication fails
     """
     return {'errors': ['Unauthorized']}, 401
+
+
+
+
+
+@auth_routes.route('/google-login', methods=['POST'])
+def google_login():
+    try:
+        # Extract the token from the request
+        token = request.json.get('token')
+
+        # Verify the token with Google's API
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config['GOOGLE_CLIENT_ID'])
+
+        # idinfo contains the user's Google info
+        email = idinfo.get('email')
+        name = idinfo.get('name')
+
+        # Check if user already exists in your database
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Create a new user if not exist
+            user = User(email=email, username=name)
+            db.session.add(user)
+            db.session.commit()
+
+        # Log the user in
+        login_user(user)
+
+        # Return a success response with user info and CSRF token
+        response = jsonify({"user": user.to_dict()})
+        # Optionally, set CSRF token in the response here if needed
+
+        return response, 200
+
+    except Exception as e:
+        logging.error(f"Google login error: {e}")
+        return jsonify({'error': 'An error occurred during Google login'}), 401

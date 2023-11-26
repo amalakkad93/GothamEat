@@ -1,4 +1,4 @@
-import { csrfFetch } from './csrf';
+import { csrfFetch } from "./csrf";
 // constants
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
@@ -68,7 +68,8 @@ export const logout = () => async (dispatch) => {
   }
 };
 
-export const signUp = (first_name, last_name, username, email, password) => async (dispatch) => {
+export const signUp =
+  (first_name, last_name, username, email, password) => async (dispatch) => {
     const csrfInputElement = document.querySelector('input[name="csrf_token"]');
     const csrfToken = csrfInputElement ? csrfInputElement.value : null;
     if (!csrfToken) {
@@ -110,6 +111,27 @@ export const signUp = (first_name, last_name, username, email, password) => asyn
       return ["An error occurred. Please try again."];
     }
   };
+
+export const loginWithGoogle = (token) => async (dispatch) => {
+  const response = await csrfFetch("/api/auth/google-login", {
+
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    dispatch(setUser(data));
+    return null;
+  } else {
+    // Handle errors
+    const data = await response.json();
+    return data.errors ? data.errors : ["An error occurred. Please try again."];
+  }
+};
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
