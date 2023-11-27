@@ -1,4 +1,4 @@
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 import { produce } from "immer";
 
 import { actionClearCart } from "./shoppingCarts";
@@ -87,7 +87,7 @@ export const setError = (error) => ({
 export const thunkCreateOrder =
   (userId, total_price, cartItems) => async (dispatch) => {
     try {
-      const response = await csrfFetch("/api/orders", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -139,7 +139,7 @@ export const thunkCreateOrderFromCart =
       };
 
       // Make the API call to create an order
-      const response = await csrfFetch("/api/orders/create_order", {
+      const response = await fetch("/api/orders/create_order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +171,7 @@ export const thunkCreateOrderFromCart =
 // Thunk to delete an order
 export const thunkDeleteOrder = (orderId, userId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}`, {
+    const response = await fetch(`/api/orders/${orderId}`, {
       method: "DELETE",
     });
 
@@ -194,7 +194,7 @@ export const thunkDeleteOrder = (orderId, userId) => async (dispatch) => {
 // Thunk to update an order's status
 export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}/status`, {
+    const response = await fetch(`/api/orders/${orderId}/status`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -219,7 +219,7 @@ export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
 // Thunk to get user's orders
 export const thunkGetUserOrders = (userId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/user/${userId}`);
+    const response = await fetch(`/api/orders/user/${userId}`);
     if (response.ok) {
       const orders = await response.json();
       dispatch(actionSetUserOrders(orders));
@@ -240,7 +240,7 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
 // Thunk to reorder a past order
 export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}/reorder`, {
+    const response = await fetch(`/api/orders/${orderId}/reorder`, {
       method: "POST",
     });
     if (response.ok) {
@@ -262,7 +262,7 @@ export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
 // Thunk to get order items
 export const thunkGetOrderItems = (orderId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}/items`);
+    const response = await fetch(`/api/orders/${orderId}/items`);
     if (response.ok) {
       const orderItems = await response.json();
       dispatch(actionSetOrderItems(orderItems));
@@ -282,7 +282,7 @@ export const thunkGetOrderItems = (orderId) => async (dispatch) => {
 // Thunk to cancel an order
 export const thunkCancelOrder = (orderId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}/cancel`, {
+    const response = await fetch(`/api/orders/${orderId}/cancel`, {
       method: "POST",
     });
     if (response.ok) {
@@ -302,7 +302,7 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/api/orders/${orderId}`);
+    const response = await fetch(`/api/orders/${orderId}`);
 
     if (response.ok) {
       const orderDetails = await response.json();

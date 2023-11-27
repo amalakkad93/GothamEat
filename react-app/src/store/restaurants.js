@@ -11,7 +11,7 @@
  * - Thunks (for asynchronous operations)
  * - Reducer (to modify the state based on actions)
  */
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 import { removeEntityFromSection } from "../assets/helpers/helpers";
 // =========================================================
 //                  ****action types****
@@ -233,7 +233,7 @@ export const thunkGetRestaurantDetails = (restaurantId) => async (dispatch) => {
 /** Fetches restaurants owned by a user and dispatches actions based on the result */
 export const thunkGetOwnerRestaurants = () => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/restaurants/owned`);
+    const response = await fetch(`/api/restaurants/owned`);
 
     if (response.ok) {
       const restaurants = await response.json();
@@ -267,7 +267,7 @@ export const thunkCreateRestaurant =
     try {
       let imageUrl = null;
       if (image) {
-        // const presignedResponse = await csrfFetch(
+        // const presignedResponse = await fetch(
         const presignedResponse = await fetch(
           `/s3/generate_presigned_url?filename=${encodeURIComponent(
             image.name
@@ -283,7 +283,7 @@ export const thunkCreateRestaurant =
         imageUrl = presignedData.file_url;
       }
 
-      // const response = await csrfFetch("/api/restaurants", {
+      // const response = await fetch("/api/restaurants", {
       const response = await fetch("/api/restaurants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -325,7 +325,7 @@ export const thunkUpdateRestaurant =
 
       // Delete existing image
       if (existingImageUrl && newImage) {
-        const deleteResponse = await csrfFetch("/s3/delete-image", {
+        const deleteResponse = await fetch("/s3/delete-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: existingImageUrl }),
@@ -341,7 +341,7 @@ export const thunkUpdateRestaurant =
       // If there's a new image to upload
       if (newImage) {
         // Generate presigned URL and upload new image
-        const presignedResponse = await csrfFetch(
+        const presignedResponse = await fetch(
           `/s3/generate_presigned_url?filename=${encodeURIComponent(
             newImage.name
           )}&contentType=${encodeURIComponent(newImage.type)}`,
@@ -364,7 +364,7 @@ export const thunkUpdateRestaurant =
       }
 
       // Update restaurant details
-      const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
+      const response = await fetch(`/api/restaurants/${restaurantId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...updatedData, banner_image_path: imageUrl }),
@@ -399,7 +399,7 @@ export const thunkUpdateRestaurant =
 /** Deletes a restaurant and dispatches actions based on the result */
 export const thunkDeleteRestaurant = (restaurantId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/restaurants/${restaurantId}`, {
+    const response = await fetch(`/api/restaurants/${restaurantId}`, {
       method: "DELETE",
     });
 

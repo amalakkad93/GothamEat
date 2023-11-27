@@ -1,4 +1,4 @@
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 
 // Action Types
 const ADD_ITEM_TO_CART = "shoppingCart/ADD_ITEM_TO_CART";
@@ -74,7 +74,7 @@ const actionSetCartError = (error) => ({
 export const thunkAddItemToCart =
   (menuItemId, quantity, restaurantId) => async (dispatch) => {
     try {
-      const response = await csrfFetch(
+      const response = await fetch(
         `/api/shopping-carts/${menuItemId}/items`,
         {
           method: "POST",
@@ -103,7 +103,7 @@ export const thunkAddItemToCart =
 export const thunkAddItemsToCart =
   (items, restaurantId) => async (dispatch) => {
     try {
-      const response = await csrfFetch(`/api/shopping-carts/items`, {
+      const response = await fetch(`/api/shopping-carts/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export const thunkAddItemsToCart =
 export const thunkFetchCurrentCart = () => async (dispatch) => {
   dispatch(setCartLoading());
   try {
-    const response = await csrfFetch(`/api/shopping-carts/current`);
+    const response = await fetch(`/api/shopping-carts/current`);
 
     if (response.ok) {
       const data = await response.json();
@@ -163,7 +163,7 @@ export const thunkFetchCurrentCart = () => async (dispatch) => {
 // ***************************************************************
 export const thunkDeleteItemFromCart = (itemId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/shopping-carts/items/${itemId}`, {
+    const response = await fetch(`/api/shopping-carts/items/${itemId}`, {
       method: "DELETE",
     });
 
@@ -189,7 +189,7 @@ export const thunkDeleteItemFromCart = (itemId) => async (dispatch) => {
 // ***************************************************************
 export const thunkUpdateItemInCart = (itemId, quantity) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/shopping-carts/items/${itemId}`, {
+    const response = await fetch(`/api/shopping-carts/items/${itemId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -220,7 +220,7 @@ export const thunkUpdateItemInCart = (itemId, quantity) => async (dispatch) => {
 // ***************************************************************
 export const thunkClearCart = () => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/shopping-carts/current/clear`, {
+    const response = await fetch(`/api/shopping-carts/current/clear`, {
       method: "DELETE",
     });
 

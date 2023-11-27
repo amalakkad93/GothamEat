@@ -1,4 +1,4 @@
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 
 // Action Types
 const SET_REVIEWS = "reviews/SET_REVIEWS";
@@ -107,7 +107,7 @@ export const thunkGetReviewsByRestaurantId =
   (restaurantId) => async (dispatch) => {
     try {
 
-      const response = await csrfFetch(
+      const response = await fetch(
         `/api/restaurants/${restaurantId}/reviews`
       );
       const data = await response.json();
@@ -138,7 +138,7 @@ export const thunkCreateReview = (restaurantId, review, stars, image) => {
     return new Promise(async (resolve, reject) => {
       try {
         // 1. Submit the review
-        const reviewResponse = await csrfFetch(
+        const reviewResponse = await fetch(
           `/api/restaurants/${restaurantId}/reviews`,
           {
             method: "POST",
@@ -163,7 +163,7 @@ export const thunkCreateReview = (restaurantId, review, stars, image) => {
         dispatch(actionHasUserPostedReview());
         if (image && reviewData.reviewId) {
           // 2. Fetch the presigned URL
-          const presignedResponse = await csrfFetch(
+          const presignedResponse = await fetch(
             `/s3/generate_presigned_url?filename=${image.name}&contentType=${image.type}`
           );
 
@@ -189,7 +189,7 @@ export const thunkCreateReview = (restaurantId, review, stars, image) => {
           });
 
           // 4. Send the image URL to the backend to store it
-          await csrfFetch(`/api/reviews/${reviewData.reviewId}/images`, {
+          await fetch(`/api/reviews/${reviewData.reviewId}/images`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image_url: presignedData.file_url }),
@@ -227,7 +227,7 @@ export const thunkUpdateReview = (
     try {
       // Delete existing image
       if (existingImageUrl) {
-        const deleteResponse = await csrfFetch("/s3/delete-image", {
+        const deleteResponse = await fetch("/s3/delete-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: existingImageUrl }),
@@ -241,7 +241,7 @@ export const thunkUpdateReview = (
       }
 
       // Update review details
-      const reviewResponse = await csrfFetch(`/api/reviews/${reviewId}`, {
+      const reviewResponse = await fetch(`/api/reviews/${reviewId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
@@ -258,7 +258,7 @@ export const thunkUpdateReview = (
       // If there's a new image to upload
       if (newImage) {
         // Get presigned URL from the server
-        const presignedResponse = await csrfFetch(
+        const presignedResponse = await fetch(
           `/s3/generate_presigned_url?filename=${encodeURIComponent(
             newImage.name
           )}&contentType=${encodeURIComponent(newImage.type)}`
@@ -287,7 +287,7 @@ export const thunkUpdateReview = (
         }
 
         // Update the image URL in the application's backend
-        const updateImageResponse = await csrfFetch(
+        const updateImageResponse = await fetch(
           `/api/reviews/${reviewId}/images`,
           {
             method: "POST",
@@ -332,7 +332,7 @@ export const thunkDeleteReview = (reviewId, imageId) => async (dispatch) => {
   try {
     // Delete the review
     if (reviewId) {
-      const reviewResponse = await csrfFetch(`/api/reviews/${reviewId}`, {
+      const reviewResponse = await fetch(`/api/reviews/${reviewId}`, {
         method: "DELETE",
       });
       if (!reviewResponse.ok) {

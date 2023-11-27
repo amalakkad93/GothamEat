@@ -1,5 +1,5 @@
 // frontend/src/store/maps.js
-import { csrfFetch } from './csrf';
+import { fetch } from './csrf';
 
 const LOAD_API_KEY = 'maps/LOAD_API_KEY';
 
@@ -9,7 +9,7 @@ const loadApiKey = (key) => ({
 });
 
 export const getKey = () => async (dispatch) => {
-  const res = await csrfFetch('/api/maps/key', {
+  const res = await fetch('/api/maps/key', {
     method: 'POST',
   });
   if (res.ok) {
@@ -17,7 +17,7 @@ export const getKey = () => async (dispatch) => {
     // console.log("Received API Key:", data.googleMapsAPIKey);
     dispatch(loadApiKey(data.google_maps_api_key));
   } else {
-    console.error("Failed to load API key:", await res.text());  
+    console.error("Failed to load API key:", await res.text());
   }
 };
 

@@ -1,4 +1,4 @@
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 // constants
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
@@ -15,7 +15,7 @@ const removeUser = () => ({
 const initialState = { user: null };
 
 export const authenticate = () => async (dispatch) => {
-  const response = await csrfFetch("/api/auth/", {
+  const response = await fetch("/api/auth/", {
     headers: {
       "Content-Type": "application/json",
     },
@@ -31,7 +31,7 @@ export const authenticate = () => async (dispatch) => {
 };
 
 export const login = (email, password) => async (dispatch) => {
-  const response = await csrfFetch("/api/auth/login", {
+  const response = await fetch("/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 export const logout = () => async (dispatch) => {
-  const response = await csrfFetch("/api/auth/logout", {
+  const response = await fetch("/api/auth/logout", {
     headers: {
       "Content-Type": "application/json",
     },
@@ -78,7 +78,7 @@ export const signUp =
       return;
     }
 
-    const response = await csrfFetch("/api/auth/signup", {
+    const response = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,7 @@ export const signUp =
   };
 
 export const loginWithGoogle = (token) => async (dispatch) => {
-  const response = await csrfFetch("/api/auth/google-login", {
+  const response = await fetch("/api/auth/google-login", {
 
     method: "POST",
     headers: {

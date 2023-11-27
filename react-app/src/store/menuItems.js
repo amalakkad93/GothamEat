@@ -11,7 +11,7 @@
  * - Thunks (for asynchronous operations)
  * - Reducer (to modify the state based on actions)
  */
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 // =========================================================
 //                  ****action types****
 // =========================================================
@@ -252,7 +252,7 @@ export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
     return new Promise(async (resolve, reject) => {
       try {
         // 1. Submit the menu item
-        const menuItemResponse = await csrfFetch(
+        const menuItemResponse = await fetch(
           `/api/restaurants/${restaurantId}/menu-items`,
           {
             method: "POST",
@@ -282,7 +282,7 @@ export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
         if (image && menuItemId) {
 
           // 2. Fetch the presigned URL for menu item image
-          const presignedResponse = await csrfFetch(
+          const presignedResponse = await fetch(
             `/s3/generate_presigned_url?filename=${image.name}&contentType=${image.type}`
           );
 
@@ -310,7 +310,7 @@ export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
             },
           });
           // 4. Send the image URL to the backend to store it and get the image record
-          const imageResponse = await csrfFetch(
+          const imageResponse = await fetch(
             `/api/menu-items/${menuItemId}/images`,
             {
               method: "POST",
@@ -367,7 +367,7 @@ export const thunkUpdateMenuItem = (
     try {
       // Delete existing image
       if (existingImageUrl) {
-        const deleteResponse = await csrfFetch("/s3/delete-image", {
+        const deleteResponse = await fetch("/s3/delete-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_url: existingImageUrl }),
@@ -381,7 +381,7 @@ export const thunkUpdateMenuItem = (
       }
 
       // Update menu item details
-      const menuItemResponse = await csrfFetch(
+      const menuItemResponse = await fetch(
         `/api/menu-items/${menuItemId}`,
         {
           method: "PUT",
@@ -401,7 +401,7 @@ export const thunkUpdateMenuItem = (
       // If there's a new image to upload
       if (newImage) {
         // Get presigned URL from the server
-        const presignedResponse = await csrfFetch(
+        const presignedResponse = await fetch(
           `/s3/generate_presigned_url?filename=${encodeURIComponent(
             newImage.name
           )}&contentType=${encodeURIComponent(newImage.type)}`
@@ -430,7 +430,7 @@ export const thunkUpdateMenuItem = (
         }
 
         // Update the image URL in your application's backend
-        const updateImageResponse = await csrfFetch(
+        const updateImageResponse = await fetch(
           `/api/menu-items/${menuItemId}/images`,
           {
             method: "POST",
@@ -479,7 +479,7 @@ export const thunkDeleteMenuItem =
     try {
       // Delete the menu item
       if (menuItemId) {
-        const menuItemResponse = await csrfFetch(
+        const menuItemResponse = await fetch(
           `/api/menu-items/${menuItemId}`,
           {
             method: "DELETE",

@@ -1,4 +1,4 @@
-import { csrfFetch } from './csrf';
+import { fetch } from './csrf';
 
 // Action Types
 const SET_DELIVERIES = 'delivery/SET_DELIVERIES';
@@ -37,7 +37,7 @@ const actionSetDeliveryError = (error) => ({
 // Thunks
 export const thunkGetDeliveries = () => async (dispatch) => {
   try {
-    const response = await csrfFetch('/api/delivery');
+    const response = await fetch('/api/delivery');
 
     // Check if the network response was not ok to throw an error
     if (!response.ok) {
@@ -74,7 +74,7 @@ export const thunkGetDeliveries = () => async (dispatch) => {
 
 export const thunkCreateDelivery = (deliveryData) => async (dispatch) => {
   try {
-    const response = await csrfFetch('/api/delivery', {
+    const response = await fetch('/api/delivery', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export const thunkCreateDelivery = (deliveryData) => async (dispatch) => {
 
 export const thunkUpdateDelivery = (deliveryId, updates) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/delivery/${deliveryId}`, {
+    const response = await fetch(`/api/delivery/${deliveryId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ export const thunkUpdateDelivery = (deliveryId, updates) => async (dispatch) => 
 
 export const thunkDeleteDelivery = (deliveryId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/delivery/${deliveryId}`, {
+    const response = await fetch(`/api/delivery/${deliveryId}`, {
       method: 'DELETE',
     });
 

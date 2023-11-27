@@ -1,5 +1,5 @@
 
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 
 /**
  * =========================================================
@@ -101,7 +101,7 @@ export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
   }
 
   try {
-    const response = await csrfFetch(`/api/favorites?user_id=${userId}`);
+    const response = await fetch(`/api/favorites?user_id=${userId}`);
     if (response.ok) {
       const allFavorites = await response.json();
       dispatch(actionSetAllFavorites(allFavorites));
@@ -148,7 +148,7 @@ export const thunkFetchAllFavorites = (userId) => async (dispatch) => {
 export const thunkToggleFavorite = (userId, restaurantId) => async (dispatch) => {
   try {
     // Make a post request to toggle the favorite status
-    const response = await csrfFetch("/api/favorites/", {
+    const response = await fetch("/api/favorites/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId, restaurant_id: restaurantId }),

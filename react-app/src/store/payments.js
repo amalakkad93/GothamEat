@@ -1,4 +1,4 @@
-import { csrfFetch } from "./csrf";
+import { fetch } from "./csrf";
 
 const SET_PAYMENTS = 'payments/SET_PAYMENTS';
 const ADD_PAYMENT = 'payments/ADD_PAYMENT';
@@ -49,7 +49,7 @@ export const thunkGetPayments = () => async (dispatch) => {
 
 export const thunkCreatePayment = (paymentData) => async (dispatch) => {
   try {
-    const response = await csrfFetch('/api/payments', {
+    const response = await fetch('/api/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export const thunkCreatePayment = (paymentData) => async (dispatch) => {
 
 export const thunkEditPayment = (paymentId, paymentData) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/payments/${paymentId}`, {
+    const response = await fetch(`/api/payments/${paymentId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export const thunkEditPayment = (paymentId, paymentData) => async (dispatch) => 
 
 export const thunkRemovePayment = (paymentId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/payments/${paymentId}`, {
+    const response = await fetch(`/api/payments/${paymentId}`, {
       method: 'DELETE',
     });
 
