@@ -267,7 +267,8 @@ export const thunkCreateRestaurant =
     try {
       let imageUrl = null;
       if (image) {
-        const presignedResponse = await csrfFetch(
+        // const presignedResponse = await csrfFetch(
+        const presignedResponse = await fetch(
           `/s3/generate_presigned_url?filename=${encodeURIComponent(
             image.name
           )}&contentType=${encodeURIComponent(image.type)}`,
@@ -282,7 +283,8 @@ export const thunkCreateRestaurant =
         imageUrl = presignedData.file_url;
       }
 
-      const response = await csrfFetch("/api/restaurants", {
+      // const response = await csrfFetch("/api/restaurants", {
+      const response = await fetch("/api/restaurants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

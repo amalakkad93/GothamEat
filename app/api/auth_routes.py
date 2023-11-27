@@ -25,12 +25,12 @@ def validation_errors_to_error_messages(validation_errors):
             errorMessages.append(f'{field} : {error}')
     return errorMessages
 
-@auth_routes.route('/csrf/restore', methods=['GET'])
-def restore_csrf():
-    """
-    Returns the CSRF token for frontend usage.
-    """
-    return jsonify({"csrf_token": generate_csrf()})
+# @auth_routes.route('/csrf/restore', methods=['GET'])
+# def restore_csrf():
+#     """
+#     Returns the CSRF token for frontend usage.
+#     """
+#     return jsonify({"csrf_token": generate_csrf()})
 
 @auth_routes.route('/')
 def authenticate():
