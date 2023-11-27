@@ -1,5 +1,5 @@
 // frontend/src/store/maps.js
-import { fetch } from './csrf';
+// import { fetch } from './csrf';
 
 const LOAD_API_KEY = 'maps/LOAD_API_KEY';
 

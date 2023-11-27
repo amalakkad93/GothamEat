@@ -1,4 +1,4 @@
-import { fetch } from "./csrf";
+// import { fetch } from "./csrf";
 
 // Action Types
 const ADD_ITEM_TO_CART = "shoppingCart/ADD_ITEM_TO_CART";

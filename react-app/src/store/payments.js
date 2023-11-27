@@ -1,4 +1,4 @@
-import { fetch } from "./csrf";
+// import { fetch } from "./csrf";
 
 const SET_PAYMENTS = 'payments/SET_PAYMENTS';
 const ADD_PAYMENT = 'payments/ADD_PAYMENT';

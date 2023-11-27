@@ -1,4 +1,4 @@
-import { fetch } from "./csrf";
+// import { fetch } from "./csrf";
 
 // Action Types
 const SET_REVIEWS = "reviews/SET_REVIEWS";

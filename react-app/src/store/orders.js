@@ -1,4 +1,4 @@
-import { fetch } from "./csrf";
+// import { fetch } from "./csrf";
 import { produce } from "immer";
 
 import { actionClearCart } from "./shoppingCarts";

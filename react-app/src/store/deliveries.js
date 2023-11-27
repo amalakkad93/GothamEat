@@ -1,4 +1,4 @@
-import { fetch } from './csrf';
+// import { fetch } from './csrf';
 
 // Action Types
 const SET_DELIVERIES = 'delivery/SET_DELIVERIES';
