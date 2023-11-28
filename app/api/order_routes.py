@@ -252,16 +252,16 @@ def create_order_logic(data):
 @order_routes.route('/<int:order_id>', methods=['GET'])
 def get_order_details(order_id):
     try:
-        print(f"Fetching details for order ID: {order_id}")  # Log for debugging
+        logging.info(f"Fetching details for order ID: {order_id}")
         order = Order.query.get(order_id)
 
         if not order:
-            print(f"Order with ID {order_id} not found.")  # Log for debugging
+            logging.warning(f"Order with ID {order_id} not found.")
             abort(404, description=f"Order with ID {order_id} not found.")
 
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
         if not order_items:
-            print(f"No order items found for order ID {order_id}")  # Log for debugging
+            logging.warning(f"No order items found for order ID {order_id}")
             abort(404, description=f"No order items found for order ID {order_id}")
 
         menu_item_ids = [oi.menu_item_id for oi in order_items]
@@ -279,11 +279,11 @@ def get_order_details(order_id):
         return jsonify(normalized_order_details)
 
     except SQLAlchemyError as e:
-        print(f"Database Error: {e}")  # Log database errors
+        logging.error(f"Database Error: {e}")
         abort(500, description='Database operation failed')
 
     except Exception as e:
-        print(f"Unexpected Error: {e}")  # Log unexpected errors
+        logging.error(f"Unexpected Error: {e}")
         abort(500, description='An unexpected error occurred')
 
 
