@@ -7,6 +7,50 @@
   gap: 25px;
 }
 
+.no-restaurants-card {
+  text-align: center;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.no-restaurants-icon {
+  font-size: 50px;
+  color: #ff6b6b;
+  margin-bottom: 10px;
+}
+
+.no-restaurants-text {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.explore-all-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.explore-all-button:hover {
+  background-color: #218838;
+}
+
+
+
+
+
 .restaurant-card {
   flex: 0 0 calc(33.3333% - 25px);
   max-width: calc(33.3333% - 25px);

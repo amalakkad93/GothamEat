@@ -41,6 +41,7 @@ google_client_id = app.config['GOOGLE_CLIENT_ID']
 google_client_secret = app.config['GOOGLE_CLIENT_SECRET']
 cache.init_app(app)
 
+
 app.register_blueprint(user_routes, url_prefix='/api/users')
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
 app.register_blueprint(restaurant_routes, url_prefix="/api/restaurants")
@@ -58,7 +59,7 @@ app.register_blueprint(s3_routes, url_prefix='/s3')
 
 db.init_app(app)
 Migrate(app, db)
-
+csrf = CSRFProtect(app)
 # Application Security
 CORS(app)
 
@@ -84,6 +85,7 @@ def inject_csrf_token(response):
             'FLASK_ENV') == 'production' else None,
         httponly=True)
     return response
+
 @app.route("/api/docs")
 def api_help():
     """

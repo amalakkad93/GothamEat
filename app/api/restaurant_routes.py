@@ -48,7 +48,7 @@ def get_all_restaurants():
             raise ValueError("Page number and per_page must be greater than 0")
 
         pagination = Restaurant.query.paginate(page=page, per_page=per_page, error_out=False)
-       
+
 
         all_restaurants_list = [restaurant.to_dict() for restaurant in pagination.items]
         normalized_restaurants = hf.normalize_data(all_restaurants_list, 'id')
@@ -266,7 +266,7 @@ def update_restaurant(id):
 
         # Parsing and validating the form data
         form = RestaurantForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
         data = request.get_json()
 
         # Update form fields with provided data
@@ -323,7 +323,7 @@ def create_restaurant():
 
         # Parsing and validating the form data
         form = RestaurantForm(data=data)
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
 
         # Create a new restaurant entry if validation succeeds
         if form.validate_on_submit():
@@ -528,7 +528,7 @@ def create_review(id):
 
         # Validate the incoming data with the form
         form = ReviewForm(data=data)
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
 
         # If the form validates, create the new menu item
         if form.validate_on_submit():
@@ -663,7 +663,7 @@ def create_menu_item_by_restaurant_id(id):
 
         # Validate the incoming data with the form
         form = MenuItemForm(data=data)
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
 
         # If the form validates, create the new menu item
         if form.validate_on_submit():

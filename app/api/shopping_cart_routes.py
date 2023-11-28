@@ -83,78 +83,18 @@ def get_cart():
 # ***************************************************************
 # Endpoint to Add an Item to the Current User's Shopping Cart
 # ***************************************************************
-# @login_required
-# @shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
-# def add_item_to_cart(id):
-#     """
-#     Adds a new item to the current user's shopping cart based on the provided menu item ID.
-
-#     Args:
-#         id (int): The ID of the menu item to be added to the cart.
-
-#     Returns:
-#         Response: A message indicating the success or failure of the addition.
-#                   On success, also returns the details of the added item.
-#     """
-#     try:
-#         # Log the received data for debugging
-#         current_app.logger.info(f"Received data: {request.json}")
-
-#         # Initialize the shopping cart form with CSRF protection
-#         form = ShoppingCartItemForm()
-#         form['csrf_token'].data = request.cookies['csrf_token']
-
-#         # If the form validates, attempt to add the item to the user's cart
-#         if form.validate_on_submit():
-
-#             # Ensure that the menu item ID is provided
-#             if not form.menu_item_id.data:
-#                 return jsonify({"error": "menu_item_id is required"}), 400
-
-#             # Query the database for the user's cart, or create a new one if it doesn't exist
-#             cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
-#             if not cart:
-#                 cart = ShoppingCart(user_id=current_user.id)
-#                 db.session.add(cart)
-
-#             # Ensure the current user is the owner of the retrieved/created cart
-#             if cart.user_id != current_user.id:
-#                 raise PermissionError("You don't have permission to modify this cart.", 403)
-
-#             # Create a new shopping cart item with the provided details and add it to the database
-#             cart_item = ShoppingCartItem(
-#                 menu_item_id=form.menu_item_id.data,
-#                 quantity=form.quantity.data,
-#                 shopping_cart_id=cart.id
-#             )
-#             db.session.add(cart_item)
-#             db.session.commit()
-
-#             # Return a success message along with the details of the added item
-#             return jsonify({
-#                 "message": "Item added to cart successfully",
-#                 "entities": {
-#                     "shoppingCartItems": normalize_data([cart_item.to_dict()], 'id')
-#                 }
-#             }), 201
-
-#         # If the form doesn't validate, return the form errors
-#         return jsonify(errors=form.errors), 400
-
-#     # Handle various types of exceptions and log the errors
-#     except PermissionError as pe:
-#         current_app.logger.error(f"PermissionError in add_item_to_cart: {str(pe)}")
-#         message, code = pe.args if len(pe.args) == 2 else (str(pe), 403)
-#         return jsonify({"error": message}), code
-
-#     except Exception as e:
-#         current_app.logger.error(f"Unexpected error in add_item_to_cart: {str(e)}")
-#         return jsonify({"error": "An unexpected error occurred while adding item to the cart."}), 500
 @login_required
 @shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
 def add_item_to_cart(id):
     """
     Adds a new item to the current user's shopping cart based on the provided menu item ID.
+
+    Args:
+        id (int): The ID of the menu item to be added to the cart.
+
+    Returns:
+        Response: A message indicating the success or failure of the addition.
+                  On success, also returns the details of the added item.
     """
     try:
         # Log the received data for debugging
@@ -162,27 +102,26 @@ def add_item_to_cart(id):
 
         # Initialize the shopping cart form with CSRF protection
         form = ShoppingCartItemForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
 
-        # Log CSRF Token information
-        current_app.logger.info(f"CSRF Token from form: {form['csrf_token'].data}")
-        current_app.logger.info(f"CSRF Token from cookie: {request.cookies.get('csrf_token')}")
-
+        # If the form validates, attempt to add the item to the user's cart
         if form.validate_on_submit():
-            menu_item = MenuItem.query.get(form.menu_item_id.data)
-            if not menu_item:
-                return jsonify({"error": "MenuItem does not exist"}), 400
 
+            # Ensure that the menu item ID is provided
+            if not form.menu_item_id.data:
+                return jsonify({"error": "menu_item_id is required"}), 400
+
+            # Query the database for the user's cart, or create a new one if it doesn't exist
             cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
             if not cart:
                 cart = ShoppingCart(user_id=current_user.id)
                 db.session.add(cart)
-                db.session.commit()
-                current_app.logger.info(f"New cart created for user {current_user.id}")
 
+            # Ensure the current user is the owner of the retrieved/created cart
             if cart.user_id != current_user.id:
-                raise PermissionError("You don't have permission to modify this cart.")
+                raise PermissionError("You don't have permission to modify this cart.", 403)
 
+            # Create a new shopping cart item with the provided details and add it to the database
             cart_item = ShoppingCartItem(
                 menu_item_id=form.menu_item_id.data,
                 quantity=form.quantity.data,
@@ -191,6 +130,7 @@ def add_item_to_cart(id):
             db.session.add(cart_item)
             db.session.commit()
 
+            # Return a success message along with the details of the added item
             return jsonify({
                 "message": "Item added to cart successfully",
                 "entities": {
@@ -198,16 +138,20 @@ def add_item_to_cart(id):
                 }
             }), 201
 
+        # If the form doesn't validate, return the form errors
         return jsonify(errors=form.errors), 400
 
+    # Handle various types of exceptions and log the errors
     except PermissionError as pe:
         current_app.logger.error(f"PermissionError in add_item_to_cart: {str(pe)}")
         message, code = pe.args if len(pe.args) == 2 else (str(pe), 403)
         return jsonify({"error": message}), code
 
     except Exception as e:
-        current_app.logger.error(f"Unexpected error in add_item_to_cart: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Unexpected error in add_item_to_cart: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while adding item to the cart."}), 500
+
+
 # ***************************************************************
 # Endpoint to Add Multiple Items to the Current User's Shopping Cart
 # ***************************************************************
@@ -290,7 +234,7 @@ def update_cart_item(item_id):
     try:
         # Initialize the shopping cart form with CSRF protection
         form = ShoppingCartItemForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
 
         # If the form validates, attempt to update the item details in the user's cart
         if form.validate_on_submit():

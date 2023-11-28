@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, session, request,  current_app
+from flask import Blueprint, jsonify, session, request, current_app
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf.csrf import generate_csrf
 from app.models import User, db
@@ -13,7 +13,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-auth_routes = Blueprint('auth', __name__)
+auth_routes = Blueprint("auth", __name__)
+
 
 def validation_errors_to_error_messages(validation_errors):
     """
@@ -22,8 +23,9 @@ def validation_errors_to_error_messages(validation_errors):
     errorMessages = []
     for field in validation_errors:
         for error in validation_errors[field]:
-            errorMessages.append(f'{field} : {error}')
+            errorMessages.append(f"{field} : {error}")
     return errorMessages
+
 
 # @auth_routes.route('/csrf/restore', methods=['GET'])
 # def restore_csrf():
@@ -32,52 +34,56 @@ def validation_errors_to_error_messages(validation_errors):
 #     """
 #     return jsonify({"csrf_token": generate_csrf()})
 
-@auth_routes.route('/')
+
+@auth_routes.route("/")
 def authenticate():
     """
     Authenticates a user.
     """
     if current_user.is_authenticated:
         return current_user.to_dict()
-    return {'errors': ['Unauthorized']}
+    return {"errors": ["Unauthorized"]}
 
 
-@auth_routes.route('/login', methods=['POST'])
+@auth_routes.route("/login", methods=["POST"])
 def login():
     """
     Logs a user in
     """
     form = LoginForm()
-    # Get the csrf_token from the request cookie and put it into the
-    # form manually to validate_on_submit can be used
-    # form['csrf_token'].data = request.cookies['csrf_token']
-        # Check if the XSRF-TOKEN is in the request cookies
-    if 'XSRF-TOKEN' in request.cookies:
-        form['csrf_token'].data = request.cookies['XSRF-TOKEN']
-    else:
-        # Handle the error, e.g., return a response indicating the CSRF token was missing.
-        return {'errors': ['CSRF token missing.']}, 400
+    
+    # Check if the form data is valid
+    if not form.validate():
+        return {"errors": validation_errors_to_error_messages(form.errors)}, 400
 
-    if form.validate_on_submit():
-        # Add the user to the session, we are logged in!
-        user = User.query.filter(User.email == form.data['email']).first()
-        login_user(user)
-        # delete the line below and uncomment the line above when in a production environment.
-        return { "user": user.to_dict(), "csrf_token": generate_csrf() }
+    # Retrieve user by email
+    user = User.query.filter(User.email == form.data["email"]).first()
 
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
+    # Check if the user exists
+    if user is None:
+        return {"errors": ["No account found with the provided email."]}, 401
+
+    # Check if the password is correct
+    if not user.check_password(form.data["password"]):
+        return {"errors": ["Invalid password."]}, 401
+
+    # Log the user in
+    login_user(user)
+
+    # Return the user data
+    return user.to_dict()
 
 
-@auth_routes.route('/logout')
+@auth_routes.route("/logout")
 def logout():
     """
     Logs a user out
     """
     logout_user()
-    return {'message': 'User logged out'}
+    return {"message": "User logged out"}
 
 
-@auth_routes.route('/signup', methods=['POST'])
+@auth_routes.route("/signup", methods=["POST"])
 def sign_up():
     """
     Creates a new user and logs them in
@@ -88,11 +94,11 @@ def sign_up():
 
         if form.validate_on_submit():
             user = User(
-                first_name=form.data['first_name'],
-                last_name=form.data['last_name'],
-                username=form.data['username'],
-                email=form.data['email'],
-                password=form.data['password']
+                first_name=form.data["first_name"],
+                last_name=form.data["last_name"],
+                username=form.data["username"],
+                email=form.data["email"],
+                password=form.data["password"],
             )
             db.session.add(user)
             db.session.commit()
@@ -103,35 +109,39 @@ def sign_up():
                 return jsonify(user.to_dict())
             else:
                 logger.error("User login failed.")
-                return {'errors': ['Login failed after sign up.']}, 401
+                return {"errors": ["Login failed after sign up."]}, 401
         else:
-            return jsonify({'errors': validation_errors_to_error_messages(form.errors)}), 401
+            return (
+                jsonify({"errors": validation_errors_to_error_messages(form.errors)}),
+                401,
+            )
     except Exception as e:
         logger.error(f"Error during sign up: {e}")
-        return jsonify({'errors': ['An error occurred. Please try again.']}), 500
+        return jsonify({"errors": ["An error occurred. Please try again."]}), 500
 
 
-
-
-@auth_routes.route('/unauthorized')
+@auth_routes.route("/unauthorized")
 def unauthorized():
     """
     Returns unauthorized JSON when flask-login authentication fails
     """
-    return {'errors': ['Unauthorized']}, 401
+    return {"errors": ["Unauthorized"]}, 401
 
-@auth_routes.route('/google-login', methods=['POST'])
+
+@auth_routes.route("/google-login", methods=["POST"])
 def google_login():
     try:
         # Extract the token from the request
-        token = request.json.get('token')
+        token = request.json.get("token")
 
         # Verify the token with Google's API
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config['GOOGLE_CLIENT_ID'])
+        idinfo = id_token.verify_oauth2_token(
+            token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"]
+        )
 
         # idinfo contains the user's Google info
-        email = idinfo.get('email')
-        name = idinfo.get('name')
+        email = idinfo.get("email")
+        name = idinfo.get("name")
 
         # Check if user already exists in your database
         user = User.query.filter_by(email=email).first()
@@ -152,4 +162,4 @@ def google_login():
 
     except Exception as e:
         logging.error(f"Google login error: {e}")
-        return jsonify({'error': 'An error occurred during Google login'}), 401
+        return jsonify({"error": "An error occurred during Google login"}), 401

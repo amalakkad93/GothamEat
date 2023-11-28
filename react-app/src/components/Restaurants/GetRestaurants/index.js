@@ -21,6 +21,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faFrownOpen } from "@fortawesome/free-solid-svg-icons";
 
 import "./GetRestaurants.css";
 
@@ -124,12 +126,26 @@ export default function GetRestaurants({ mode = "nearby" }) {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
+  // Check if there are no restaurants found in the nearby mode
+  const showNoRestaurantsMessage =
+    mode === "nearby" && restaurantIds.length === 0;
   // Render the list of nearby restaurants
   return (
     <div className="restaurant-list">
-      {restaurantIds.length === 0 ? (
-        // Display message if no restaurants are found
-        <p>No restaurants found.</p>
+      {showNoRestaurantsMessage ? (
+        <div className="no-restaurants-card">
+          <FontAwesomeIcon icon={faFrownOpen} className="no-restaurants-icon" />
+          <p className="no-restaurants-text">
+            We do not have servers in this area yet.
+          </p>
+          <button
+            onClick={() => navigate("/restaurants/all")}
+            className="explore-all-button"
+          >
+            Explore All Restaurants
+          </button>
+        </div>
       ) : (
         // Iterate over the list of restaurant IDs to render each restaurant's details
         restaurantIds.map((id) => {

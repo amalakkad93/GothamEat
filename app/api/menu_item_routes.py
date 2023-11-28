@@ -126,7 +126,7 @@ def update_menu_item(id):
             return jsonify(message="Unauthorized"), 403
 
         form = MenuItemForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
         data = request.get_json()
 
         # Map the incoming form data to the existing menu item fields
@@ -220,7 +220,7 @@ def upload_menu_item_image(menu_item_id):
         return jsonify({
             "status": "success",
             "image_url": image_url,
-            "id": new_image.id,  
+            "id": new_image.id,
             "code": 201
         }), 201
 

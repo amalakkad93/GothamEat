@@ -153,7 +153,7 @@ def update_review(id):
 
         # Validate the incoming data
         form = ReviewForm()
-        form['csrf_token'].data = request.cookies['csrf_token']
+        # form['csrf_token'].data = request.cookies['csrf_token']
         data = request.get_json()
 
         for field, value in data.items():

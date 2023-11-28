@@ -13,6 +13,7 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0px 20px;
+  margin-top: 21px;
 }
 .profile-btn-logo-container {
   display: flex;
@@ -35,6 +36,12 @@
 .navBar-right {
   display: flex;
   align-items: center;
+}
+
+.logo-img {
+  height: 28.8px;
+  width: auto;
+  /* margin-right: 10px;  */
 }
 
 .navBar-spacer {
@@ -166,14 +173,17 @@
   font-weight: 300;
   /* font-size: 1.5rem; */
   font-size: 35px;
-  color:#000
+  color:#000;
+  margin: 0px;
+
 }
 
 .logo-h1-second {
   font-weight: 700;
   /* font-size: 1.5rem; */
   font-size: 35px;
-  color:goldenrod
+  color:goldenrod;
+  margin: 0px;
 }
 .hidden {
   visibility: hidden;

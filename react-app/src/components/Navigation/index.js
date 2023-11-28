@@ -6,6 +6,7 @@ import SlidingModalRight from "../Modals/SlidingModal/SlidingModalRight";
 import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import logo from "../../assets/logo.png";
 import "./Navigation.css";
 
 function Navigation({ isLoaded }) {
@@ -35,6 +36,7 @@ function Navigation({ isLoaded }) {
       <div className="navBar-left">
         <NavLink exact to="/" className="navbar-logo">
           <div className="logo-container">
+            <img src={logo} alt="logo" className="logo-img" />
             <h1 className="logo-h1-first">Starco</h1>
             <h1 className="logo-h1-second">Eats</h1>
           </div>

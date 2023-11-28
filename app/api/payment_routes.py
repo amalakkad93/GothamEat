@@ -77,7 +77,7 @@ def create_payment():
             return api_response(error="Invalid data", status_code=400)
 
         form = PaymentForm(data=data)
-        form.csrf_token.data = request.cookies.get('csrf_token')
+        # form.csrf_token.data = request.cookies.get('csrf_token')
 
         if form.validate():
             gateway = form.gateway.data

@@ -54,7 +54,7 @@ def create_delivery():
             return jsonify({"error": "Invalid data"}), 400
 
         form = DeliveryForm(data=data)
-        form["csrf_token"].data = request.cookies["csrf_token"]
+        # form["csrf_token"].data = request.cookies["csrf_token"]
         if form.validate():
             new_delivery = Delivery(
                 user_id=data.get("user_id"),

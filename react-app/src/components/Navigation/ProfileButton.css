@@ -13,6 +13,14 @@
 .profile-dropdown.hidden {
   display: none;
 }
+.menu-icon {
+  /* width: 30px; */
+  /* height: 20px; */
+  height: 28.8px;
+  width: auto;
+  margin-left: 10px;
+  cursor: pointer;
+}
 .profile-dropdown li {
   padding: 10px;
   text-align: center;
