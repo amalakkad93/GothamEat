@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 05c8c2e1f659
+Revision ID: 523b6c077a66
 Revises:
-Create Date: 2023-11-24 19:00:27.870751
+Create Date: 2023-11-28 00:01:17.511933
 
 """
 from alembic import op
@@ -14,7 +14,7 @@ SCHEMA = os.environ.get("SCHEMA")
 
 
 # revision identifiers, used by Alembic.
-revision = '05c8c2e1f659'
+revision = '523b6c077a66'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,7 +36,7 @@ def upgrade():
     sa.Column('postal_code', sa.String(length=20), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),
     sa.Column('status', sa.String(length=255), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
+    sa.PrimaryKeyConstraint('id')
     )
     if environment == "production":
         op.execute(f"ALTER TABLE payments SET SCHEMA {SCHEMA};")
