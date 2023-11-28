@@ -123,11 +123,11 @@ def callback():
 
     if not user_exists:
         user_exists = User(
+            first_name=split_name[0],
+            last_name=split_name[1],
             username=session['name'],
             email=temp_email,
             password='OAUTH',
-            first_name=split_name[0],
-            last_name=split_name[1],
         )
 
         db.session.add(user_exists)

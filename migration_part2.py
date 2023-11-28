@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 40eb8f41a5e1
+Revision ID: 8395938c661d
 Revises:
-Create Date: 2023-11-28 11:37:32.705770
+Create Date: 2023-11-28 12:38:47.320584
 
 """
 from alembic import op
@@ -14,7 +14,7 @@ SCHEMA = os.environ.get("SCHEMA")
 
 
 # revision identifiers, used by Alembic.
-revision = '40eb8f41a5e1'
+revision = '8395938c661d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -231,6 +231,7 @@ def downgrade():
     op.drop_table('users')
     op.drop_table('payments')
     # ### end Alembic commands ###
+
 
 
 
