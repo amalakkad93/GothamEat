@@ -5,9 +5,6 @@ from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
 import requests
-
-
-
 import os
 import pathlib
 
@@ -32,7 +29,7 @@ client_secrets = {
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_secret": CLIENT_SECRET,
     "redirect_uris": [
-      "https://gotham-eat.onrender.com/api/auth/google"
+      "https://gotham-eat.onrender.com/api/auth/google",
     ]
   }
 }
