@@ -7,7 +7,7 @@ import boto3
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 class Config:
-    # WTF_CSRF_ENABLED = True
+    WTF_CSRF_ENABLED = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
 

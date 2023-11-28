@@ -82,33 +82,35 @@ def sign_up():
     """
     Creates a new user and logs them in
     """
-    print("************request.json: ",request.json)
-    form = SignUpForm()
+    try:
+        data = request.get_json()
+        form = SignUpForm(data=data)
 
-    # If the form is valid, try to create the user
-    if form.validate_on_submit():
-        user = User(
-            first_name=form.data['first_name'],
-            last_name=form.data['last_name'],
-            username=form.data['username'],
-            email=form.data['email'],
-            password=form.data['password'],
-        )
-        try:
+        if form.validate_on_submit():
+            user = User(
+                first_name=form.data['first_name'],
+                last_name=form.data['last_name'],
+                username=form.data['username'],
+                email=form.data['email'],
+                password=form.data['password']
+            )
             db.session.add(user)
             db.session.commit()
             login_user(user)
-            csrf_token = generate_csrf()
-            return {"user": user.to_dict(), "csrf_token": csrf_token}
-        except Exception as e:
-            # Rollback the session in case of error
-            db.session.rollback()
-            print(f"Database Error: {e}")
-            return {'errors': ['An error occurred while trying to create your account. Please try again later.']}, 500
 
-    # If the form isn't valid, print and return the errors
-    print("Form Errors:", form.errors)
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
+            if current_user.is_authenticated:
+                logger.info("User successfully logged in.")
+                return jsonify(user.to_dict())
+            else:
+                logger.error("User login failed.")
+                return {'errors': ['Login failed after sign up.']}, 401
+        else:
+            return jsonify({'errors': validation_errors_to_error_messages(form.errors)}), 401
+    except Exception as e:
+        logger.error(f"Error during sign up: {e}")
+        return jsonify({'errors': ['An error occurred. Please try again.']}), 500
+
+
 
 
 @auth_routes.route('/unauthorized')
@@ -117,10 +119,6 @@ def unauthorized():
     Returns unauthorized JSON when flask-login authentication fails
     """
     return {'errors': ['Unauthorized']}, 401
-
-
-
-
 
 @auth_routes.route('/google-login', methods=['POST'])
 def google_login():

@@ -23,16 +23,16 @@ function SignupFormPage() {
   const [csrfToken, setCsrfToken] = useState("");
 
 
-// Fetch CSRF token on component mount
-useEffect(() => {
-  (async () => {
-    const response = await fetch("/api/auth/csrf/restore");
-    if (response.ok) {
-      const data = await response.json();
-      setCsrfToken(data.csrf_token);
-    }
-  })();
-}, []);
+// // Fetch CSRF token on component mount
+// useEffect(() => {
+//   (async () => {
+//     const response = await fetch("/api/auth/csrf/restore");
+//     if (response.ok) {
+//       const data = await response.json();
+//       setCsrfToken(data.csrf_token);
+//     }
+//   })();
+// }, []);
 
 
   if (sessionUser) {
