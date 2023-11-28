@@ -9,3 +9,4 @@ Distance to restaurant Harley's Hysterical Diner: 0.9661713812022502 km
 Filtered restaurants count (after haversine check): 5
 Received request to fetch all restaurants.
 Received data: {'menu_item_id': 111, 'quantity': 1}
+Received request to fetch all restaurants.

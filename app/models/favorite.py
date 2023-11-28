@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy import func
 from .db import db, environment, SCHEMA, add_prefix_for_prod
-from .restaurant import Review
+from .restaurant import Restaurant
 
 class Favorite(db.Model):
     __tablename__ = 'favorites'
@@ -17,16 +17,16 @@ class Favorite(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')))
+    user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id'), ondelete='CASCADE'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('restaurants.id')))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = db.relationship('User', backref=db.backref('favorites', lazy=True, cascade='all, delete-orphan'))
+    # user = db.relationship('User', backref=db.backref('favorites', lazy=True, cascade='all, delete-orphan'))
     restaurant = db.relationship('Restaurant', backref=db.backref('favorited_by', lazy=True, cascade='all, delete-orphan'))
 
-    # this to make sure a user can't favorite the same restaurant multiple times
-    __table_args__ = (db.UniqueConstraint('user_id', 'restaurant_id', name='unique_user_restaurant'),)
+    # # this to make sure a user can't favorite the same restaurant multiple times
+    # __table_args__ = (db.UniqueConstraint('user_id', 'restaurant_id', name='unique_user_restaurant'),)
 
     def to_dict(self):
         return {
