@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 523b6c077a66
+Revision ID: 40eb8f41a5e1
 Revises:
-Create Date: 2023-11-28 00:01:17.511933
+Create Date: 2023-11-28 11:37:32.705770
 
 """
 from alembic import op
@@ -14,7 +14,7 @@ SCHEMA = os.environ.get("SCHEMA")
 
 
 # revision identifiers, used by Alembic.
-revision = '523b6c077a66'
+revision = '40eb8f41a5e1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -117,9 +117,8 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id', 'restaurant_id', name='unique_user_restaurant')
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
     )
     if environment == "production":
         op.execute(f"ALTER TABLE favorites SET SCHEMA {SCHEMA};")
@@ -233,6 +232,7 @@ def downgrade():
     op.drop_table('users')
     op.drop_table('payments')
     # ### end Alembic commands ###
+
 
 
 # -------------------------------------------------------------

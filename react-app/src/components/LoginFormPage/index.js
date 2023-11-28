@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as sessionActions from "../../store/session";
 import { login } from "../../store/session";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
@@ -6,6 +6,8 @@ import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { useModal } from "../../context/Modal";
 import FormContainer from "../CustomTags/FormContainer";
 import GoogleLoginComponent from "../GoogleLogin";
+
+import { GoogleLogin } from "react-google-login";
 
 import "./LoginForm.css";
 
@@ -18,10 +20,6 @@ function LoginFormPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
-
-
-
-
 
   if (sessionUser) {
     navigate("/");
@@ -106,7 +104,7 @@ function LoginFormPage() {
     if (data) {
       setErrors(data);
     } else {
-      closeModal()
+      closeModal();
     }
   };
 
@@ -141,13 +139,18 @@ function LoginFormPage() {
                 setEmail("demo@io.com");
                 setPassword("password");
               }}
-        
             >
               Demo User
             </button>
           }
         />
-        {/* <GoogleLoginComponent /> */}
+        {/* Google Auth */}
+        <a href={"/api/auth/oauth_login"} className="submit-goog">
+          <button className="submit-login-goog">
+            <GoogleLogin className="google-icon" />
+            Sign in with Google
+          </button>
+        </a>
       </div>
     </>
   );

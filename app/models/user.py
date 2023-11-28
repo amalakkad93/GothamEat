@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), nullable=False, unique=True)
     # hashed_password = db.Column(db.String(255), nullable=False)
     hashed_password = db.Column(db.String(255), nullable=True)
-    is_google_user = db.Column(db.Boolean, default=False, nullable=False)
+    # is_google_user = db.Column(db.Boolean, default=False, nullable=False)
 
     # role = db.Column(Enum(RoleType), default=RoleType.CUSTOMER, nullable=False)
 
@@ -51,7 +51,7 @@ class User(db.Model, UserMixin):
             'last_name': self.last_name,
             'username': self.username,
             'email': self.email,
-            'is_google_user': self.is_google_user, 
+            'is_google_user': self.is_google_user,
             # 'role': self.role.name,
         }
 
