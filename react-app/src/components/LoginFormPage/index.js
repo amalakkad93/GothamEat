@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef  } from "react";
+import * as sessionActions from "../../store/session";
 import { login } from "../../store/session";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
+import { useModal } from "../../context/Modal";
 import FormContainer from "../CustomTags/FormContainer";
 import GoogleLoginComponent from "../GoogleLogin";
 
@@ -10,10 +12,16 @@ import "./LoginForm.css";
 function LoginFormPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const ulRef = useRef();
+  const { closeModal } = useModal();
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
+
+
+
+
 
   if (sessionUser) {
     navigate("/");
@@ -97,6 +105,8 @@ function LoginFormPage() {
     const data = await dispatch(login(email, password));
     if (data) {
       setErrors(data);
+    } else {
+      closeModal()
     }
   };
 
@@ -131,6 +141,7 @@ function LoginFormPage() {
                 setEmail("demo@io.com");
                 setPassword("password");
               }}
+        
             >
               Demo User
             </button>

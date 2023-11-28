@@ -104,7 +104,6 @@ export const thunkCreateOrder =
       if (response.ok) {
         dispatch(actionAddOrder(data));
         dispatch(actionClearCart());
-        // Optionally, return the created order data.
         return data;
       } else {
         console.error("Error creating the order:", data.errors);

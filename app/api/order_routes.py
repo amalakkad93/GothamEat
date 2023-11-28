@@ -293,8 +293,13 @@ def get_order_details(order_id):
         print(f"Database Error: {e}")
         return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
+    # except Exception as e:
+    #     db.session.rollback()
+    #     print(f"Unexpected Error: {e}")
+    #     return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
     except Exception as e:
-        db.session.rollback()
+        traceback.print_exc()
         print(f"Unexpected Error: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
