@@ -113,10 +113,7 @@ export const thunkAddItemsToCart =
 
       if (response.ok) {
         const data = await response.json();
-        console.log(
-          "+Added items to shopping cart: ",
-          data.entities.shoppingCartItems.byId
-        );
+  
         // Dispatch actions for each added item
         Object.values(data.entities.shoppingCartItems.byId).forEach((item) => {
           dispatch(actionAddItemToCart(item.id, item.quantity, restaurantId));

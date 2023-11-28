@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 // import { navigate } from "@reach/router";
+import { useModal } from "../../../context/Modal";
 
 import FormContainer from "../../CustomTags/FormContainer";
 import {
@@ -9,7 +10,7 @@ import {
   thunkUpdateRestaurant,
   thunkGetRestaurantDetails,
 } from "../../../store/restaurants";
-import MessageComponent from "../../MessageComponent";
+import ModalMessage from "../../Modals/ModalMessage";
 
 export default function RestaurantForm({
   formType,
@@ -18,6 +19,8 @@ export default function RestaurantForm({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { closeModal } = useModal();
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [bannerImagePath, setBannerImagePath] = useState("");
@@ -40,12 +43,7 @@ export default function RestaurantForm({
   const [successMessage, setSuccessMessage] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
 
-  const [messageInfo, setMessageInfo] = useState({ message: null, type: null });
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-
+  const { setModalContent } = useModal();
 
   useEffect(() => {
     if (restaurantId && formType === "Edit") {
@@ -79,8 +77,6 @@ export default function RestaurantForm({
         });
     }
   }, [dispatch, restaurantId, formType]);
-
-
 
   const fields = [
     {
@@ -247,9 +243,30 @@ export default function RestaurantForm({
   ];
 
   // Function to show modal with a message
-  const showMessageModal = (message) => {
-    setModalMessage(message);
-    setShowModal(true);
+  const showMessageModal = (message, type, callback) => {
+    const duration = 3000; // duration in milliseconds
+
+    setModalContent(
+      <ModalMessage
+        message={message}
+        type={type}
+        duration={duration}
+        onClose={() => {
+          setModalContent(null);
+          if (callback) {
+            callback();
+          }
+        }}
+      />
+    );
+
+    // Set a timer to automatically close the modal and call the callback after the duration
+    setTimeout(() => {
+      setModalContent(null);
+      if (callback) {
+        callback();
+      }
+    }, duration);
   };
 
   const handleSubmit = async (e) => {
@@ -283,17 +300,30 @@ export default function RestaurantForm({
         .then((response) => {
           console.log("Create response:", response);
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
-            showMessageModal("Restaurant successfully created!");
+            showMessageModal(
+              "Restaurant successfully created!",
+              "success",
+              () => {
+                navigate("/owner/restaurants");
+              }
+
+            );
             console.log("Message set: Restaurant created");
             navigate("/owner/restaurants");
           } else {
-            showMessageModal("Failed to create restaurant. Please try again.");
+            showMessageModal(
+              "Failed to create restaurant. Please try again.",
+              "error"
+            );
             console.log("Message set: Create failed");
           }
         })
         .catch((error) => {
           console.error("Create error:", error.message);
-          showMessageModal("An error occurred. Please try again later.");
+          showMessageModal(
+            "An error occurred. Please try again later.",
+            "error"
+          );
         });
     }
 
@@ -309,17 +339,26 @@ export default function RestaurantForm({
       )
         .then((response) => {
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
-            showMessageModal("Restaurant successfully updated!");
-            navigate("/owner/restaurants");
+            showMessageModal(
+              "Restaurant successfully updated!",
+              "success",
+              () => {
+                navigate("/owner/restaurants");
+              }
+            );
           } else {
-            showMessageModal("Failed to create restaurant. Please try again.");
-
+            showMessageModal(
+              "Failed to create restaurant. Please try again.",
+              "error"
+            );
           }
         })
         .catch((error) => {
           console.error(error.message);
-          showMessageModal("An error occurred. Please try again later.");
-
+          showMessageModal(
+            "An error occurred. Please try again later.",
+            "error"
+          );
         })
         .finally(() => {
           setImageLoading(false);
@@ -329,12 +368,6 @@ export default function RestaurantForm({
 
   return (
     <>
-    <MessageComponent
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        message={modalMessage}
-      />
-      
       <FormContainer
         fields={fields}
         validations={validations}

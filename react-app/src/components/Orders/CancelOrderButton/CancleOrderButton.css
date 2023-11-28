@@ -6,6 +6,8 @@
   text-align: center;
   max-width: 400px;
   margin: auto;
+  border-radius: 20px;
+  border:#000000 solid 2px;
 }
 
 .cancel-order-h1-p-tag {
@@ -13,7 +15,7 @@
 }
 
 .cancel-order-h1-tag {
-  color: #007bff;
+  color: black;
   font-size: 1.8rem;
   margin-bottom: 10px;
 }
@@ -74,6 +76,6 @@
 
   .cancel-keep-order-cancel-btn button {
     padding: 8px 12px;
-    font-size: 0.9rem; 
+    font-size: 0.9rem;
   }
 }

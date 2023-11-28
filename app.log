@@ -153,3 +153,7 @@ Error creating payment record: 'PaymentForm' object has no attribute 'csrf_token
 Received request to fetch all restaurants.
 Received data: {'menu_item_id': 111, 'quantity': 1}
 Received data: {'menu_item_id': 112, 'quantity': 1}
+Received request to fetch all restaurants.
+Received data: {'menu_item_id': 37, 'quantity': 1}
+Received data: {'menu_item_id': 37, 'quantity': 1}
+Received data: {'menu_item_id': 37, 'quantity': 1}

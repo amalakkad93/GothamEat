@@ -109,7 +109,7 @@ useEffect(() => {
     // Check if user is logged in
   if (!userId) {
     console.log("User not logged in. Redirecting to login page.");
-    navigate("/login"); 
+    navigate("/login");
     return;
   }
 
@@ -121,7 +121,7 @@ useEffect(() => {
       const message = await dispatch(
         thunkAddItemToCart(menuItemId, quantity, restaurantId)
       );
-      console.log("==restaurantId in MenuItemOverview: ", restaurantId);
+    
       if (message) {
         alert(message);
       }
