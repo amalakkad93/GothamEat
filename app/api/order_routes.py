@@ -252,18 +252,19 @@ def create_order_logic(data):
 @order_routes.route('/<int:order_id>', methods=['GET'])
 def get_order_details(order_id):
     try:
-        # Fetch the order with its items
+        print(f"Fetching details for order ID: {order_id}")  # Log for debugging
         order = Order.query.get(order_id)
 
         if not order:
-            abort(404, f"Order with ID {order_id} not found.")
+            print(f"Order with ID {order_id} not found.")  # Log for debugging
+            abort(404, description=f"Order with ID {order_id} not found.")
 
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        if not order_items:
+            print(f"No order items found for order ID {order_id}")  # Log for debugging
+            abort(404, description=f"No order items found for order ID {order_id}")
+
         menu_item_ids = [oi.menu_item_id for oi in order_items]
-
-        if not menu_item_ids:
-            abort(404, f"No menu items found for order ID {order_id}.")
-
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all()
 
         order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
@@ -274,34 +275,17 @@ def get_order_details(order_id):
             'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
             'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
         }
-        ic("order:", order)
-        ic("order_items:", order_items)
-        ic("menu_item_ids:", menu_item_ids)
-        ic("menu_items:", menu_items)
-        ic("order_items_dict:", order_items_dict)
-        ic("menu_items_dict:", menu_items_dict)
-        ic("normalized_order_details:", normalized_order_details)
 
         return jsonify(normalized_order_details)
 
-    except ValueError as ve:
-        db.session.rollback()
-        return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
-
     except SQLAlchemyError as e:
-        db.session.rollback()
-        print(f"Database Error: {e}")
-        return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
-
-    # except Exception as e:
-    #     db.session.rollback()
-    #     print(f"Unexpected Error: {e}")
-    #     return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+        print(f"Database Error: {e}")  # Log database errors
+        abort(500, description='Database operation failed')
 
     except Exception as e:
-        traceback.print_exc()
-        print(f"Unexpected Error: {e}")
-        return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+        print(f"Unexpected Error: {e}")  # Log unexpected errors
+        abort(500, description='An unexpected error occurred')
+
 
 # ***************************************************************
 # Endpoint to Reorder Past Order
