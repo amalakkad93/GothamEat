@@ -1,22 +1,28 @@
-from flask import Blueprint, jsonify, session, request, current_app, abort, redirect
-from flask_login import current_user, login_user, logout_user, login_required
-from flask_wtf.csrf import generate_csrf
-from app.models import User, db
-from app.forms import LoginForm
-from app.forms import SignUpForm
-import requests
 import os
+import json
+import logging
+from tempfile import NamedTemporaryFile
 import pathlib
-
+import requests
 
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
-from tempfile import NamedTemporaryFile
-import json
-import logging
 
+from flask import ( Blueprint, jsonify, abort, redirect, request, current_app, session,)
+from flask_login import current_user, login_user, logout_user, login_required
+from flask_wtf.csrf import generate_csrf
+
+from app.models import User, db
+from app.forms import LoginForm, SignUpForm
+
+
+# Set up logging to capture error messages and other logs.
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+auth_routes = Blueprint("auth", __name__)
 # *********************************************************************************************
 # CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
 # CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
@@ -29,9 +35,9 @@ import logging
 #     "token_uri": "https://oauth2.googleapis.com/token",
 #     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
 #     "client_secret": CLIENT_SECRET,
-    # "redirect_uris": [
-    #   "https://gotham-eat.onrender.com/api/auth/google",
-    # ]
+#     "redirect_uris": [
+#       "https://gotham-eat.onrender.com/api/auth/google",
+#     ]
 #   }
 # }
 
@@ -53,12 +59,9 @@ import logging
 # secrets.close() # This method call deletes our temporary file from the /tmp folder! We no longer need it as our flow object has been configured!
 
 # *********************************************************************************************
-# Set up logging to capture error messages and other logs.
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-auth_routes = Blueprint("auth", __name__)
 
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # To allow HTTP traffic for local development
 
 def validation_errors_to_error_messages(validation_errors):
     """
@@ -71,37 +74,50 @@ def validation_errors_to_error_messages(validation_errors):
     return errorMessages
 
 def create_google_oauth_flow():
-    client_id = os.getenv('CLIENT_ID')
-    client_secret = os.getenv('CLIENT_SECRET')
+    try:
+        client_id = os.getenv('CLIENT_ID')
+        client_secret = os.getenv('CLIENT_SECRET')
 
-    if os.getenv('FLASK_ENV') == 'development':
-        redirect_uri = "http://localhost:5000/api/auth/google"
-    else:
-        redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
+        if not client_id or not client_secret:
+            raise ValueError("Client ID or Client Secret is not set")
 
-    client_secrets = {
-        "web": {
-            "client_id": client_id,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": client_secret,
-            "redirect_uris": [redirect_uri],
+        if os.getenv('FLASK_ENV') == 'development':
+            redirect_uri = "http://localhost:5000/api/auth/google"
+        else:
+            redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
+
+        client_secrets = {
+            "web": {
+                "client_id": client_id,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": client_secret,
+                "redirect_uris": [redirect_uri],
+            }
         }
-    }
 
-    return Flow.from_client_config(
-        client_config=client_secrets,
-        scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-        redirect_uri=redirect_uri
-    )
+        return Flow.from_client_config(
+            client_config=client_secrets,
+            scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+            redirect_uri=redirect_uri
+        )
+    except Exception as e:
+        logger.error("Error during OAuth flow creation", exc_info=True)
+        raise e
+
 
 @auth_routes.route("/oauth_login")
 def oauth_login():
-    flow = create_google_oauth_flow()
-    authorization_url, state = flow.authorization_url()
-    session["state"] = state
-    return redirect(authorization_url)
+    try:
+        flow = create_google_oauth_flow()
+        authorization_url, state = flow.authorization_url()
+        session["state"] = state
+        print("Authorization URL: ", authorization_url)
+        return redirect(authorization_url)
+    except Exception as e:
+        logger.error("Error during OAuth login", exc_info=True)
+        return jsonify(error=str(e)), 500
 
 @auth_routes.route("/google")
 def callback():
@@ -109,28 +125,56 @@ def callback():
         flow = create_google_oauth_flow()
 
         # Check the state parameter
-        if 'state' not in session or session["state"] != request.args.get("state"):
+        if 'state' not in session:
+            raise ValueError("State not found in session")
+        if session["state"] != request.args.get("state"):
             raise ValueError("State parameter mismatch")
 
         flow.fetch_token(authorization_response=request.url)
-
         credentials = flow.credentials
+
+        if not credentials:
+            raise ValueError("No credentials returned from fetch_token")
+
         id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
 
-        # Log for debugging
-        print("ID Info:", id_info)
+        if not id_info:
+            raise ValueError("No ID info returned from token verification")
 
-        user_exists = User.query.filter(User.email == id_info['email']).first()
+        # Storing user information in the session
+        session["google_id"] = id_info.get("sub")
+        session["name"] = id_info.get("name")
+
+        # Extracting email and splitting name for database operations
+        temp_email = id_info.get('email')
+        if not temp_email:
+            raise ValueError("No email found in ID info")
+
+        split_name = session['name'].split(' ')
+        first_name = split_name[0] if len(split_name) > 0 else ''
+        last_name = split_name[1] if len(split_name) > 1 else ''
+
+        # Check if the user exists in the database, and if not, create a new user
+        user_exists = User.query.filter(User.email == temp_email).first()
         if not user_exists:
-            user_exists = User(username=id_info['name'], email=id_info['email'], password='OAUTH')
+            user_exists = User(
+                first_name=first_name,
+                last_name=last_name,
+                username=session['name'],
+                email=temp_email,
+                password='OAUTH'
+            )
             db.session.add(user_exists)
             db.session.commit()
 
         login_user(user_exists)
         return redirect(current_app.config['BASE_URL'])
+
     except Exception as e:
-        current_app.logger.error(f"Error in Google OAuth callback: {e}")
-        return "An error occurred during Google authentication", 500
+        # More detailed error logging
+        logger.error("Error during callback processing", exc_info=True)
+        return jsonify(error=str(e)), 500
+
 
 
 
@@ -178,10 +222,10 @@ def callback():
 
 #     # Now we generate a new session for the newly authenticated user!!
 #     # Note that depending on the way your app behaves, you may be creating a new user at this point...
-#     session["google_id"] = id_info.get("sub")
-#     session["name"] = id_info.get("name")
-#     temp_email = id_info.get('email')
-#     split_name = session['name'].split(' ')
+    # session["google_id"] = id_info.get("sub")
+    # session["name"] = id_info.get("name")
+    # temp_email = id_info.get('email')
+    # split_name = session['name'].split(' ')
 
 #     user_exists = User.query.filter(User.email == temp_email).first()
 
