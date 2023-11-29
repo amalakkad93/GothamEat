@@ -18,13 +18,11 @@ function LoginFormPage() {
   const { closeModal } = useModal();
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
 
-  // const backendBaseUrl =
-  //     process.env.NODE_ENV === "development"
-  //         ? "http://localhost:5000"
-  //         : "https://gotham-eat.onrender.com";
+  const backendBaseUrl = process.env.NODE_ENV === "development"
+    ? "http://localhost:5000"
+    : "https://gotham-eat.onrender.com";
 
-  // const oauthLoginUrl = `${backendBaseUrl}/api/auth/oauth_login`;
-  const oauthLoginUrl = `http://localhost:5000/api/auth/oauth_login`;
+  const oauthLoginUrl = `${backendBaseUrl}/api/auth/oauth_login`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -153,12 +151,7 @@ function LoginFormPage() {
                 Demo User
               </button>
 
-              <button
-                onClick={() =>
-                  (window.location.href =
-                    "https://gotham-eat.onrender.com/api/auth/oauth_login")
-                }
-              >
+              <button onClick={() =>  window.location.href = oauthLoginUrl}>
                 <img
                   className="google-login-icon"
                   src="https://img.icons8.com/color/48/000000/google-logo.png"

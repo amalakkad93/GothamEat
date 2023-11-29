@@ -8,6 +8,7 @@ import requests
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
+from google.auth.transport.requests import Request
 import google.auth.transport.requests
 
 from flask import ( Blueprint, jsonify, abort, redirect, request, current_app, session,)
@@ -75,36 +76,26 @@ def validation_errors_to_error_messages(validation_errors):
 
 def create_google_oauth_flow():
     try:
-        client_id = os.getenv('CLIENT_ID')
-        client_secret = os.getenv('CLIENT_SECRET')
-
-        if not client_id or not client_secret:
-            raise ValueError("Client ID or Client Secret is not set")
-
+        # Determine the redirect URI based on the environment
         if os.getenv('FLASK_ENV') == 'development':
             redirect_uri = "http://localhost:5000/api/auth/google"
+            logger.info("Using development redirect URI")
         else:
             redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
+            logger.info("Using production redirect URI")
 
-        client_secrets = {
-            "web": {
-                "client_id": client_id,
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": client_secret,
-                "redirect_uris": [redirect_uri],
-            }
-        }
 
-        return Flow.from_client_config(
-            client_config=client_secrets,
+        client_secrets_file = '/home/amala/App_Academy/Projects/GothamEats/GothomEats/app/client_secret_522973189083-4dga8eudg8usb4djqdhmkso57s2m518i.apps.googleusercontent.com.json'  # Update this path
+
+        return Flow.from_client_secrets_file(
+            client_secrets_file=client_secrets_file,
             scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
             redirect_uri=redirect_uri
         )
     except Exception as e:
         logger.error("Error during OAuth flow creation", exc_info=True)
         raise e
+
 
 
 @auth_routes.route("/oauth_login")
@@ -136,7 +127,12 @@ def callback():
         if not credentials:
             raise ValueError("No credentials returned from fetch_token")
 
-        id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
+        client_id = os.getenv('CLIENT_ID')
+        if not client_id:
+            raise ValueError("Client ID not found in environment")
+
+        # Use the google.auth.transport.Request class
+        id_info = id_token.verify_oauth2_token(credentials.id_token, Request(), client_id)
 
         if not id_info:
             raise ValueError("No ID info returned from token verification")
@@ -168,7 +164,12 @@ def callback():
             db.session.commit()
 
         login_user(user_exists)
-        return redirect(current_app.config['BASE_URL'])
+        # Redirect based on environment
+        if os.getenv('FLASK_ENV') == 'development':
+            return redirect("http://localhost:5000")  # Redirect to the development frontend URL
+        else:
+            return redirect(current_app.config['BASE_URL'])  # Redirect to the production frontend URL
+        # return redirect(current_app.config['BASE_URL'])
 
     except Exception as e:
         # More detailed error logging
