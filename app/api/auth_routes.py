@@ -6,7 +6,7 @@ import pathlib
 import requests
 
 from google.oauth2 import id_token
-from google_auth_oauthlib.flow import Flow
+from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 from pip._vendor import cachecontrol
 from google.auth.transport.requests import Request
 import google.auth.transport.requests
@@ -100,7 +100,7 @@ def create_google_oauth_flow():
                 "javascript_origins": ["http://localhost:3000"]
             }
         }
-        return Flow.from_client_secrets_file(
+        return InstalledAppFlow.from_client_config(
             client_config=client_secrets,
             scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
             redirect_uri=redirect_uri
