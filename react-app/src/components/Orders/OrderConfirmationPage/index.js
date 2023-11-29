@@ -47,7 +47,8 @@ const OrderConfirmationPage = () => {
         <p>Status: {order.status}</p>
       </div>
 
-      <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order.order_id}`)}>View Order Details</button>
+      <button className="order-confirmation-btn" onClick={() => navigate(`/orders}`)}>View Your Orders</button>
+      {/* <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order.order_id}`)}>View Order Details</button> */}
     </div>
   );
 };
