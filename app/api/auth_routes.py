@@ -74,11 +74,6 @@ def create_google_oauth_flow():
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
 
-    # Log the values for debugging
-    print("Client ID:", client_id)
-    print("Client Secret:", client_secret)
-
-    # Determine the redirect URI based on the environment
     if os.getenv('FLASK_ENV') == 'development':
         redirect_uri = "http://localhost:5000/api/auth/google"
     else:
@@ -95,15 +90,8 @@ def create_google_oauth_flow():
         }
     }
 
-    # Log the client_secrets for debugging
-    print("Client Secrets:", json.dumps(client_secrets, indent=2))
-
-    with NamedTemporaryFile('w+', delete=False) as temp:
-        json.dump(client_secrets, temp)
-        temp_file_name = temp.name
-
-    return Flow.from_client_secrets_file(
-        client_secrets_file=temp_file_name,
+    return Flow.from_client_config(
+        client_config=client_secrets,
         scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
         redirect_uri=redirect_uri
     )
