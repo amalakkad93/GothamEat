@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 auth_routes = Blueprint("auth", __name__)
 # *********************************************************************************************
-# CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
-# CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
 # BASE_URL = os.getenv('BASE_URL')
 
 # client_secrets = {
@@ -85,10 +85,23 @@ def create_google_oauth_flow():
             logger.info("Using production redirect URI")
 
 
-        client_secrets_file = '/home/amala/App_Academy/Projects/GothamEats/GothomEats/app/client_secret_522973189083-4dga8eudg8usb4djqdhmkso57s2m518i.apps.googleusercontent.com.json'  # Update this path
-
+        client_secrets = {
+            "web": {
+                "client_id": client_id,
+                "project_id": "starcoeatsouth",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": client_secret,
+                "redirect_uris": [
+                    "https://gotham-eat.onrender.com/api/auth/google",
+                    "http://localhost:5000/api/auth/google"
+                ],
+                "javascript_origins": ["http://localhost:3000"]
+            }
+        }
         return Flow.from_client_secrets_file(
-            client_secrets_file=client_secrets_file,
+            client_config=client_secrets,
             scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
             redirect_uri=redirect_uri
         )
