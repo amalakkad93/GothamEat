@@ -111,27 +111,32 @@ def oauth_login():
 
 @auth_routes.route("/google")
 def callback():
-    flow = create_google_oauth_flow()
-    flow.fetch_token(authorization_response=request.url)
+    try:
+        flow = create_google_oauth_flow()
+        flow.fetch_token(authorization_response=request.url)
 
-    if not session["state"] == request.args.get("state"):
-        abort(403)  # State does not match!
+        if not session["state"] == request.args.get("state"):
+            abort(403)  # State does not match!
 
-    credentials = flow.credentials
-    id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
+        credentials = flow.credentials
+        id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
 
-    user_exists = User.query.filter(User.email == id_info['email']).first()
-    if not user_exists:
-        user_exists = User(
-            username=id_info['name'],
-            email=id_info['email'],
-            password='OAUTH'
-        )
-        db.session.add(user_exists)
-        db.session.commit()
+        user_exists = User.query.filter(User.email == id_info['email']).first()
+        if not user_exists:
+            user_exists = User(
+                username=id_info['name'],
+                email=id_info['email'],
+                password='OAUTH'
+            )
+            db.session.add(user_exists)
+            db.session.commit()
 
-    login_user(user_exists)
-    return redirect(current_app.config['BASE_URL'])
+        login_user(user_exists)
+        return redirect(current_app.config['BASE_URL'])
+    except Exception as e:
+        current_app.logger.error(f"Error in Google OAuth callback: {e}")
+        # You might want to redirect to an error page or return a custom error message
+        return "An error occurred during Google authentication", 500
 
 
 
