@@ -73,12 +73,16 @@ def validation_errors_to_error_messages(validation_errors):
 def create_google_oauth_flow():
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
+
+    # Log the values for debugging
+    print("Client ID:", client_id)
+    print("Client Secret:", client_secret)
+
     # Determine the redirect URI based on the environment
     if os.getenv('FLASK_ENV') == 'development':
         redirect_uri = "http://localhost:5000/api/auth/google"
     else:
         redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
-
 
     client_secrets = {
         "web": {
@@ -91,6 +95,9 @@ def create_google_oauth_flow():
         }
     }
 
+    # Log the client_secrets for debugging
+    print("Client Secrets:", json.dumps(client_secrets, indent=2))
+
     with NamedTemporaryFile('w+', delete=False) as temp:
         json.dump(client_secrets, temp)
         temp_file_name = temp.name
@@ -100,7 +107,6 @@ def create_google_oauth_flow():
         scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
         redirect_uri=redirect_uri
     )
-
 
 @auth_routes.route("/oauth_login")
 def oauth_login():
