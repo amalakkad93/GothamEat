@@ -63,7 +63,11 @@
   outline: none;
 }
 
-
+.submit-login-google {
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+}
 
 
 

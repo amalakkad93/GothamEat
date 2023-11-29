@@ -5,7 +5,7 @@ import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { useModal } from "../../context/Modal";
 import FormContainer from "../CustomTags/FormContainer";
-import GoogleLoginComponent from "../GoogleLogin";
+// import GoogleLoginComponent from "../GoogleLogin";
 
 import { GoogleLogin } from "react-google-login";
 
@@ -132,26 +132,32 @@ function LoginFormPage() {
           submitButtonClass="login-signup-form-btn"
           formTitle="Log In"
           extraElements={
-            <button
-              className="demo-user-btn"
-              type="button"
-              onClick={(e) => {
-                setEmail("demo@io.com");
-                setPassword("password");
-              }}
-            >
-              Demo User
-            </button>
+            <>
+              <button
+                className="demo-user-btn"
+                type="button"
+                onClick={(e) => {
+                  setEmail("demo@io.com");
+                  setPassword("password");
+                }}
+              >
+                Demo User
+              </button>
+              <a href={"/api/auth/oauth_login"} className="submit-google">
+                <button className="submit-login-google">
+                  <GoogleLogin className="google-icon" clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID} />
+                </button>
+              </a>
+            </>
           }
         />
         {/* Google Auth */}
-        <a href={"/api/auth/oauth_login"} className="submit-goog">
-          <button className="submit-login-goog">
+        {/* <a href={"/api/auth/oauth_login"} className="submit-google">
+          <button className="submit-login-google">
             <GoogleLogin className="google-icon" />
-            Sign in with Google
           </button>
 
-        </a>
+        </a> */}
         {/* <a href={`https://gotham-eat.onrender.com/api/auth/login_oauth`}><button>OAUTH</button></a> */}
       </div>
     </>

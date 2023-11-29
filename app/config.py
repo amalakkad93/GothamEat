@@ -18,6 +18,11 @@ class Config:
     S3_CLIENT = boto3.client("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
 
     MAPS_API_KEY = os.environ.get('MAPS_API_KEY')
+
+
+    CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
+    CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+    BASE_URL = os.environ.get('BASE_URL')
     # GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
     # GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
     # UBER_CLIENT_ID = os.environ.get('UBER_CLIENT_ID')

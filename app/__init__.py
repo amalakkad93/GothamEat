@@ -37,8 +37,9 @@ app.config.from_object(Config)
 
 s3_client = app.config['S3_CLIENT']
 s3_location = app.config['S3_LOCATION']
-# google_client_id = app.config['GOOGLE_CLIENT_ID']
-# google_client_secret = app.config['GOOGLE_CLIENT_SECRET']
+client_id = app.config['CLIENT_ID']
+client_secret = app.config['CLIENT_SECRET']
+base_url = app.config['BASE_URL']
 cache.init_app(app)
 
 
