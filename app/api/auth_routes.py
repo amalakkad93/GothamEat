@@ -29,9 +29,9 @@ import logging
 #     "token_uri": "https://oauth2.googleapis.com/token",
 #     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
 #     "client_secret": CLIENT_SECRET,
-#     "redirect_uris": [
-#       "https://gotham-eat.onrender.com/api/auth/google",
-#     ]
+    # "redirect_uris": [
+    #   "https://gotham-eat.onrender.com/api/auth/google",
+    # ]
 #   }
 # }
 
@@ -71,12 +71,15 @@ def validation_errors_to_error_messages(validation_errors):
     return errorMessages
 
 def create_google_oauth_flow():
-    # Access the client ID and secret from the current app's configuration
-    client_id = current_app.config['CLIENT_ID']
-    client_secret = current_app.config['CLIENT_SECRET']
-    redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
+    client_id = os.getenv('CLIENT_ID')
+    client_secret = os.getenv('CLIENT_SECRET')
+    # Determine the redirect URI based on the environment
+    if os.getenv('FLASK_ENV') == 'development':
+        redirect_uri = "http://localhost:5000/api/auth/google"
+    else:
+        redirect_uri = "https://gotham-eat.onrender.com/api/auth/google"
 
-    # Client secrets configuration
+
     client_secrets = {
         "web": {
             "client_id": client_id,
@@ -88,19 +91,16 @@ def create_google_oauth_flow():
         }
     }
 
-    # Temporary file for google oauth configuration
     with NamedTemporaryFile('w+', delete=False) as temp:
         json.dump(client_secrets, temp)
         temp_file_name = temp.name
 
-    # Create a Flow instance
     return Flow.from_client_secrets_file(
         client_secrets_file=temp_file_name,
-        scopes=["https://www.googleapis.com/auth/userinfo.profile",
-                "https://www.googleapis.com/auth/userinfo.email",
-                "openid"],
+        scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
         redirect_uri=redirect_uri
     )
+
 
 @auth_routes.route("/oauth_login")
 def oauth_login():
@@ -114,40 +114,24 @@ def callback():
     flow = create_google_oauth_flow()
     flow.fetch_token(authorization_response=request.url)
 
-    if not session["state"] == request.args["state"]:
-        abort(500)  # State does not match!
+    if not session["state"] == request.args.get("state"):
+        abort(403)  # State does not match!
 
     credentials = flow.credentials
-    request_session = requests.session()
-    cached_session = cachecontrol.CacheControl(request_session)
-    token_request = google.auth.transport.requests.Request(session=cached_session)
+    id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
 
-    id_info = id_token.verify_oauth2_token(
-        id_token=credentials._id_token,
-        request=token_request,
-        audience=current_app.config['CLIENT_ID']  # Use the client_id from the config
-    )
-
-    # User session creation logic...
-    session["google_id"] = id_info.get("sub")
-    session["name"] = id_info.get("name")
-    temp_email = id_info.get('email')
-    split_name = session['name'].split(' ')
-
-    user_exists = User.query.filter(User.email == temp_email).first()
+    user_exists = User.query.filter(User.email == id_info['email']).first()
     if not user_exists:
         user_exists = User(
-            first_name=split_name[0],
-            last_name=split_name[1],
-            username=session['name'],
-            email=temp_email,
-            password='OAUTH',
+            username=id_info['name'],
+            email=id_info['email'],
+            password='OAUTH'
         )
         db.session.add(user_exists)
         db.session.commit()
 
     login_user(user_exists)
-    return redirect(current_app.config['BASE_URL']) # Redirect to the BASE_URL from the config
+    return redirect(current_app.config['BASE_URL'])
 
 
 

@@ -5,7 +5,7 @@ import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { useModal } from "../../context/Modal";
 import FormContainer from "../CustomTags/FormContainer";
-// import GoogleLoginComponent from "../GoogleLogin";
+import GoogleLoginComponent from "../GoogleLogin";
 
 import { GoogleLogin } from "react-google-login";
 
@@ -17,6 +17,15 @@ function LoginFormPage() {
   const ulRef = useRef();
   const { closeModal } = useModal();
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
+
+  // const backendBaseUrl =
+  //     process.env.NODE_ENV === "development"
+  //         ? "http://localhost:5000"
+  //         : "https://gotham-eat.onrender.com";
+
+  // const oauthLoginUrl = `${backendBaseUrl}/api/auth/oauth_login`;
+  const oauthLoginUrl = `http://localhost:5000/api/auth/oauth_login`;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
@@ -143,15 +152,38 @@ function LoginFormPage() {
               >
                 Demo User
               </button>
-              <a href={`https://gotham-eat.onrender.com/api/auth/oauth_login`}><button>OAUTH</button></a>
-              {/* <a href={"/api/auth/oauth_login"} className="submit-google">
-                <button className="submit-login-google">
-                  <GoogleLogin className="google-icon" clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID} />
-                </button>
-              </a> */}
+
+              <button
+                onClick={() =>
+                  (window.location.href =
+                    "https://gotham-eat.onrender.com/api/auth/oauth_login")
+                }
+              >
+                <img
+                  className="google-login-icon"
+                  src="https://img.icons8.com/color/48/000000/google-logo.png"
+                  alt="Google logo"
+                />
+                <span className="google-login-text">Login with Google</span>
+              </button>
             </>
           }
         />
+
+        {/* <a
+          href={`https://gotham-eat.onrender.com/api/auth/oauth_login`}
+          className="submit-login-google"
+        >
+          <button >
+           <img
+              className="google-login-icon"
+              src="https://img.icons8.com/color/48/000000/google-logo.png"
+              alt="Google logo"
+            />
+            <span className="google-login-text">Login with Google</span>
+          </button>
+        </a> */}
+
         {/* Google Auth */}
         {/* <a href={"/api/auth/oauth_login"} className="submit-google">
           <button className="submit-login-google">
@@ -159,7 +191,7 @@ function LoginFormPage() {
           </button>
 
         </a> */}
-        {/* <a href={`https://gotham-eat.onrender.com/api/auth/login_oauth`}><button>OAUTH</button></a> */}
+        {/* <a href={`https://gotham-eat.onrender.com/api/auth/oauth_login`}><button>OAUTH</button></a> */}
       </div>
     </>
   );

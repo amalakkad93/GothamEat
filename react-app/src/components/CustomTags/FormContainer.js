@@ -15,7 +15,8 @@ export default function FormContainer(props) {
     submitLabel = "Submit",
     submitButtonClass = "",
     formTitle = "",
-    extraElements
+    extraElements,
+    googleElement,
   } = props;
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -162,6 +163,7 @@ export default function FormContainer(props) {
         {submitLabel}
       </button>
       {extraElements}
+      {googleElement}
     </form>
   );
 }
