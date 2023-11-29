@@ -143,7 +143,7 @@ function LoginFormPage() {
               >
                 Demo User
               </button>
-              <a href={`https://gotham-eat.onrender.com/api/auth/login_oauth`}><button>OAUTH</button></a>
+              <a href={`https://gotham-eat.onrender.com/api/auth/oauth_login`}><button>OAUTH</button></a>
               {/* <a href={"/api/auth/oauth_login"} className="submit-google">
                 <button className="submit-login-google">
                   <GoogleLogin className="google-icon" clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID} />
