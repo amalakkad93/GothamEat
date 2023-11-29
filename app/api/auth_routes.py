@@ -113,21 +113,22 @@ def oauth_login():
 def callback():
     try:
         flow = create_google_oauth_flow()
-        flow.fetch_token(authorization_response=request.url)
 
-        if not session["state"] == request.args.get("state"):
-            abort(403)  # State does not match!
+        # Check the state parameter
+        if 'state' not in session or session["state"] != request.args.get("state"):
+            raise ValueError("State parameter mismatch")
+
+        flow.fetch_token(authorization_response=request.url)
 
         credentials = flow.credentials
         id_info = id_token.verify_oauth2_token(credentials.id_token, requests.Request(), flow.client_config['web']['client_id'])
 
+        # Log for debugging
+        print("ID Info:", id_info)
+
         user_exists = User.query.filter(User.email == id_info['email']).first()
         if not user_exists:
-            user_exists = User(
-                username=id_info['name'],
-                email=id_info['email'],
-                password='OAUTH'
-            )
+            user_exists = User(username=id_info['name'], email=id_info['email'], password='OAUTH')
             db.session.add(user_exists)
             db.session.commit()
 
@@ -135,8 +136,8 @@ def callback():
         return redirect(current_app.config['BASE_URL'])
     except Exception as e:
         current_app.logger.error(f"Error in Google OAuth callback: {e}")
-        # You might want to redirect to an error page or return a custom error message
         return "An error occurred during Google authentication", 500
+
 
 
 
