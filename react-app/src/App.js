@@ -4,6 +4,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import { authenticate } from "./store/session";
+import { thunkFetchCurrentCart, actionClearCart } from "./store/shoppingCarts";
 import Navigation from "./components/Navigation";
 import Home from "./components/Home";
 import SignupFormPage from "./components/SignupFormPage";

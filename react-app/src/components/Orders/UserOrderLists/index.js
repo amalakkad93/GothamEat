@@ -22,6 +22,8 @@ const UserOrderLists = ({ userId }) => {
     }
   }, [dispatch, userId, orders, error, sessionUser]);
 
+  const userOrders = Object.values(orders).filter(order => order?.user_id === sessionUser?.id);
+
   const handleOrderClick = (orderId) => {
     setSelectedOrderId(selectedOrderId === orderId ? null : orderId);
   };
@@ -34,25 +36,45 @@ const UserOrderLists = ({ userId }) => {
     return <div>Error loading orders: {error}</div>;
   }
 
-  if (!Object.keys(orders).length) {
-    return <div>No orders found.</div>;
-  }
-
+    // if (!Object.keys(orders).length) {
+    //   return <div className="no-order-found-div"><h1 className="no-order-found-h1">No orders found.</h1></div>;
+    // }
   return (
     <div className="orderList-main-container">
-      {Object.values(orders).map((order) => (
-        <div key={order.id} className="order-list-item" onClick={() => handleOrderClick(order.id)}>
-          <h2>Order #{order.id}</h2>
-          {selectedOrderId === order.id && (
-            <>
-              <OrderDetailPage orderIdProp={order.id} />
-              {/* <CancelOrderButton orderId={order.id} /> */}
-            </>
-          )}
-        </div>
-      ))}
+      {userOrders?.length > 0 ? (
+        userOrders?.map((order) => (
+          <div key={order?.id} className="order-list-item" onClick={() => handleOrderClick(order?.id)}>
+            <h2>Order #{order?.id}</h2>
+            {selectedOrderId === order?.id && (
+              <>
+                <OrderDetailPage orderIdProp={order?.id} />
+                {/* <CancelOrderButton orderId={order.id} /> */}
+              </>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="no-order-found-div"><h1 className="no-order-found-h1">No orders found.</h1></div>
+      )}
     </div>
   );
 };
+
+//   return (
+//     <div className="orderList-main-container">
+//       {Object.values(orders).map((order) => (
+//         <div key={order.id} className="order-list-item" onClick={() => handleOrderClick(order.id)}>
+//           <h2>Order #{order.id}</h2>
+//           {selectedOrderId === order.id && (
+//             <>
+//               <OrderDetailPage orderIdProp={order.id} />
+//               {/* <CancelOrderButton orderId={order.id} /> */}
+//             </>
+//           )}
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
 
 export default UserOrderLists;

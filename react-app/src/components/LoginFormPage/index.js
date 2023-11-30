@@ -5,9 +5,6 @@ import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Navigate, useNavigate, NavLink } from "react-router-dom";
 import { useModal } from "../../context/Modal";
 import FormContainer from "../CustomTags/FormContainer";
-import GoogleLoginComponent from "../GoogleLogin";
-
-import { GoogleLogin } from "react-google-login";
 
 import "./LoginForm.css";
 

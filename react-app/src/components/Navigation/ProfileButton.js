@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import * as sessionActions from "../../store/session";
+import { thunkClearCart } from "../../store/shoppingCarts";
 import { useNavigate, Link } from "react-router-dom";
 import SlidingModalLeft from "../Modals/SlidingModal/SlidingModalLeft";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -48,6 +49,7 @@ export default function ProfileButton(props) {
 
   const logout = (e) => {
     e.preventDefault();
+    dispatch(thunkClearCart());
     dispatch(sessionActions.logout());
     closeMenu();
     navigate("/");

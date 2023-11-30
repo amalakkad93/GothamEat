@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import { thunkFetchCurrentCart } from "../../../store/shoppingCarts";
+import { thunkFetchCurrentCart, actionClearCart } from "../../../store/shoppingCarts";
 import { thunkCreateOrderFromCart } from "../../../store/orders";
 import EditShoppingCart from "../EditShoppingCart";
 import ClearShoppingCart from "../ClearShoppingCart";
@@ -24,6 +24,8 @@ export default function GetShoppingCart({ onClose }) {
     menuItem,
     restaurantData,
     isLoading,
+    userId,
+    menuItemImagesById,
     error,
   } = useSelector((state) => ({
     cartTotalPrice: state.shoppingCarts?.totalPrice,
@@ -36,12 +38,10 @@ export default function GetShoppingCart({ onClose }) {
         state.shoppingCarts?.restaurantId
       ] || null,
     isLoading: state.shoppingCarts.isLoading,
+    userId: state.session?.user?.id,
+    menuItemImagesById: state.menuItems.menuItemImages.byId,
     error: state.shoppingCarts.error,
   }));
-
-  const menuItemImagesById = useSelector(
-    (state) => state.menuItems.menuItemImages.byId
-  );
 
   // Fetch current cart when the component mounts
   const mounted = useRef(false);
@@ -51,6 +51,16 @@ export default function GetShoppingCart({ onClose }) {
       mounted.current = true;
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    if (userId) {
+      // Fetch the cart data every time the user logs in
+      dispatch(thunkFetchCurrentCart());
+    } else {
+      // Clear the cart state when there's no logged-in user
+      dispatch(actionClearCart());
+    }
+  }, [userId, dispatch]);
 
   // Handler to create an order from the cart
   const handleGoToCheckout = () => {

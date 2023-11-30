@@ -15,15 +15,15 @@
 
 .notFound-link {
   margin-top: 2rem;
-  color: #0077cc;
+  color:goldenrod;
   text-decoration: none;
-  border: 1px solid #0077cc;
+  border: 1px solid goldenrod;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
 
 .notFound-link:hover {
-  background-color: #0077cc;
+  background-color: rgb(166, 126, 23);
   color: #fff;
 }

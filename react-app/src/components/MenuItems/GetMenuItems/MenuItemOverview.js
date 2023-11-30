@@ -13,7 +13,7 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { thunkGetMenuItemDetails } from "../../../store/menuItems";
 import { thunkCreateOrder } from "../../../store/orders";
-import { thunkAddItemToCart, addToCart } from "../../../store/shoppingCarts";
+import { thunkAddItemToCart,  thunkFetchCurrentCart, addToCart } from "../../../store/shoppingCarts";
 import ReactImageMagnify from "react-image-magnify";
 import ShoppingCart from "../../ShoppingCarts/GetShoppingCarts";
 import "./MenuItemOverview.css";
@@ -121,7 +121,7 @@ useEffect(() => {
       const message = await dispatch(
         thunkAddItemToCart(menuItemId, quantity, restaurantId)
       );
-    
+
       if (message) {
         alert(message);
       }
@@ -130,6 +130,9 @@ useEffect(() => {
 
       // Update the cart state in Redux
       dispatch(addToCart(menuItemId, numericQuantity, menuItem));
+
+      dispatch(thunkFetchCurrentCart());
+
       setIsCartVisible(true);
       // Navigate back to the restaurant page after adding the item to the cart
       navigate(`/restaurants/${restaurantId}`);

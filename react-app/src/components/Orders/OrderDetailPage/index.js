@@ -30,6 +30,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const order = useSelector((state) => state.orders.orders.byId[orderId]);
   const orderItems = useSelector((state) => state.orders.orderItems.byId);
   const menuItems = useSelector((state) => state.orders.menuItems.byId);
+  const currentUserId = useSelector((state) => state.session.user?.id);
   const isLoading = useSelector((state) => state.orders.isLoading);
   const error = useSelector((state) => state.orders.error);
 
@@ -49,7 +50,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   useEffect(() => {
     dispatch(thunkGetOrderDetails(orderId));
   }, [dispatch, orderId]);
-
+  const isCurrentUserOrder = order?.user_id === currentUserId;
   if (isLoading) return <p>Loading order details...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!order) return <p>Order details not found.</p>;
@@ -64,6 +65,8 @@ const OrderDetailPage = ({ orderIdProp }) => {
         price: menuItem?.price,
       };
     });
+
+    if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
 
   return (
     <div className="order-detail-page">

@@ -1,3 +1,23 @@
+.no-order-found-div{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  margin: 304px auto;
+  max-width: 900px;
+  animation: fadeIn 0.5s ease-in-out;
+
+}
+.no-order-found-h1{
+  margin: 0;
+  color: red;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 .orderList-main-container {
   display: flex;
   flex-direction: column;
