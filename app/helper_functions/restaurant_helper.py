@@ -113,7 +113,6 @@ def fetch_menu_items_for_restaurant(restaurant_id):
 
     for item in menu_items:
         item_dict = item.to_dict()
-        print("+++++++++++++++++++item_dic: ",item_dict)
         item_dict["menu_item_img_ids"] = [img.id for img in item.menu_item_imgs]
         menu_items_list.append(item_dict)
 
@@ -131,6 +130,6 @@ def fetch_menu_items_for_restaurant(restaurant_id):
         "entities": {
             "menuItems": normalized_menu_items,
             "menuItemImages": normalized_images,
-            "types": types_mapping   # Add this to the response
+            "types": types_mapping   
         }
     }

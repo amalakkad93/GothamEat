@@ -13,10 +13,15 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { thunkGetMenuItemDetails } from "../../../store/menuItems";
 import { thunkCreateOrder } from "../../../store/orders";
-import { thunkAddItemToCart,  thunkFetchCurrentCart, addToCart } from "../../../store/shoppingCarts";
+import {
+  thunkAddItemToCart,
+  thunkFetchCurrentCart,
+  addToCart,
+} from "../../../store/shoppingCarts";
 import ReactImageMagnify from "react-image-magnify";
 import ShoppingCart from "../../ShoppingCarts/GetShoppingCarts";
 import "./MenuItemOverview.css";
+import MenuItemImageMagnify from "./MenuItemImageMagnify";
 
 export default function MenuItemOverview() {
   // Route parameters
@@ -48,46 +53,32 @@ export default function MenuItemOverview() {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-useEffect(() => {
-  let isMounted = true; // Flag to track mounted state
+  useEffect(() => {
+    let isMounted = true; // Flag to track mounted state
 
-  setIsLoading(true);
-  dispatch(thunkGetMenuItemDetails(itemId))
-    .then(() => {
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    })
-    .catch(() => {
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    });
+    setIsLoading(true);
+    dispatch(thunkGetMenuItemDetails(itemId))
+      .then(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
 
-  return () => {
-    isMounted = false; // Set the flag to false when the component unmounts
-  };
-}, [dispatch, itemId]);
-
+    return () => {
+      isMounted = false; // Set the flag to false when the component unmounts
+    };
+  }, [dispatch, itemId]);
 
   // Logic to determine the image path of the menu item
   let menuItemImgPath;
   if (menuItem?.image_paths?.length > 0) {
     menuItemImgPath = menuItem.image_paths[0];
   }
-
-  // Configurations for the magnified image view
-  const smallImageConfig = {
-    alt: menuItem?.name,
-    isFluidWidth: true,
-    src: menuItemImgPath,
-  };
-
-  const largeImageConfig = {
-    src: menuItemImgPath,
-    width: 1200,
-    height: 1800,
-  };
 
   const handleQuantityChange = (e) => {
     setQuantity(e.target.value);
@@ -107,17 +98,12 @@ useEffect(() => {
     }
 
     // Check if user is logged in
-  if (!userId) {
-    console.log("User not logged in. Redirecting to login page.");
-    navigate("/login");
-    return;
-  }
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
 
-    console.log(
-      `Attempting to add to cart: menuItemId=${menuItemId}, quantity=${quantity}, restaurantId=${restaurantId}`
-    );
     try {
-
       const message = await dispatch(
         thunkAddItemToCart(menuItemId, quantity, restaurantId)
       );
@@ -142,9 +128,9 @@ useEffect(() => {
   };
 
   // Rendering
-  if (!menuItem) return <p className="menuItemOverview-p-tag">Item not found.</p>;
+  if (!menuItem)
+    return <p className="menuItemOverview-p-tag">Item not found.</p>;
   if (isLoading) return <p className="menuItemOverview-p-tag">Loading...</p>;
-
 
   return (
     // Main container for the menu item overview
@@ -156,11 +142,7 @@ useEffect(() => {
         // Display magnified image of the menu item if available
         menuItemImgPath && (
           <div className="magnify-container">
-            <ReactImageMagnify
-              smallImage={smallImageConfig}
-              largeImage={largeImageConfig}
-              enlargedImagePosition="over"
-            />
+            <MenuItemImageMagnify imagePath={menuItemImgPath} />
           </div>
         )
       }
@@ -180,10 +162,7 @@ useEffect(() => {
         {/* Dropdown for selecting the quantity of the menu item */}
         <p className="menuItemOverview-p-tag">
           Quantity:
-          <select
-            value={quantity}
-            onChange={handleQuantityChange}
-          >
+          <select value={quantity} onChange={handleQuantityChange}>
             {
               // Generate options for quantity from 1 to 10
               [...Array(10).keys()].map((num) => (
@@ -204,7 +183,10 @@ useEffect(() => {
           >
             Back to the Menu
           </button>
-          <button className="menuItemOverview-add-btn" onClick={handleAddToCart}>
+          <button
+            className="menuItemOverview-add-btn"
+            onClick={handleAddToCart}
+          >
             Add to Cart
           </button>
         </div>

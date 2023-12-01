@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
 import { Link } from "react-router-dom";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import OpenModalButton from "../../Modals/OpenModalButton/index";
 import DeleteMenuItem from "../DeleteMenuItem";
 import EditMenuItemForm from "../MenuItemForm/EditMenuItemForm";
@@ -11,6 +13,7 @@ export default function MenuItem({
   menuItemImages,
   setReloadPage,
   restaurantId,
+  isEagerLoading,
 }) {
   // Determine the image to be displayed
   let imageToDisplay;
@@ -29,6 +32,8 @@ export default function MenuItem({
     shallowEqual
   );
 
+  // const imageSrc = `${imageToDisplay}?timestamp=${new Date().getTime()}`;
+  const imageSrc = imageToDisplay;
   return (
     <div className="menu-item-main-container">
       <li className="menu-item">
@@ -36,12 +41,11 @@ export default function MenuItem({
           to={`/restaurant/${item.restaurant_id}/menu-item/${item.id}`}
           style={{ textDecoration: "none", color: "var(--black)" }}
         >
+
           {imageToDisplay && (
-            <img
-              src={`${imageToDisplay}?timestamp=${new Date().getTime()}`}
-              alt={item?.name}
-              className="menu-item-image"
-            />
+            isEagerLoading
+              ? <img src={imageSrc} alt={item?.name} className="menu-item-image" />
+              : <LazyLoadImage src={imageSrc} alt={item?.name} effect="blur" className="menu-item-image" />
           )}
           <div className="menu-item-name-price">
             <p className="menu-item-name">{item?.name}</p>

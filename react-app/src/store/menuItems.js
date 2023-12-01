@@ -152,16 +152,16 @@ const actionSetMenuItemError = (errorMessage) => ({
 //  Thunk to Fetch Details of a Specific Menu Item
 // ***************************************************************
 export const thunkGetMenuItemDetails = (itemId) => async (dispatch) => {
-  // console.log(`Fetching details for menu item with ID ${itemId}`);
+
   try {
     const response = await fetch(`/api/menu-items/${itemId}`);
     const data = await response.json();
-    console.log("+++++++++++++++++++++++Fetched details:", data);
+
     if (response.ok) {
       const { byId, allIds } = data;
 
       const menuItem = byId[allIds[0]];
-      // console.log("Extracted Menu Item:", menuItem);
+
 
       dispatch(actionGetSingleMenuItem(menuItem));
     } else {
@@ -199,18 +199,14 @@ export const thunkGetMenuItemDetails = (itemId) => async (dispatch) => {
  */
 export const thunkGetMenuItemsByRestaurantId =
   (restaurantId) => async (dispatch) => {
-    // console.log(`Fetching menu items for restaurant with ID ${restaurantId}`);
+
     try {
       const response = await fetch(
         `/api/restaurants/${restaurantId}/menu-items`
       );
       const menuItems = await response.json();
-      // console.log("Server Response:", menuItems);
+
       if (response.ok) {
-        // console.log(
-        //   `Menu items for restaurant ID ${restaurantId}:`,
-        //   menuItems.entities.menuItems
-        // );
         dispatch(
           actionGetMenuItemsByRestaurant(
             restaurantId,
@@ -246,7 +242,7 @@ export const thunkGetMenuItemsByRestaurantId =
 //  Thunk to Create a Menu Item
 // ***************************************************************
 export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
-  // console.log("Received image in thunk:", image);
+
 
   return async (dispatch) => {
     return new Promise(async (resolve, reject) => {
@@ -297,8 +293,6 @@ export const thunkCreateMenuItem = (restaurantId, menuItemData, image) => {
           }
 
           const presignedData = await presignedResponse.json();
-          console.log("Presigned data:", presignedData);
-
           const { presigned_url } = presignedData;
 
           // 3. Upload the menu item image directly to S3 using the presigned URL
@@ -552,8 +546,6 @@ const menuItemInitialState = {
 
 /** Defines how the state should change for each menu item action */
 export default function menuItemsReducer(state = menuItemInitialState, action) {
-  console.log("++Action received", action);
-  console.log("Current state", state);
   switch (action.type) {
     case GET_SINGLE_MENU_ITEM:
       return {

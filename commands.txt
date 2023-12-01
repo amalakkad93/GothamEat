@@ -56,5 +56,6 @@ npm install immer
 
 npm install react-google-login
 
+npm install react-lazy-load-image-component
 
 window.persistor.purge(); // to clear the local storage

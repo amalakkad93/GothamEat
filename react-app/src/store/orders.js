@@ -385,10 +385,6 @@ export default function ordersReducer(state = initialState, action) {
         break;
 
       case SET_ORDER_DETAILS:
-        console.log(
-          "--order: Setting order details in Redux state:",
-          action.payload
-        );
         const { order, orderItems, menuItems } = action.payload;
         draft.orders.byId[order.id] = order;
         draft.orderItems.byId = {

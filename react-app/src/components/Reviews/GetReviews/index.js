@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import { thunkGetReviewsByRestaurantId } from "../../../store/reviews";
 import DeleteReview from "../DeleteReview";
 import EditReview from "../EditReview";
@@ -17,7 +19,7 @@ export default function GetReviews({
 
   // Redux state selectors to extract necessary data from the Redux store
   const reviews = useSelector((state) => state.reviews.reviews.byId || {});
-  console.log("reviews: ", reviews);
+
   const users = useSelector((state) => state.reviews.users.byId || {});
   const currentUser = useSelector((state) => state.session?.user);
   const error = useSelector((state) => state.reviews?.error);

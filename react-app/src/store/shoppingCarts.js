@@ -61,8 +61,12 @@ const actionUpdateItemInCart = (itemId, quantity, totalPrice) => ({
 export const actionClearCart = () => ({
   type: CLEAR_CART,
 });
-export const setCartLoading = () => ({ type: SET_CART_LOADING });
-export const setCartNotLoading = () => ({ type: SET_CART_NOT_LOADING });
+export const setCartLoading = () => ({
+  type: SET_CART_LOADING
+});
+export const setCartNotLoading = () => ({
+  type: SET_CART_NOT_LOADING
+});
 const actionSetCartError = (error) => ({
   type: SET_CART_ERROR,
   error,
@@ -71,34 +75,59 @@ const actionSetCartError = (error) => ({
 // ***************************************************************
 //  Thunk to Add an item to the cart
 // ***************************************************************
-export const thunkAddItemToCart =
-  (menuItemId, quantity, restaurantId) => async (dispatch) => {
-    try {
-      const response = await fetch(
-        `/api/shopping-carts/${menuItemId}/items`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ menu_item_id: menuItemId, quantity }),
-        }
-      );
+// export const thunkAddItemToCart =
+//   (menuItemId, quantity, restaurantId) => async (dispatch) => {
+//     try {
+//       const response = await fetch(`/api/shopping-carts/${menuItemId}/items`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ menu_item_id: menuItemId, quantity }),
+//       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const itemId = Object.keys(data.entities.shoppingCartItems.byId)[0];
-        dispatch(actionAddItemToCart(itemId, quantity, restaurantId));
-        dispatch(thunkFetchCurrentCart());
-        return data.message;
-      } else {
-        const data = await response.json();
-        dispatch(actionSetCartError(data.error));
-      }
-    } catch (error) {
-      dispatch(actionSetCartError("An unexpected error occurred."));
+//       if (response.ok) {
+//         const data = await response.json();
+//         const itemId = Object.keys(data.entities.shoppingCartItems.byId)[0];
+//         dispatch(actionAddItemToCart(itemId, quantity, restaurantId));
+//         dispatch(thunkFetchCurrentCart());
+//         return data.message;
+//       } else {
+//         const data = await response.json();
+//         dispatch(actionSetCartError(data.error));
+//       }
+//     } catch (error) {
+//       dispatch(actionSetCartError("An unexpected error occurred."));
+//     }
+//   };
+// ***************************************************************
+//  Thunk to Add an item to the cart
+// ***************************************************************
+export const thunkAddItemToCart = (menuItemId, quantity, restaurantId) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/shopping-carts/items/add`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ menu_item_id: menuItemId, quantity }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error in thunkAddItemToCart:', errorData);
+      dispatch(actionSetCartError(errorData.error));
+      return;
     }
-  };
+
+    const data = await response.json();
+    const itemId = data.entities.shoppingCartItems.allIds[0]
+    dispatch(actionAddItemToCart(itemId, quantity, restaurantId));
+    // dispatch(actionAddItemToCart(data.itemId, quantity, restaurantId));
+    dispatch(thunkFetchCurrentCart());
+  } catch (error) {
+    console.error('Error in thunkAddItemToCart:', error);
+    dispatch(actionSetCartError("An unexpected error occurred."));
+  }
+};
 
 export const thunkAddItemsToCart =
   (items, restaurantId) => async (dispatch) => {
@@ -113,7 +142,7 @@ export const thunkAddItemsToCart =
 
       if (response.ok) {
         const data = await response.json();
-  
+
         // Dispatch actions for each added item
         Object.values(data.entities.shoppingCartItems.byId).forEach((item) => {
           dispatch(actionAddItemToCart(item.id, item.quantity, restaurantId));
@@ -131,25 +160,53 @@ export const thunkAddItemsToCart =
 // ***************************************************************
 //  Thunk to fetch the current cart
 // ***************************************************************
+// export const thunkFetchCurrentCart = () => async (dispatch) => {
+//   dispatch(setCartLoading());
+//   try {
+//     const response = await fetch(`/api/shopping-carts/current`);
+
+//     if (response.ok) {
+//       const data = await response.json();
+//       dispatch(actionSetCurrentCart(data.entities.shoppingCartItems.byId));
+//       dispatch(actionSetTotalPrice(data.metadata.totalPrice));
+//     } else {
+//       const data = await response.json();
+//       dispatch(actionSetCartError(data.error));
+//     }
+//   } catch (error) {
+//     dispatch(
+//       actionSetCartError(
+//         "An unexpected error occurred while fetching the cart."
+//       )
+//     );
+//   } finally {
+//     dispatch(setCartNotLoading());
+//   }
+// };
+// ***************************************************************
+//  Thunk to fetch the current cart
+// ***************************************************************
 export const thunkFetchCurrentCart = () => async (dispatch) => {
+
   dispatch(setCartLoading());
   try {
     const response = await fetch(`/api/shopping-carts/current`);
 
-    if (response.ok) {
-      const data = await response.json();
-      dispatch(actionSetCurrentCart(data.entities.shoppingCartItems.byId));
-      dispatch(actionSetTotalPrice(data.metadata.totalPrice));
-    } else {
-      const data = await response.json();
-      dispatch(actionSetCartError(data.error));
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error in thunkFetchCurrentCart:', errorData);
+      dispatch(actionSetCartError(errorData.error));
+      dispatch(setCartNotLoading());
+      return;
     }
+
+    const data = await response.json();
+    dispatch(actionSetCurrentCart(data.entities.shoppingCartItems.byId));
+    dispatch(actionSetTotalPrice(data.metadata.totalPrice));
+
   } catch (error) {
-    dispatch(
-      actionSetCartError(
-        "An unexpected error occurred while fetching the cart."
-      )
-    );
+    console.error('Error in thunkFetchCurrentCart:', error);
+    dispatch(actionSetCartError("An unexpected error occurred while fetching the cart."));
   } finally {
     dispatch(setCartNotLoading());
   }
@@ -249,44 +306,55 @@ const initialState = {
 };
 
 export default function shoppingCartReducer(state = initialState, action) {
-  console.log("State before handling action:", state);
-  console.log("Action being handled in shoppingCart:", action);
-
   switch (action.type) {
+    // case ADD_ITEM_TO_CART: {
+    //   const { itemId, quantity, restaurantId } = action.payload;
+    //   const numericQuantity = Number(action.payload.quantity);
+    //   const newRestaurantId =
+    //     state.items.allIds.length === 0 ? restaurantId : state.restaurantId;
+    //   const newState = {
+    //     ...state,
+    //     restaurantId: newRestaurantId,
+    //     items: {
+    //       byId: {
+    //         ...state.items.byId,
+    //         [itemId]: {
+    //           ...(state.items.byId[itemId] || {}),
+    //           quantity:
+    //             (state.items.byId[itemId]?.quantity || 0) + numericQuantity,
+    //         },
+    //       },
+    //       allIds: state.items.allIds.includes(itemId)
+    //         ? state.items.allIds
+    //         : [...state.items.allIds, itemId],
+    //     },
+    //   };
+    //   console.log('🚀🚀🚀🚀🚀 ~ shoppingCarts.js ~ shoppingCartReducer ~ 🚀🚀🚀🚀🚀 ~ ');
+    //   console.log('🚀 ~ shoppingCarts.js: Updated state after ADD_ITEM_TO_CART. newState:', newState);
+    //   return newState;
+    // }
     case ADD_ITEM_TO_CART: {
-      console.log("==Handling ADD_ITEM_TO_CART action", action.payload);
-
       const { itemId, quantity, restaurantId } = action.payload;
-      const numericQuantity = Number(action.payload.quantity);
-      console.log(`**Current restaurantId in state: ${state.restaurantId}`);
-      console.log(`**New restaurantId from action: ${restaurantId}`);
-
-      // If there's no item in the cart, set the restaurantId, otherwise keep the existing one
-      const newRestaurantId =
-        state.items.allIds.length === 0 ? restaurantId : state.restaurantId;
-
-      console.log(`**New restaurantId to be set in state: ${newRestaurantId}`);
-
+      const numericQuantity = Number(quantity);
+      const existingItem = state.items.byId[itemId];
       const newState = {
         ...state,
-        restaurantId: newRestaurantId,
+        restaurantId: state.items.allIds.length === 0 ? restaurantId : state.restaurantId,
         items: {
+          ...state.items,
           byId: {
             ...state.items.byId,
             [itemId]: {
-              ...(state.items.byId[itemId] || {}),
-              quantity:
-                (state.items.byId[itemId]?.quantity || 0) + numericQuantity,
+              ...existingItem,
+              quantity: existingItem ? existingItem.quantity + numericQuantity : numericQuantity,
             },
           },
-          allIds: state.items.allIds.includes(itemId)
-            ? state.items.allIds
-            : [...state.items.allIds, itemId],
+          allIds: state.items.allIds.includes(itemId) ? state.items.allIds : [...state.items.allIds, itemId],
         },
       };
-      console.log("+++-New cart state:", newState);
       return newState;
     }
+
     case ADD_MORE_ITEMS_TO_CART: {
       const { items } = action.payload;
       const updatedItemsById = { ...state.items.byId };
@@ -361,6 +429,18 @@ export default function shoppingCartReducer(state = initialState, action) {
         },
       };
     }
+    // case SET_CURRENT_CART: {
+    //   const { cartItemsById, cartItemsAllIds, totalPrice } = action.payload;
+
+    //   return {
+    //     ...state,
+    //     cartItems: {
+    //       byId: cartItemsById,
+    //       allIds: cartItemsAllIds,
+    //     },
+    //     totalPrice: totalPrice,
+    //   };
+    // }
 
     case DELETE_ITEM_FROM_CART: {
       const newById = { ...state.items.byId };
@@ -384,7 +464,7 @@ export default function shoppingCartReducer(state = initialState, action) {
               quantity: action.quantity,
             },
           },
-          allIds: state.items.allIds, // unchanged
+          allIds: state.items.allIds,
         },
         totalPrice: action.totalPrice,
       };

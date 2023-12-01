@@ -293,12 +293,9 @@ export default function RestaurantForm({
         setErrorMessage("Please select a valid image file before submitting.");
         return;
       }
-
-      console.log("Image to be uploaded:", image);
       setImageLoading(true);
       dispatch(thunkCreateRestaurant(restaurantData, image))
         .then((response) => {
-          console.log("Create response:", response);
           if (response.type !== "restaurants/SET_RESTAURANT_ERROR") {
             showMessageModal(
               "Restaurant successfully created!",
@@ -308,14 +305,12 @@ export default function RestaurantForm({
               }
 
             );
-            console.log("Message set: Restaurant created");
             navigate("/owner/restaurants");
           } else {
             showMessageModal(
               "Failed to create restaurant. Please try again.",
               "error"
             );
-            console.log("Message set: Create failed");
           }
         })
         .catch((error) => {

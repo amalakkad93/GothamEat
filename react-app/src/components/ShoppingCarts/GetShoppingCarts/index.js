@@ -47,20 +47,23 @@ export default function GetShoppingCart({ onClose }) {
   const mounted = useRef(false);
   useEffect(() => {
     if (!mounted.current) {
-      dispatch(thunkFetchCurrentCart());
+
+      dispatch(thunkFetchCurrentCart())
       mounted.current = true;
     }
-  }, [dispatch]);
+  }, [dispatch, cartItemsById]);
 
   useEffect(() => {
     if (userId) {
-      // Fetch the cart data every time the user logs in
-      dispatch(thunkFetchCurrentCart());
+
+      dispatch(thunkFetchCurrentCart())
+
     } else {
-      // Clear the cart state when there's no logged-in user
+
       dispatch(actionClearCart());
     }
   }, [userId, dispatch]);
+  
 
   // Handler to create an order from the cart
   const handleGoToCheckout = () => {
@@ -87,6 +90,7 @@ export default function GetShoppingCart({ onClose }) {
       console.log("Please wait, cart items are loading.");
     }
   };
+
   return (
     <div className="shopping-cart-container">
       {cartItemIds?.length > 0 ? (

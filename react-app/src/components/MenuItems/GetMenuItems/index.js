@@ -34,13 +34,14 @@ export default function MenuSection({
 
       {/* List all menu items under this section */}
       <ul>
-        {items.map((item) => (
+        {items.map((item, index) => (
           <MenuItem
             key={item.id}
             item={item}
             menuItemImages={menuItemImages}
             restaurantId={restaurantId}
             setReloadPage={setReloadPage}
+            isEagerLoading={index === 0}
           />
         ))}
       </ul>

@@ -83,9 +83,12 @@ def get_cart():
 # ***************************************************************
 # Endpoint to Add an Item to the Current User's Shopping Cart
 # ***************************************************************
+# @login_required
+# @shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
+# def add_item_to_cart(id):
 @login_required
-@shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
-def add_item_to_cart(id):
+@shopping_cart_routes.route('/items/add', methods=['POST'])
+def add_item_to_cart():
     """
     Adds a new item to the current user's shopping cart based on the provided menu item ID.
 
@@ -113,9 +116,12 @@ def add_item_to_cart(id):
 
             # Query the database for the user's cart, or create a new one if it doesn't exist
             cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+
             if not cart:
                 cart = ShoppingCart(user_id=current_user.id)
                 db.session.add(cart)
+
+                db.session.commit()
 
             # Ensure the current user is the owner of the retrieved/created cart
             if cart.user_id != current_user.id:

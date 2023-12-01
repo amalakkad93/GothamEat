@@ -2,92 +2,6 @@ from sqlalchemy import text
 from ..models import db, MenuItem, MenuItemImg, environment, SCHEMA
 from random import randint
 
-image_urls = {
-
-    "drinks": {
-        "Cappuccino": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/cappuccino/img_{randint(1, 5)}.jpeg",
-        "Gotham Red Wine": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/gotham_red_wine/img_{randint(1, 5)}.jpeg",
-        "Margarita": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/margarita/img_{randint(1, 5)}.jpeg",
-        "Redbull": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/redbull/img_{randint(1, 5)}.jpeg",
-        "Seven and Seven":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/seven_and_seven/img_{randint(1, 5)}.jpeg",
-        "Sprite": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/sprite/img_{randint(1, 5)}.jpeg",
-        "Gotham White Wine": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/gotham_white_wine/img_{randint(1, 5)}.jpeg",
-        "Lemonade": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/lemonade/img_{randint(1, 5)}.jpeg",
-        "Martini": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/martini/img_{randint(1, 5)}.jpeg",
-        "Root Beer": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/root_beer/img_{randint(1, 5)}.jpeg",
-        "Shirley Temple":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/shirley_temple/img_{randint(1, 5)}.jpeg",
-        "Coffee":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/Coffee/img_{randint(1, 5)}.jpeg",
-        "Gotham Beer": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/gotham_beer/img_{randint(1, 5)}.jpeg",
-        "Long Island Iced Tea":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/long_island_iced_tea/img_{randint(1, 5)}.jpeg",
-        "Pepsi":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/pepsi/img_{randint(1, 5)}.jpeg",
-        "Rum and Coke":  f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/rum_and_coke/img_{randint(1, 5)}.jpeg",
-        "Smoothie": f"https://flask3.s3.amazonaws.com/menu_item_images/drinks/smoothie/img_{randint(1, 5)}.jpeg",
-    },
-    "entrees": {
-        "Buffalo Chicken Sandwich": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/buffalo_chicken_sandwich/img_{randint(1, 5)}.jpeg",
-        "Chicken Tenders": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/chicken_tenders/img_{randint(1, 5)}.jpeg",
-        "Lasagna": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/lasagna/img_{randint(1, 5)}.jpeg",
-        "Philly Cheesesteak": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/philly_cheesesteak/img_{randint(1, 5)}.jpeg",
-        "Spaghetti": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/spaghetti/img_{randint(1, 5)}.jpeg",
-        "Chicken Fajita": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/chicken_fajita/img_{randint(1, 5)}.jpeg",
-        "Fettuccine Alfredo": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/fettuccine_alfredo/img_{randint(1, 5)}.jpeg",
-        "Gyro": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/gyro/img_{randint(1, 5)}.jpeg",
-        "Lobster": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/lobster/img_{randint(1, 5)}.jpeg",
-        "Steak": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/steak/img_{randint(1, 5)}.jpeg",
-        "BBQ Ribs": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/bbq_ribs/img_{randint(1, 5)}.jpeg",
-        # "Chicken Parm": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/chicken_parmesean/img_{randint(1, 5)}.jpeg",
-        "Fish & Chips": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/fish_and_chips/img_{randint(1, 5)}.jpeg",
-        "Hamburger": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/hamburger/img_{randint(1, 5)}.jpeg",
-        "Meatball Sandwich": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/meatball_sandwich/img_{randint(1, 5)}.jpeg",
-        "Shish Kebab": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/shish_kebab/img_{randint(1, 5)}.jpeg",
-        "Fish Tacos": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/fish_tacos/img_{randint(1, 5)}.jpeg",
-        "Pizza": f"https://flask3.s3.amazonaws.com/menu_item_images/entrees/pizza/img_{randint(1, 5)}.jpeg"
-    },
-    "desserts": {
-        'Blueberry tart': f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/blueberry_tart/img_{randint(1, 5)}.jpeg",
-        "Chocolate Chip Cookie": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/blueberry_tart/img_{randint(1, 5)}.jpeg",
-        "Lava Cake": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/lava_cake/img_{randint(1, 5)}.jpeg",
-        "Pumpkin pie": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/pumpkin_pie/img_{randint(1, 5)}.jpeg",
-        'Carrot Cake': f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/carrot_cake/img_{randint(1, 5)}.jpeg",
-        "Chocolate Mousse": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/chocolate_mousse/img_{randint(1, 5)}.jpeg",
-        "Milkshake": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/milkshake/img_{randint(1, 5)}.jpeg",
-        "Strawberry Shortcake": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/strawberry_shortcake/img_{randint(1, 5)}.jpeg",
-        'Apple Pie': f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/apple_pie/img_{randint(1, 5)}.jpeg",
-        "Cheesecake": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/cheesecake/img_{randint(1, 5)}.jpeg",
-        "Cupcake": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/cupcake/img_{randint(1, 5)}.jpeg",
-        "Peach Cobbler": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/peach_cobbler/img_{randint(1, 5)}.jpeg",
-        "Tiramisu": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/tiramisu/img_{randint(1, 5)}.jpeg",
-        "Banana Split": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/banana_split/img_{randint(1, 5)}.jpeg",
-        "Chocolate Brownie": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/chocolate_brownie/img_{randint(1, 5)}.jpeg",
-        "Flan": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/flan/img_{randint(1, 5)}.jpeg",
-        "Pistachio Gelato": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/pistachio_gelato/img_{randint(1, 5)}.jpeg",
-        "Vanilla IceCream": f"https://flask3.s3.amazonaws.com/menu_item_images/desserts/vanilla_icecream/img_{randint(1, 5)}.jpeg"
-    },
-    "sides": {
-        "Chicken Wings": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/chicken_wings/img_{randint(1, 5)}.jpeg",
-        "Fried Rice": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/fried_rice/img_{randint(1, 5)}.jpeg",
-        "Green Beans": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/green_beans/img_{randint(1, 5)}.jpeg",
-        "Mozarella Sticks": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/mozarella_sticks/img_{randint(1, 5)}.jpeg",
-        "Roasted Veggies": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/roasted_veggies/img_{randint(1, 5)}.jpeg",
-        "Corn on the Cob": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/corn_on_the_cob/img_{randint(1, 5)}.jpeg",
-        "Fries": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/fries/img_{randint(1, 5)}.jpeg",
-        "Lo Mein": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/lo_mein/img_{randint(1, 5)}.jpeg",
-        "Nachos": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/nachos/img_{randint(1, 5)}.jpeg",
-        "Sweet Potato Fries": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/sweet_potato_fries/img_{randint(1, 5)}.jpeg",
-        "Baked Potato": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/baked_potato/img_{randint(1, 5)}.jpeg",
-        "Creamed Spinach": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/creamed_spinach/img_{randint(1, 5)}.jpeg",
-        "Garden Salad": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/garden_salad/img_{randint(1, 5)}.jpeg",
-        "Mac and Cheese": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/mac_and_cheese/img_{randint(1, 5)}.jpeg",
-        "Onion Rings": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/onion_rings/img_{randint(1, 5)}.jpeg",
-        "Tater Tots": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/tater_tots/img_{randint(1, 5)}.jpeg",
-        "Breadsticks": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/breadsticks/img_{randint(1, 5)}.jpeg",
-        "Edemame": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/edemame/img_{randint(1, 5)}.jpeg",
-        "Garlic Bread": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/garlic_bread/img_{randint(1, 5)}.jpeg",
-        # "Mashed_Potatoes": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/mashed_potatoes/img_{randint(1, 5)}.jpeg",
-        "Roasted Cauliflower": f"https://flask3.s3.amazonaws.com/menu_item_images/sides/roasted_cauliflower/img_{randint(1, 5)}.jpeg"
-    },
-}
-
 drinks = [
     {"name": "Cappuccino", "description": "A rich and creamy coffee beverage topped with foamy milk.", "price": 3.99},
     {"name": "Gotham Red Wine", "description": "A fine red wine sourced from the vineyards of Gotham.", "price": 6.99},
@@ -119,8 +33,8 @@ entrees = [
     {"name": "Lobster", "description": "Freshly cooked lobster.", "price": 24.99},
     {"name": "Steak", "description": "Grilled beef steak.", "price": 19.99},
     {"name": "BBQ Ribs", "description": "Tender ribs with BBQ sauce.", "price": 14.99},
-    {"name": "Chicken Parm", "description": "Breaded chicken with cheese and tomato sauce.", "price": 9.99},
-    {"name": "Fish & Chips", "description": "Fried fish with crispy chips.", "price": 8.99},
+    {"name": "Chicken Parmesan", "description": "Breaded chicken with cheese and tomato sauce.", "price": 9.99},
+    {"name": "Fish and Chips", "description": "Fried fish with crispy chips.", "price": 8.99},
     {"name": "Hamburger", "description": "Beef burger with lettuce, tomato, and onion.", "price": 7.49},
     {"name": "Meatball Sandwich", "description": "Meatballs in a sandwich with sauce.", "price": 7.99},
     {"name": "Shish Kebab", "description": "Grilled meat and vegetables on skewers.", "price": 8.49},
@@ -173,75 +87,83 @@ sides = [
     {"name": "Mashed Potatoes", "description": "Creamy mashed potatoes with optional gravy.", "price": 3.99},
     {"name": "Roasted Cauliflower", "description": "Cauliflower florets roasted with herbs.", "price": 4.49},
 ]
+# Define your menu item categories and their corresponding items
+menu_categories = {
+    'drinks': ["Cappuccino", "Gotham Red Wine", "Margarita", "Redbull", "Seven and Seven", "Sprite", "Gotham White Wine", "Lemonade", "Martini", "Root Beer", "Shirley Temple", "Coffee", "Gotham Beer", "Long Island Iced Tea", "Pepsi", "Rum and Coke", "Smoothie"],
+    'entrees': ["Buffalo Chicken Sandwich", "Chicken Tenders", "Lasagna", "Philly Cheesesteak", "Spaghetti", "Chicken Fajita", "Fettuccine Alfredo", "Gyro", "Lobster", "Steak", "BBQ Ribs", "Chicken Parmesan", "Fish and Chips", "Hamburger", "Meatball Sandwich", "Shish Kebab", "Fish Tacos", "Pizza"],
+    'desserts': ["Blueberry tart", "Chocolate Chip Cookie", "Lava Cake", "Pumpkin pie", "Carrot Cake", "Chocolate Mousse", "Milkshake", "Strawberry Shortcake", "Apple Pie", "Cheesecake", "Cupcake", "Peach Cobbler", "Tiramisu", "Banana Split", "Chocolate Brownie", "Flan", "Pistachio Gelato", "Vanilla IceCream"],
+    'sides': ["Chicken Wings", "Fried Rice", "Green Beans", "Mozarella Sticks", "Roasted Veggies", "Corn on the Cob", "Fries", "Lo Mein", "Nachos", "Sweet Potato Fries", "Baked Potato", "Creamed Spinach", "Garden Salad", "Mac and Cheese", "Onion Rings", "Tater Tots", "Breadsticks", "Edemame", "Garlic Bread", "Mashed Potatoes", "Roasted Cauliflower"]
+}
 
-def create_menu_items(restaurant_id, type, items):
-    return [MenuItem(restaurant_id=restaurant_id, name=item["name"], description=item["description"], type=type, price=item["price"]) for item in items]
+base_url = "https://flask3.s3.amazonaws.com/menu_item_images"
 
+# Function to generate image URL
+
+def generate_image_url(restaurant_id, category, item_name):
+    # Special case for 'Coffee' where the folder name starts with a capital letter
+    if item_name == "Coffee":
+        item_name_formatted = "Coffee"
+    else:
+        item_name_formatted = item_name.replace(' ', '_').lower()
+
+    image_number = ((restaurant_id - 1) * len(menu_categories[category]) + menu_categories[category].index(item_name)) % 5 + 1
+    return f"{base_url}/{category}/{item_name_formatted}/img_{image_number}.jpeg"
+
+
+# Function to create menu item objects
+def create_menu_item(restaurant_id, item_details, category, image_url):
+    new_menu_item = MenuItem(
+        restaurant_id=restaurant_id,
+        name=item_details['name'],
+        description=item_details['description'],
+        type=category,
+        price=item_details['price']
+    )
+    db.session.add(new_menu_item)
+    db.session.flush() # Flush to get the menu item ID
+
+    new_image = MenuItemImg(
+        menu_item_id=new_menu_item.id,
+        image_path=image_url
+    )
+    db.session.add(new_image)
+
+# Function to seed menu items and images
 def seed_menu_items():
-    # 1. Initialize empty lists to collect all menu items and all menu item images.
-    all_menu_items = []
+    restaurant_count = 50  # Number of restaurants
+    menu_categories = {
+        'drinks': drinks,
+        'entrees': entrees,
+        'desserts': desserts,
+        'sides': sides
+    }
 
-    # 2. Loop through numbers 1 to 50 (representing restaurant IDs).
-    for restaurant_id in range(1, 51):
-    # for restaurant_id in range(1, 13):
-        # 3. For each restaurant ID, create menu items for each type (drink, entree, dessert, sides).
-        menu_items = create_menu_items(restaurant_id, "drinks", drinks) + \
-                     create_menu_items(restaurant_id, "entrees", entrees) + \
-                     create_menu_items(restaurant_id, "desserts", desserts) + \
-                     create_menu_items(restaurant_id, "sides", sides)
+    for restaurant_id in range(1, restaurant_count + 1):
+        for category, items in menu_categories.items():
+            for item in items:
+                image_url = generate_image_url(restaurant_id, category, item['name'])
+                create_menu_item(restaurant_id, item, category, image_url)
 
-        # 4. Extend the 'all_menu_items' list with the items we just created for the current restaurant.
-        all_menu_items.extend(menu_items)
+    db.session.commit() # Commit all changes at the end
 
-    # 5. Add all the menu items we collected into the database session.
-    db.session.add_all(all_menu_items)
-    # 6. Commit the session to ensure all menu items are saved and given an ID.
-    db.session.commit()
-
-    # Now that all menu items are committed, let's collect the menu item images.
-    all_images = []
-    for item in all_menu_items:
-        item_type = item.type
-        if item.name in image_urls[item_type]:
-            img_instance = MenuItemImg(menu_item_id=item.id, image_path=image_urls[item_type][item.name])
-            all_images.append(img_instance)
-
-    # 7. Add all the image instances we collected into the database session.
-    db.session.add_all(all_images)
-    # 8. Commit the session to save all the menu item images to the database.
-    db.session.commit()
-
-# def undo_menu_items():
-#     if environment == "production":
-#         db.session.execute(f"TRUNCATE table {SCHEMA}.menu_items RESTART IDENTITY CASCADE;")
-#         db.session.execute(f"TRUNCATE table {SCHEMA}.menu_item_images RESTART IDENTITY CASCADE;")
-#     else:
-#         db.session.execute(text("DELETE FROM menu_items"))
-#         db.session.execute(text("DELETE FROM menu_item_images"))
-#     db.session.commit()
+# Function to undo menu items
 def undo_menu_items():
-    # Function to check if a table exists in the database
     def table_exists(table_name):
         if environment == "production":
-            # For production, check with the schema
             query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '{SCHEMA}' AND table_name = '{table_name}');"
         else:
-            # For other environments, check without schema
             query = f"SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type='table' AND name='{table_name}');"
         result = db.engine.execute(query).scalar()
         return result
 
-    # Only execute the TRUNCATE command if the table exists
     if table_exists("menu_items"):
         if environment == "production":
             db.session.execute(f"TRUNCATE table {SCHEMA}.menu_items RESTART IDENTITY CASCADE;")
         else:
             db.session.execute(text("DELETE FROM menu_items"))
-
     if table_exists("menu_item_images"):
         if environment == "production":
             db.session.execute(f"TRUNCATE table {SCHEMA}.menu_item_images RESTART IDENTITY CASCADE;")
         else:
             db.session.execute(text("DELETE FROM menu_item_images"))
-
     db.session.commit()

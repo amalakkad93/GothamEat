@@ -8,7 +8,7 @@ export default function StarRatingInput({ rating, onChange, readOnly = false }) 
   useEffect(() => {
     setActiveRating(rating);
   }, [rating]);
-  console.log("Rating received in StarRatingInput: ", rating);
+  
   const handleMouseEnter = (number) => {
     if (!readOnly) {
       setHoverRating(number);

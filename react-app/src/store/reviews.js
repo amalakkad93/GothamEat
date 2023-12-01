@@ -374,7 +374,6 @@ const initialState = {
 export default function reviewsReducer(state = initialState, action) {
   switch (action.type) {
     case GET_SINGLE_REVIEW:
-      console.log("Updating state with review:", action.review);
       return {
         ...state,
         singleReview: {

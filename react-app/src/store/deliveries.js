@@ -54,7 +54,6 @@ export const thunkGetDeliveries = () => async (dispatch) => {
       throw new Error('Invalid JSON response from server.');
     }
 
-    console.log("~~~~~thunkGetDeliveries ~ deliveries:", deliveries)
     // Dispatch the success action with the deliveries
     dispatch(actionSetDeliveries(deliveries));
   } catch (error) {

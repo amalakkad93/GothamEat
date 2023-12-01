@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { thunkClearCart } from "../../store/shoppingCarts";
+import { clearFilteredMenuItems } from "../../store/menuItems";
 import { useNavigate, Link } from "react-router-dom";
 import SlidingModalLeft from "../Modals/SlidingModal/SlidingModalLeft";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,7 +18,7 @@ export default function ProfileButton(props) {
   const navigate = useNavigate();
   const persistor = useContext(PersistorContext);
   const sessionUser = useSelector((state) => state.session.user, shallowEqual);
-  const isAdmin = sessionUser?.email === "amalakkad@gmail.com";
+  const isAdmin = sessionUser?.email === "amalakkad93@outlook.com";
   const [showMenu, setShowMenu] = useState(false);
   const [purgeSuccessful, setPurgeSuccessful] = useState(false);
   const ulRef = useRef();
@@ -51,9 +52,10 @@ export default function ProfileButton(props) {
     e.preventDefault();
     dispatch(thunkClearCart());
     dispatch(sessionActions.logout());
+    dispatch(clearFilteredMenuItems());
     closeMenu();
     navigate("/");
-  };
+};
   const ulClassName = "profile-dropdown";
 
   // This method clears the persisted state
