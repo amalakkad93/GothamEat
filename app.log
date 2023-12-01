@@ -187,3 +187,5 @@ Received request to fetch all restaurants.
 Received request to fetch all restaurants.
 Received request to fetch all restaurants.
 Received data: {'menu_item_id': 112, 'quantity': 1}
+Received request to fetch all restaurants.
+Received data: {'menu_item_id': 186, 'quantity': 1}

@@ -16,12 +16,13 @@ const UserOrderLists = () => {
   }));
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [fetched, setFetched] = useState(false);
 
    useEffect(() => {
-    if (sessionUser?.id && !Object.keys(orders).length && !error) {
+    if (sessionUser?.id && !Object.keys(orders).length && !error && !fetched) {
       dispatch(thunkGetUserOrders(sessionUser.id));
     }
-  }, [dispatch, sessionUser, orders, error]);
+  }, [dispatch, sessionUser, orders, error, fetched]);
 
   const userOrders = Object.values(orders).filter(order => order?.user_id === sessionUser?.id);
 

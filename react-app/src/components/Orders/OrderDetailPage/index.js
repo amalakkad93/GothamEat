@@ -48,8 +48,11 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const formattedFinalTotal = totalWithTax?.toFixed(2);
 
   useEffect(() => {
-    dispatch(thunkGetOrderDetails(orderId));
+    if (orderId) {
+      dispatch(thunkGetOrderDetails(orderId));
+    }
   }, [dispatch, orderId]);
+
   const isCurrentUserOrder = order?.user_id === currentUserId;
   if (isLoading) return <p>Loading order details...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -66,8 +69,10 @@ const OrderDetailPage = ({ orderIdProp }) => {
       };
     });
 
-    if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
-
+  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
+  if (isLoading || !orderId) return <p>Loading order details...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!order) return <p>Order details not found.</p>;
   return (
     <div className="order-detail-page">
       <div className="order-header">
