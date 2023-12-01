@@ -46,25 +46,26 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const isCurrentUserOrder = order?.user_id === currentUserId;
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      setIsFetching(true);
-      try {
-        await dispatch(thunkGetOrderDetails(orderId));
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-        setFetchError("Failed to load order details.");
-      } finally {
-        setIsFetching(false);
-      }
-    };
+    fetchOrderDetails(); // Call this when the component mounts
+  }, []); // Empty dependency array to ensure it runs once on mount
 
+  const fetchOrderDetails = () => {
+    // Ensure orderId is correctly obtained
     if (orderId && (!order || order.id !== orderId)) {
-      fetchOrderDetails();
+      setIsFetching(true);
+      dispatch(thunkGetOrderDetails(orderId))
+        .catch((error) => {
+          console.error("Error fetching order details:", error);
+          setFetchError("Failed to load order details.");
+        })
+        .finally(() => {
+          setIsFetching(false);
+        });
     }
-  }, [dispatch, orderId, order]);
+  };
 
   // Check for loading states
-  if (isLoading || isFetching) return <p>Loading order details...</p>;
+  // if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
   if (error || fetchError) return <p>Error: {error || fetchError}</p>;
   // Check if order details are available
@@ -169,6 +170,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
 
         <div className="order-footer">
           <button className="back-button" onClick={() => navigate("/orders")}>
+
             <FaArrowLeft /> Back to Orders
           </button>
           {order.status === "Pending" && (
@@ -194,6 +196,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
           )}
         </div>
       </div>
+
     </div>
   );
 };

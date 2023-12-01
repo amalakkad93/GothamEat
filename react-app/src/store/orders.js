@@ -226,7 +226,7 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-   
+
     }
   } catch (error) {
     console.error(
@@ -303,21 +303,27 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/orders/${orderId}`);
 
-    if (response.ok) {
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        
+        const errorJSON = JSON.parse(errorText);
+        dispatch(setError(errorJSON.message || 'Failed to fetch order details'));
+      } catch (jsonError) {
+        dispatch(setError(`Server responded with status: ${response.status}`));
+      }
+    } else {
       const orderDetails = await response.json();
       dispatch(actionSetOrderDetails(orderDetails));
-    } else {
-      const errors = await response.json();
-      dispatch(setError(errors.message || 'Failed to fetch order details'));
     }
   } catch (error) {
-    // dispatch(setError(error.toString()));
     console.error("Error fetching order details:", error);
     dispatch(setError("Error fetching order details"));
   } finally {
     dispatch(setLoading(false));
   }
 };
+
 
 // Initial state
 const initialState = {

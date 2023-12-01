@@ -9,6 +9,13 @@ const OrderConfirmationPage = () => {
   const navigate = useNavigate();
   const { order, delivery, payment } = location.state || {};
 
+  const handleViewDetails = () => {
+    if (order?.order_id) {
+      navigate(`/orders/${order?.order_id}`);
+    }
+  };
+
+
   if (!order || !delivery || !payment) {
     navigate('/orders');
     return <p>Order details not available. Redirecting...</p>;
@@ -55,6 +62,8 @@ const OrderConfirmationPage = () => {
 
       {/* <button className="order-confirmation-btn" onClick={() => navigate(`/orders`)}>View Your Orders</button> */}
       <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order?.order_id}`)}>View Order Details</button>
+      {/* <button className="order-confirmation-btn" onClick={handleViewDetails}>View Order Details</button> */}
+
     </div>
   );
 };
