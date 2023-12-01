@@ -34,12 +34,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const isLoading = useSelector((state) => state.orders.isLoading);
   const error = useSelector((state) => state.orders.error);
 
-  const deliveryId = order?.delivery_id;
-  const deliveryDetails = useSelector(
-    (state) => state.delivery?.byId[deliveryId]
-  );
-
-  const deliveryCost = deliveryDetails?.cost || 0;
+  const [isFetching, setIsFetching] = useState(true);
 
   const orderAndDeliverySubtotal =
     parseFloat(order?.total_price) + parseFloat(order?.delivery?.cost);
@@ -48,15 +43,20 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const formattedFinalTotal = totalWithTax?.toFixed(2);
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(thunkGetOrderDetails(orderId));
-    }
-  }, [dispatch, orderId]);
+    if (orderId && (!order || order.id !== orderId)) {
+      setIsFetching(true);
+      dispatch(thunkGetOrderDetails(orderId))
+      .then(() => {
+        setIsFetching(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching order details:", error);
+        setIsFetching(false);
+      });
+  }
+  }, [dispatch, orderId, order]);
 
   const isCurrentUserOrder = order?.user_id === currentUserId;
-  if (isLoading) return <p>Loading order details...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!order) return <p>Order details not found.</p>;
 
   const itemsList = Object.values(orderItems)
     .filter((item) => item.order_id === order.id)

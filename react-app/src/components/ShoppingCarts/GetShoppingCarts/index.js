@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { thunkFetchCurrentCart, actionClearCart } from "../../../store/shoppingCarts";
-import { thunkCreateOrderFromCart } from "../../../store/orders";
 import EditShoppingCart from "../EditShoppingCart";
 import ClearShoppingCart from "../ClearShoppingCart";
 
@@ -63,7 +62,7 @@ export default function GetShoppingCart({ onClose }) {
       dispatch(actionClearCart());
     }
   }, [userId, dispatch]);
-  
+
 
   // Handler to create an order from the cart
   const handleGoToCheckout = () => {

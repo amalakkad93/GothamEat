@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { thunkCreatePayment } from "../../../store/payments";
-import { thunkCreateOrderFromCart } from "../../../store/orders";
 import { thunkClearCart } from "../../../store/shoppingCarts";
 import { FaArrowLeft } from "react-icons/fa";
 

@@ -308,10 +308,12 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
       dispatch(actionSetOrderDetails(orderDetails));
     } else {
       const errors = await response.json();
-      dispatch(setError(errors));
+      dispatch(setError(errors.message || 'Failed to fetch order details'));
     }
   } catch (error) {
-    dispatch(setError(error.toString()));
+    // dispatch(setError(error.toString()));
+    console.error("Error fetching order details:", error);
+    dispatch(setError("Error fetching order details"));
   } finally {
     dispatch(setLoading(false));
   }

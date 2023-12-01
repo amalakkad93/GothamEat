@@ -12,7 +12,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { thunkGetMenuItemDetails } from "../../../store/menuItems";
-import { thunkCreateOrder } from "../../../store/orders";
 import {
   thunkAddItemToCart,
   thunkFetchCurrentCart,

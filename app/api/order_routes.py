@@ -301,6 +301,7 @@ def get_order_details(order_id):
         if not order:
             logging.warning(f"Order with ID {order_id} not found.")
             abort(404, description=f"Order with ID {order_id} not found.")
+        logging.info(f"Order found: {order}")
 
         # Fetching order items
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
