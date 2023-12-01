@@ -299,14 +299,14 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
 };
 
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
-  dispatch(setLoading(true));
+  // dispatch(setLoading(true));
   try {
     const response = await fetch(`/api/orders/${orderId}`);
 
     if (!response.ok) {
       const errorText = await response.text();
       try {
-        
+
         const errorJSON = JSON.parse(errorText);
         dispatch(setError(errorJSON.message || 'Failed to fetch order details'));
       } catch (jsonError) {
@@ -319,9 +319,10 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   } catch (error) {
     console.error("Error fetching order details:", error);
     dispatch(setError("Error fetching order details"));
-  } finally {
-    dispatch(setLoading(false));
   }
+  // finally {
+  //   dispatch(setLoading(false));
+  // }
 };
 
 
