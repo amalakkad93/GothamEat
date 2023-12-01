@@ -245,6 +245,46 @@ def create_order_logic(data):
 
         return total_price, new_order
 
+# # ***************************************************************
+# # Endpoint to Get Order Details
+# # ***************************************************************
+# @login_required
+# @order_routes.route('/<int:order_id>', methods=['GET'])
+# def get_order_details(order_id):
+#     try:
+#         logging.info(f"Fetching details for order ID: {order_id}")
+#         order = Order.query.get(order_id)
+
+#         if not order:
+#             logging.warning(f"Order with ID {order_id} not found.")
+#             abort(404, description=f"Order with ID {order_id} not found.")
+
+#         order_items = OrderItem.query.filter_by(order_id=order_id).all()
+#         if not order_items:
+#             logging.warning(f"No order items found for order ID {order_id}")
+#             abort(404, description=f"No order items found for order ID {order_id}")
+
+#         menu_item_ids = [oi.menu_item_id for oi in order_items]
+#         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all()
+
+#         order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
+#         menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
+
+#         normalized_order_details = {
+#             'order': order.to_dict(),
+#             'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
+#             'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
+#         }
+
+#         return jsonify(normalized_order_details)
+
+#     except SQLAlchemyError as e:
+#         logging.error(f"Database Error: {e}")
+#         abort(500, description='Database operation failed')
+
+#     except Exception as e:
+#         logging.error(f"Unexpected Error: {e}")
+#         abort(500, description='An unexpected error occurred')
 # ***************************************************************
 # Endpoint to Get Order Details
 # ***************************************************************
@@ -253,37 +293,46 @@ def create_order_logic(data):
 def get_order_details(order_id):
     try:
         logging.info(f"Fetching details for order ID: {order_id}")
+
+        # Fetching order
         order = Order.query.get(order_id)
+        logging.info(f"Order fetched: {order}")
 
         if not order:
             logging.warning(f"Order with ID {order_id} not found.")
             abort(404, description=f"Order with ID {order_id} not found.")
 
+        # Fetching order items
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        logging.info(f"Order items fetched for order ID {order_id}: {order_items}")
+
         if not order_items:
             logging.warning(f"No order items found for order ID {order_id}")
             abort(404, description=f"No order items found for order ID {order_id}")
 
+        # Fetching menu items
         menu_item_ids = [oi.menu_item_id for oi in order_items]
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all()
+        logging.info(f"Menu items fetched for menu item IDs {menu_item_ids}: {menu_items}")
 
+        # Building response dictionary
         order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
         menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
-
         normalized_order_details = {
             'order': order.to_dict(),
             'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
             'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
         }
+        logging.info(f"Normalized order details prepared for order ID {order_id}")
 
         return jsonify(normalized_order_details)
 
     except SQLAlchemyError as e:
-        logging.error(f"Database Error: {e}")
+        logging.exception("Database Error encountered while fetching order details.")
         abort(500, description='Database operation failed')
 
     except Exception as e:
-        logging.error(f"Unexpected Error: {e}")
+        logging.exception("Unexpected Error encountered while fetching order details.")
         abort(500, description='An unexpected error occurred')
 
 
