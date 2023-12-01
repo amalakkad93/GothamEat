@@ -12,6 +12,8 @@ const OrderConfirmationPage = () => {
   const handleViewDetails = () => {
     if (order?.order_id) {
       navigate(`/orders/${order?.order_id}`);
+    } else {
+      console.error("Error navigating to order details page.");
     }
   };
 
@@ -61,8 +63,8 @@ const OrderConfirmationPage = () => {
       </div>
 
       {/* <button className="order-confirmation-btn" onClick={() => navigate(`/orders`)}>View Your Orders</button> */}
-      <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order?.order_id}`)}>View Order Details</button>
-      {/* <button className="order-confirmation-btn" onClick={handleViewDetails}>View Order Details</button> */}
+      {/* <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order?.order_id}`)}>View Order Details</button> */}
+      <button className="order-confirmation-btn" onClick={handleViewDetails}>View Order Details</button>
 
     </div>
   );
