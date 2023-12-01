@@ -7,7 +7,13 @@ import './OrderConfirmationPage.css'
 const OrderConfirmationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { order, delivery, payment } = location.state;
+  const { order, delivery, payment } = location.state || {};
+
+  if (!order || !delivery || !payment) {
+    navigate('/orders');
+    return <p>Order details not available. Redirecting...</p>;
+  }
+
   const orderAndDeliverySubtotal = parseFloat(order.total_price?.toFixed(2)) + parseFloat(delivery?.cost);
   const orderTaxAmount = calculateTax(orderAndDeliverySubtotal);
   const totalWithTax = orderAndDeliverySubtotal + orderTaxAmount;
@@ -48,7 +54,7 @@ const OrderConfirmationPage = () => {
       </div>
 
       {/* <button className="order-confirmation-btn" onClick={() => navigate(`/orders`)}>View Your Orders</button> */}
-      <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order.order_id}`)}>View Order Details</button>
+      <button className="order-confirmation-btn" onClick={() => navigate(`/orders/${order?.order_id}`)}>View Order Details</button>
     </div>
   );
 };

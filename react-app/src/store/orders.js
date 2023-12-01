@@ -226,7 +226,7 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-      // Handle your error dispatching here, if needed
+   
     }
   } catch (error) {
     console.error(

@@ -34,6 +34,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const isLoading = useSelector((state) => state.orders.isLoading);
   const error = useSelector((state) => state.orders.error);
 
+  const [fetchError, setFetchError] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
 
   const orderAndDeliverySubtotal =
@@ -42,26 +43,40 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const totalWithTax = orderAndDeliverySubtotal + orderTaxAmount;
   const formattedFinalTotal = totalWithTax?.toFixed(2);
 
-  useEffect(() => {
-    if (orderId && (!order || order.id !== orderId)) {
-      setIsFetching(true);
-      dispatch(thunkGetOrderDetails(orderId))
-      .then(() => {
-        setIsFetching(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching order details:", error);
-        setIsFetching(false);
-      });
-  }
-  }, [dispatch, orderId, order]);
-
   const isCurrentUserOrder = order?.user_id === currentUserId;
 
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      setIsFetching(true);
+      try {
+        await dispatch(thunkGetOrderDetails(orderId));
+      } catch (error) {
+        console.error("Error fetching order details:", error);
+        setFetchError("Failed to load order details.");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    if (orderId && (!order || order.id !== orderId)) {
+      fetchOrderDetails();
+    }
+  }, [dispatch, orderId, order]);
+
+  // Check for loading states
+  if (isLoading || isFetching) return <p>Loading order details...</p>;
+  // Check for errors
+  if (error || fetchError) return <p>Error: {error || fetchError}</p>;
+  // Check if order details are available
+  if (!order) return <p>Order details not found.</p>;
+  // Check if the user has permission to view the order
+  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
+
+  // Generate list of items for the order
   const itemsList = Object.values(orderItems)
-    .filter((item) => item.order_id === order.id)
+    .filter((item) => item?.order_id === order?.id)
     .map((item) => {
-      const menuItem = menuItems[item.menu_item_id];
+      const menuItem = menuItems[item?.menu_item_id];
       return {
         ...item,
         name: menuItem?.name,
@@ -69,10 +84,6 @@ const OrderDetailPage = ({ orderIdProp }) => {
       };
     });
 
-  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
-  if (isLoading || !orderId) return <p>Loading order details...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!order) return <p>Order details not found.</p>;
   return (
     <div className="order-detail-page">
       <div className="order-header">
