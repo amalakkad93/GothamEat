@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -25,6 +25,7 @@ import "./OrderDetailPage.css";
 const OrderDetailPage = ({ orderIdProp }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const initialLoadDone = useRef(false);
   const { orderId: orderIdFromUrl } = useParams();
   const orderId = orderIdProp || orderIdFromUrl;
   const order = useSelector((state) => state.orders.orders.byId[orderId]);
@@ -45,13 +46,11 @@ const OrderDetailPage = ({ orderIdProp }) => {
 
   const isCurrentUserOrder = order?.user_id === currentUserId;
 
-  useEffect(() => {
-    fetchOrderDetails(); // Call this when the component mounts
-  }, []); // Empty dependency array to ensure it runs once on mount
+  const [dataFetched, setDataFetched] = useState(false);
 
-  const fetchOrderDetails = () => {
-    // Ensure orderId is correctly obtained
-    if (orderId && (!order || order.id !== orderId)) {
+  useEffect(() => {
+
+    if (orderId && (!order || order.id !== orderId) && !initialLoadDone.current) {
       setIsFetching(true);
       dispatch(thunkGetOrderDetails(orderId))
         .catch((error) => {
@@ -60,16 +59,18 @@ const OrderDetailPage = ({ orderIdProp }) => {
         })
         .finally(() => {
           setIsFetching(false);
+          initialLoadDone.current = true;
         });
     }
-  };
+  }, [dispatch, orderId, order]);
 
   // Check for loading states
-  // if (isLoading || isFetching) return <p>Loading order details...</p>;
+  if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
   if (error || fetchError) return <p>Error: {error || fetchError}</p>;
   // Check if order details are available
-  if (!order) return <p>Order details not found.</p>;
+  // Check if dataFetched is true before showing "not found" message
+  if (dataFetched && !order) return <p>Order details not found.</p>;
   // Check if the user has permission to view the order
   if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
 

@@ -149,13 +149,19 @@ export const thunkCreateOrderFromCart =
       // Process the response
       if (response.ok) {
         const order = await response.json();
-        // Include detailed items in the order object for the Redux action
-        const orderWithDetails = {
-          ...order,
-          items: detailedItems,
-        };
-        dispatch(actionSetCreatedOrder(orderWithDetails, detailedItems));
-        return { ok: true, payload: orderWithDetails };
+        if (order.success) {
+          // Include detailed items in the order object for the Redux action
+          const orderWithDetails = {
+            ...order,
+            items: detailedItems,
+          };
+          dispatch(actionSetCreatedOrder(orderWithDetails, detailedItems));
+          return { ok: true, payload: orderWithDetails };
+        } else {
+          // Process API returned error
+          console.error("Error response from create_order:", order.error);
+          return { ok: false, error: order.error };
+        }
       } else {
         const errors = await response.json();
         console.error("Error response from create_order:", errors);
@@ -226,7 +232,6 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
     } else {
       const errors = await response.json();
       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-
     }
   } catch (error) {
     console.error(
@@ -306,9 +311,10 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
     if (!response.ok) {
       const errorText = await response.text();
       try {
-
         const errorJSON = JSON.parse(errorText);
-        dispatch(setError(errorJSON.message || 'Failed to fetch order details'));
+        dispatch(
+          setError(errorJSON.message || "Failed to fetch order details")
+        );
       } catch (jsonError) {
         dispatch(setError(`Server responded with status: ${response.status}`));
       }
@@ -324,7 +330,6 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   //   dispatch(setLoading(false));
   // }
 };
-
 
 // Initial state
 const initialState = {
@@ -347,12 +352,40 @@ export default function ordersReducer(state = initialState, action) {
         mergeEntities(draft.orders, action.payload.orders);
         break;
 
+      // case SET_CREATED_ORDER:
+      //   if (action.payload && Array.isArray(action.payload.items)) {
+      //     // Update the createdOrder in the state
+      //     draft.createdOrder = action.payload.order;
+
+      //     // Iterate through items and update orderItems and menuItems
+      //     action.payload.items.forEach((item) => {
+      //       if (item && item.menu_item_id) {
+      // draft.orderItems.byId[item.menu_item_id] = {
+      //   id: item.menu_item_id,
+      //   name: item.name,
+      //   price: item.price,
+      //   quantity: item.quantity,
+      // };
+
+      //         // Add item to menuItems if not already present
+      //         if (!draft.menuItems.byId[item.menu_item_id]) {
+      // draft.menuItems.byId[item.menu_item_id] = {
+      //   id: item.menu_item_id,
+      //   name: item.name,
+      //   price: item.price,
+      // };
+      //         }
+      //       }
+      //     });
+      //   } else {
+      //     console.error(
+      //       "SET_CREATED_ORDER: 'items' not found or not an array in action payload"
+      //     );
+      //   }
+      //   break;
       case SET_CREATED_ORDER:
         if (action.payload && Array.isArray(action.payload.items)) {
-          // Update the createdOrder in the state
           draft.createdOrder = action.payload.order;
-
-          // Iterate through items and update orderItems and menuItems
           action.payload.items.forEach((item) => {
             if (item && item.menu_item_id) {
               draft.orderItems.byId[item.menu_item_id] = {
@@ -361,8 +394,6 @@ export default function ordersReducer(state = initialState, action) {
                 price: item.price,
                 quantity: item.quantity,
               };
-
-              // Add item to menuItems if not already present
               if (!draft.menuItems.byId[item.menu_item_id]) {
                 draft.menuItems.byId[item.menu_item_id] = {
                   id: item.menu_item_id,

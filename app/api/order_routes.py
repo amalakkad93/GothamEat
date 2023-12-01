@@ -191,17 +191,17 @@ def create_order_from_cart():
 
     except ValueError as ve:
         db.session.rollback()
+        current_app.logger.error(f"ValueError: {ve}")
         return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
     except SQLAlchemyError as e:
         db.session.rollback()
-        # Log the error for debugging
-        print(f"Database Error: {e}")
+        current_app.logger.error(f"Database Error: {e}")
         return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
     except Exception as e:
         db.session.rollback()
-        # Log the generic error
-        print(f"Unexpected Error: {e}")
+        current_app.logger.error(f"Unexpected Error: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 # ++++++++++++++++++++++++++++
 # Helper Function to Create an Order From Cart
