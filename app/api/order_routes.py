@@ -176,11 +176,8 @@ def create_order_from_cart():
     try:
         data = request.get_json()
         current_app.logger.info(f"Order creation data received: {data}")
-        ic(data)
         total_price, new_order = create_order_logic(data)
         current_app.logger.info(f"Order created with ID: {new_order.id}, Total Price: {total_price}")
-        ic(total_price)
-        ic(new_order)
 
         return jsonify({
             'success': True,
@@ -251,7 +248,8 @@ def create_order_logic(data):
             return total_price, new_order
     except Exception as e:
         current_app.logger.error(f"Error in create_order_logic: {e}")
-        raise  
+        db.session.rollback()
+        raise
 
 # # ***************************************************************
 # # Endpoint to Get Order Details
