@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, session, redirect, jsonify
+from flask import Flask, render_template, request, session, redirect, jsonify, current_app
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 from flask_migrate import Migrate, current
@@ -74,6 +74,7 @@ def https_redirect():
         if request.headers.get('X-Forwarded-Proto') == 'http':
             url = request.url.replace('http://', 'https://', 1)
             code = 301
+            current_app.logger.info(f"Redirecting to HTTPS: {url}")
             return redirect(url, code=code)
 
 @app.after_request

@@ -199,7 +199,7 @@ def create_order_from_cart():
 
         # Log the exception in detail
         current_app.logger.error(f"Exception in order creation: {type(e).__name__}, {str(e)}")
-
+        current_app.logger.error("Exception in order creation", exc_info=True)
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 

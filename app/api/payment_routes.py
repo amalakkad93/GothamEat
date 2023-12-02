@@ -81,6 +81,8 @@ def create_payment():
 
         if form.validate():
             gateway = form.gateway.data
+            current_app.logger.info(f"Using payment gateway: {gateway}")
+            
             if gateway not in ["Stripe", "PayPal", "Credit Card"]:
                 raise ValueError(f"Invalid payment gateway: {gateway}")
 

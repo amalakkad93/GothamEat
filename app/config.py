@@ -1,7 +1,8 @@
 import os
 import logging
-from flask_caching import Cache
 import boto3
+from flask_caching import Cache
+from flask import current_app
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
@@ -40,6 +41,7 @@ class Config:
 
     # Cache Configuration
     CACHE_TYPE = 'simple'
+    current_app.logger.info(f"Database URL: {SQLALCHEMY_DATABASE_URI}")
     # DATA_VERSION = 12
 # Initialize the cache
 cache = Cache(config={'CACHE_TYPE': 'simple'})

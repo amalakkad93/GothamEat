@@ -44,11 +44,10 @@ def create_delivery():
     Returns:
         Response: The newly created delivery record or an error message if validation fails.
     """
-    logging.info(
-        "*********************Accessed the create_delivery route*********************"
-    )
+    logging.info("Accessed the create_delivery route")
     try:
         data = request.get_json()
+        logging.info(f"Received data for delivery creation: {data}")
         if not data:
             logging.error("No data received for delivery creation.")
             return jsonify({"error": "Invalid data"}), 400
@@ -68,8 +67,10 @@ def create_delivery():
                 status=data.get("status", "Pending"),
                 tracking_number=str(uuid.uuid4()),
             )
+            logging.info(f"Creating new delivery: {new_delivery}")
             db.session.add(new_delivery)
             db.session.commit()
+            logging.info(f"New delivery committed to DB with ID: {new_delivery.id}")
             return jsonify(new_delivery.to_dict()), 201
         else:
             logging.error("Form validation failed: %s", form.errors)
@@ -82,6 +83,7 @@ def create_delivery():
 
     except Exception as e:
         logging.error("Unexpected error occurred: %s", e)
+        logging.error(f"Unexpected error in create_delivery: {e}", exc_info=True)
         db.session.rollback()
         return (
             jsonify({"error": "An error occurred while creating the delivery record."}),

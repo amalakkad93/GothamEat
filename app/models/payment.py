@@ -16,7 +16,7 @@ class Payment(db.Model):
             return f"{SCHEMA}.{attr}"
         else:
             return attr
-        
+
     if environment == "production":
         __table_args__ = {'schema': SCHEMA}
 
@@ -65,7 +65,7 @@ class Payment(db.Model):
                 "paypal_transaction_id": self.paypal_transaction_id
             })
         elif self.gateway == "Credit Card":
-            # Reminder: Never store raw credit card details in the database in production
+           
             data.update({
                 "cardholder_name": self.cardholder_name,
                 "card_number": self.card_number,
