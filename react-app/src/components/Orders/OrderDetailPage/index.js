@@ -65,14 +65,14 @@ const OrderDetailPage = ({ orderIdProp }) => {
   }, [dispatch, orderId, order]);
 
   // Check for loading states
-  // if (isLoading || isFetching) return <p>Loading order details...</p>;
+  if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
-  // if (error || fetchError) return <p>Error: {error || fetchError}</p>;
+  if (error || fetchError) return <p>Error: {error || fetchError}</p>;
   // Check if order details are available
   // Check if dataFetched is true before showing "not found" message
-  // if (dataFetched && !order) return <p>Order details not found.</p>;
+  if (dataFetched && !order) return <p>Order details not found.</p>;
   // Check if the user has permission to view the order
-  // if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
+  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
 
   // Generate list of items for the order
   const itemsList = Object.values(orderItems)

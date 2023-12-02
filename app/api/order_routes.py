@@ -175,8 +175,10 @@ def create_order():
 def create_order_from_cart():
     try:
         data = request.get_json()
+        current_app.logger.info(f"Order creation data received: {data}")
         ic(data)
         total_price, new_order = create_order_logic(data)
+        current_app.logger.info(f"Order created with ID: {new_order.id}, Total Price: {total_price}")
         ic(total_price)
         ic(new_order)
 
@@ -191,59 +193,65 @@ def create_order_from_cart():
 
     except ValueError as ve:
         db.session.rollback()
-        current_app.logger.error(f"ValueError: {ve}")
+        current_app.logger.error(f"ValueError in order creation: {ve}")
         return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
     except SQLAlchemyError as e:
         db.session.rollback()
-        current_app.logger.error(f"Database Error: {e}")
+        current_app.logger.error(f"Database Error in order creation: {e}")
         return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Unexpected Error: {e}")
+        current_app.logger.error(f"Unexpected Error in order creation: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # ++++++++++++++++++++++++++++
 # Helper Function to Create an Order From Cart
 def create_order_logic(data):
-    with db.session.begin_nested():  # Starts a nested transaction
-        shopping_cart = ShoppingCart.query.options(
-            joinedload(ShoppingCart.items)
-        ).filter_by(user_id=current_user.id).first()
+    try:
+        with db.session.begin_nested():  # Starts a nested transaction
+            shopping_cart = ShoppingCart.query.options(
+                joinedload(ShoppingCart.items)
+            ).filter_by(user_id=current_user.id).first()
 
-        if not shopping_cart or not shopping_cart.items:
-            raise ValueError("Shopping cart is empty")
+            if not shopping_cart or not shopping_cart.items:
+                raise ValueError("Shopping cart is empty")
 
-        total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+            total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
 
-        delivery_id = data.get('delivery_id')
-        payment_id = data.get('payment_id')
+            delivery_id = data.get('delivery_id')
+            payment_id = data.get('payment_id')
 
-        new_order = Order(
-            user_id=current_user.id,
-            total_price=total_price,
-            delivery_id=delivery_id,
-            payment_id=payment_id,
-            status='Pending',
-            created_at=datetime.datetime.now(datetime.timezone.utc),
-            updated_at=datetime.datetime.now(datetime.timezone.utc),
-            is_deleted=False
-        )
-        db.session.add(new_order)
-        db.session.flush()
-
-        # Create order items from shopping cart
-        for cart_item in shopping_cart.items:
-            order_item = OrderItem(
-                order_id=new_order.id,
-                menu_item_id=cart_item.menu_item_id,
-                quantity=cart_item.quantity
+            new_order = Order(
+                user_id=current_user.id,
+                total_price=total_price,
+                delivery_id=delivery_id,
+                payment_id=payment_id,
+                status='Pending',
+                created_at=datetime.datetime.now(datetime.timezone.utc),
+                updated_at=datetime.datetime.now(datetime.timezone.utc),
+                is_deleted=False
             )
-            db.session.add(order_item)
+            current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
+            db.session.add(new_order)
+            db.session.flush()
 
-        db.session.commit()
+            # Create order items from shopping cart
+            for cart_item in shopping_cart.items:
+                order_item = OrderItem(
+                    order_id=new_order.id,
+                    menu_item_id=cart_item.menu_item_id,
+                    quantity=cart_item.quantity
+                )
+                db.session.add(order_item)
 
-        return total_price, new_order
+            db.session.commit()
+            current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
+
+            return total_price, new_order
+    except Exception as e:
+        current_app.logger.error(f"Error in create_order_logic: {e}")
+        raise  
 
 # # ***************************************************************
 # # Endpoint to Get Order Details
