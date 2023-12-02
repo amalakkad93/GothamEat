@@ -65,14 +65,14 @@ const OrderDetailPage = ({ orderIdProp }) => {
   }, [dispatch, orderId, order]);
 
   // Check for loading states
-  if (isLoading || isFetching) return <p>Loading order details...</p>;
+  // if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
-  if (error || fetchError) return <p>Error: {error || fetchError}</p>;
+  // if (error || fetchError) return <p>Error: {error || fetchError}</p>;
   // Check if order details are available
   // Check if dataFetched is true before showing "not found" message
-  if (dataFetched && !order) return <p>Order details not found.</p>;
+  // if (dataFetched && !order) return <p>Order details not found.</p>;
   // Check if the user has permission to view the order
-  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
+  // if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
 
   // Generate list of items for the order
   const itemsList = Object.values(orderItems)
@@ -89,12 +89,12 @@ const OrderDetailPage = ({ orderIdProp }) => {
   return (
     <div className="order-detail-page">
       <div className="order-header">
-        <h1>Order #{order.id}</h1>
+        <h1>Order #{order?.id}</h1>
         <p className="order-date">
-          {new Date(order.date).toLocaleDateString()}
+          {new Date(order?.date).toLocaleDateString()}
         </p>
-        <p className={`order-status ${order.status.toLowerCase()}`}>
-          {order.status}
+        <p className={`order-status ${order?.status?.toLowerCase()}`}>
+          {order?.status}
         </p>
       </div>
 
@@ -102,12 +102,12 @@ const OrderDetailPage = ({ orderIdProp }) => {
         <div className="order-summary">
           <h2>Order Summary</h2>
           <div className="order-items">
-            {itemsList.map((item, index) => (
+            {itemsList?.map((item, index) => (
               <div className="item-card" key={index}>
                 <div className="item-name">{item.name}</div>
                 <div className="item-quantity-price">
                   <span>Qty: {item.quantity}</span>
-                  <span>${item.price?.toFixed(2)}</span>
+                  <span>${item?.price?.toFixed(2)}</span>
                 </div>
               </div>
             ))}
@@ -115,15 +115,15 @@ const OrderDetailPage = ({ orderIdProp }) => {
           <div className="summary-costs">
             <div className="cost-item">
               <span>Subtotal:</span>
-              <span>${order.total_price.toFixed(2)}</span>
+              <span>${order?.total_price.toFixed(2)}</span>
             </div>
             <div className="cost-item">
               <span>Tax:</span>
-              <span>${orderTaxAmount.toFixed(2)}</span>
+              <span>${orderTaxAmount?.toFixed(2)}</span>
             </div>
             <div className="cost-item">
               <span>Delivery Fee:</span>
-              <span>${parseFloat(order.delivery?.cost || 0).toFixed(2)}</span>
+              <span>${parseFloat(order?.delivery?.cost || 0).toFixed(2)}</span>
             </div>
             <div className="total-cost">
               <strong>Total:</strong>
@@ -140,17 +140,17 @@ const OrderDetailPage = ({ orderIdProp }) => {
             <div className="info-detail">
               <strong>Address:</strong>
               <p>
-                {order.delivery?.street_address}, {order.delivery?.city},{" "}
-                {order.delivery?.state}, {order.delivery?.country}
+                {order?.delivery?.street_address}, {order?.delivery?.city},{" "}
+                {order?.delivery?.state}, {order?.delivery?.country}
               </p>
             </div>
             <div className="info-detail">
               <strong>Postal Code:</strong>
-              <p>{order.delivery?.postal_code}</p>
+              <p>{order?.delivery?.postal_code}</p>
             </div>
             <div className="info-detail">
               <strong>Tracking Number:</strong>
-              <p>{order.delivery?.tracking_number}</p>
+              <p>{order?.delivery?.tracking_number}</p>
             </div>
           </div>
 
@@ -160,11 +160,11 @@ const OrderDetailPage = ({ orderIdProp }) => {
             </h3>
             <div className="info-detail">
               <strong>Method:</strong>
-              <p>{order.payment?.gateway}</p>
+              <p>{order?.payment?.gateway}</p>
             </div>
             <div className="info-detail">
               <strong>Transaction ID:</strong>
-              <p>{order.payment?.id}</p>
+              <p>{order?.payment?.id}</p>
             </div>
           </div>
         </div>
@@ -174,24 +174,24 @@ const OrderDetailPage = ({ orderIdProp }) => {
 
             <FaArrowLeft /> Back to Orders
           </button>
-          {order.status === "Pending" && (
+          {order?.status === "Pending" && (
             <OpenModalButton
               className="cancel-button"
               buttonText="Cancel Order"
               modalComponent={
                 <CancelOrderButton
-                  orderId={order.id}
+                  orderId={order?.id}
                   className="cancel-button"
                 />
               }
             />
           )}
-          {order.status === "Cancelled" && (
+          {order?.status === "Cancelled" && (
             <OpenModalButton
               className="cancel-button"
               buttonText="Delete Order"
               modalComponent={
-                <DeleteOrder orderId={order.id} className="cancel-button" />
+                <DeleteOrder orderId={order?.id} className="cancel-button" />
               }
             />
           )}

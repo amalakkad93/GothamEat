@@ -312,9 +312,11 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
       const errorText = await response.text();
       try {
         const errorJSON = JSON.parse(errorText);
-        dispatch(
-          setError(errorJSON.message || "Failed to fetch order details")
-        );
+        if (response.status === 403) {
+          dispatch(setError(errorJSON.description || "You do not have permission to view this order."));
+        } else {
+          dispatch(setError(errorJSON.message || "Failed to fetch order details"));
+        }
       } catch (jsonError) {
         dispatch(setError(`Server responded with status: ${response.status}`));
       }
@@ -330,6 +332,7 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   //   dispatch(setLoading(false));
   // }
 };
+
 
 // Initial state
 const initialState = {

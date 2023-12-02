@@ -301,6 +301,11 @@ def get_order_details(order_id):
         if not order:
             logging.warning(f"Order with ID {order_id} not found.")
             abort(404, description=f"Order with ID {order_id} not found.")
+
+        # Check if the current user is the owner of the order
+        if order.user_id != current_user.id:
+            abort(403, description="You do not have permission to view this order.")
+
         logging.info(f"Order found: {order}")
 
         # Fetching order items
