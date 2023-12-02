@@ -176,8 +176,14 @@ def create_order_from_cart():
     try:
         data = request.get_json()
         current_app.logger.info(f"Order creation data received: {data}")
+
+        # Log start of order creation
+        current_app.logger.info("Starting order creation process")
+
         total_price, new_order = create_order_logic(data)
-        current_app.logger.info(f"Order created with ID: {new_order.id}, Total Price: {total_price}")
+
+        # Log successful commit
+        current_app.logger.info(f"Order creation successful, committed to DB with ID: {new_order.id}")
 
         return jsonify({
             'success': True,
@@ -188,18 +194,14 @@ def create_order_from_cart():
             'updated_at': new_order.updated_at.isoformat()
         }), HTTPStatus.OK
 
-    except ValueError as ve:
-        db.session.rollback()
-        current_app.logger.error(f"ValueError in order creation: {ve}")
-        return jsonify({'error': str(ve)}), HTTPStatus.BAD_REQUEST
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        current_app.logger.error(f"Database Error in order creation: {e}")
-        return jsonify({'error': 'Database operation failed'}), HTTPStatus.INTERNAL_SERVER_ERROR
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Unexpected Error in order creation: {e}")
+
+        # Log the exception in detail
+        current_app.logger.error(f"Exception in order creation: {type(e).__name__}, {str(e)}")
+
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 
 # ++++++++++++++++++++++++++++
