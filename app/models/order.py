@@ -9,15 +9,10 @@ from ..helper_functions import format_review_date
 class Order(db.Model):
     __tablename__ = 'orders'
     def add_prefix_for_prod(attr):
-        
-        schema = f"{SCHEMA}.{attr}" if environment == "production" else attr
-        current_app.logger.info(f"Schema being used for {attr}: {schema}")
-        return schema
-
-        # if environment == "production":
-        #     return f"{SCHEMA}.{attr}"
-        # else:
-        #     return attr
+        if environment == "production":
+            return f"{SCHEMA}.{attr}"
+        else:
+            return attr
     if environment == "production":
         __table_args__ = {'schema': SCHEMA}
 

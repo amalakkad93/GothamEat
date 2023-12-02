@@ -6,6 +6,7 @@ from flask_migrate import Migrate, current
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_login import LoginManager
 from flask_caching import Cache
+from dotenv import load_dotenv
 from .models import db, User
 from .api import user_routes, auth_routes, restaurant_routes, favorite_routes, review_routes, review_img_routes, menu_item_routes, menu_item_img_routes, shopping_cart_routes, order_routes, payment_routes, maps_routes, ubereats_routes, s3_routes, delivery_routes
 from .seeds import seed_commands
@@ -13,6 +14,8 @@ from .config import Config, cache
 
 import logging
 from logging.handlers import RotatingFileHandler
+
+load_dotenv()
 
 app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
 
@@ -34,6 +37,9 @@ def load_user(id):
 app.cli.add_command(seed_commands)
 
 app.config.from_object(Config)
+
+flask_env = app.config.get('FLASK_ENV', 'default')  
+app.logger.info(f"Application started in {flask_env} environment")
 app.logger.info(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 s3_client = app.config['S3_CLIENT']
