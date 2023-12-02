@@ -34,6 +34,7 @@ def load_user(id):
 app.cli.add_command(seed_commands)
 
 app.config.from_object(Config)
+app.logger.info(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 s3_client = app.config['S3_CLIENT']
 s3_location = app.config['S3_LOCATION']
