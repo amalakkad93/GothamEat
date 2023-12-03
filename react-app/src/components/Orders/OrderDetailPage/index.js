@@ -67,7 +67,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   // Check for loading states
   // if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
-  if (error || fetchError) return <p>Error fetching Order Detail: {error || fetchError}</p>;
+  // if (error || fetchError) return <p>Error fetching Order Detail: {error || fetchError}</p>;
   // Check if order details are available
   // Check if dataFetched is true before showing "not found" message
   if (dataFetched && !order) return <p>Order details not found.</p>;
