@@ -148,7 +148,7 @@ const CheckoutPage = () => {
             cartItems: detailedItems,
           },
         });
-        await dispatch(thunkClearCart());
+        // await dispatch(thunkClearCart());
       } else {
         console.error("Order creation error:", orderResponse.error);
         alert(
