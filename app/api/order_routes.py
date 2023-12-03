@@ -92,80 +92,80 @@ def get_user_orders(user_id):
         # In case of unexpected errors, return a generic error message
         return jsonify({"error": "An unexpected error occurred while fetching the orders."}), 500
 
-# ***************************************************************
-# Endpoint to Create an Order
-# ***************************************************************
-@login_required
-@order_routes.route('', methods=['POST'])
-def create_order():
-    """
-    Create a new order with associated order items.
+# # ***************************************************************
+# # Endpoint to Create an Order
+# # ***************************************************************
+# @login_required
+# @order_routes.route('', methods=['POST'])
+# def create_order():
+#     """
+#     Create a new order with associated order items.
 
-    Returns:
-        Response: A JSON representation of the newly created order and its items or an error message.
-    """
-    form = OrderForm()
+#     Returns:
+#         Response: A JSON representation of the newly created order and its items or an error message.
+#     """
+#     form = OrderForm()
 
-    # Validate the form data
-    if form.validate_on_submit():
-        try:
-            # Begin a transaction block
-            with db.session.begin_nested():
-                # Fetch the user's shopping cart
-                shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+#     # Validate the form data
+#     if form.validate_on_submit():
+#         try:
+#             # Begin a transaction block
+#             with db.session.begin_nested():
+#                 # Fetch the user's shopping cart
+#                 shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
 
-                if not shopping_cart or not shopping_cart.items:
-                    return jsonify({"error": "Shopping cart is empty."}), 400
+#                 if not shopping_cart or not shopping_cart.items:
+#                     return jsonify({"error": "Shopping cart is empty."}), 400
 
-                # Calculate total price based on cart items
-                total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+#                 # Calculate total price based on cart items
+#                 total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
 
-                # Create a new order instance with the calculated total price and status from the form
-                order = Order(
-                    user_id=current_user.id,
-                    total_price=total_price,
-                    status=form.status.data
-                )
-                db.session.add(order)
+#                 # Create a new order instance with the calculated total price and status from the form
+#                 order = Order(
+#                     user_id=current_user.id,
+#                     total_price=total_price,
+#                     status=form.status.data
+#                 )
+#                 db.session.add(order)
 
-                # Create order items based on shopping cart items
-                for cart_item in shopping_cart.items:
-                    order_item = OrderItem(
-                        menu_item_id=cart_item.menu_item_id,
-                        order_id=order.id,
-                        quantity=cart_item.quantity
-                    )
-                    db.session.add(order_item)
+#                 # Create order items based on shopping cart items
+#                 for cart_item in shopping_cart.items:
+#                     order_item = OrderItem(
+#                         menu_item_id=cart_item.menu_item_id,
+#                         order_id=order.id,
+#                         quantity=cart_item.quantity
+#                     )
+#                     db.session.add(order_item)
 
-                # Clear the shopping cart
-                for cart_item in shopping_cart.items:
-                    db.session.delete(cart_item)
+#                 # Clear the shopping cart
+#                 for cart_item in shopping_cart.items:
+#                     db.session.delete(cart_item)
 
-                # Commit the transaction
-                db.session.commit()
+#                 # Commit the transaction
+#                 db.session.commit()
 
-            # Normalize and return the response
-            order_items = [item.to_dict() for item in order.items]
-            normalized_order_items = normalize_data(order_items, 'id')
-            return jsonify({
-                "entities": {
-                    "orders": {
-                        "byId": {
-                            order.id: order.to_dict()
-                        },
-                        "allIds": [order.id]
-                    },
-                    "orderItems": normalized_order_items
-                }
-            })
+#             # Normalize and return the response
+#             order_items = [item.to_dict() for item in order.items]
+#             normalized_order_items = normalize_data(order_items, 'id')
+#             return jsonify({
+#                 "entities": {
+#                     "orders": {
+#                         "byId": {
+#                             order.id: order.to_dict()
+#                         },
+#                         "allIds": [order.id]
+#                     },
+#                     "orderItems": normalized_order_items
+#                 }
+#             })
 
-        except Exception as e:
-            # Roll back in case of any error
-            db.session.rollback()
-            return jsonify({"error": "An unexpected error occurred while creating the order: " + str(e)}), 500
+#         except Exception as e:
+#             # Roll back in case of any error
+#             db.session.rollback()
+#             return jsonify({"error": "An unexpected error occurred while creating the order: " + str(e)}), 500
 
-    # If the form did not validate, return the errors
-    return jsonify({'errors': form.errors}), 400
+#     # If the form did not validate, return the errors
+#     return jsonify({'errors': form.errors}), 400
 
 # ***************************************************************
 # Endpoint to Create an Order From Cart

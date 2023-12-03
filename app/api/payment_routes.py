@@ -82,7 +82,7 @@ def create_payment():
         if form.validate():
             gateway = form.gateway.data
             current_app.logger.info(f"Using payment gateway: {gateway}")
-            
+
             if gateway not in ["Stripe", "PayPal", "Credit Card"]:
                 raise ValueError(f"Invalid payment gateway: {gateway}")
 
@@ -110,16 +110,21 @@ def create_payment():
             db.session.add(payment)
             db.session.commit()
             return api_response(data=payment.to_dict(), status_code=201)
+
         else:
             current_app.logger.error(f"Form validation errors: {form.errors}")
             return api_response(error=form.errors, status_code=400)
+        
     except ValueError as ve:
         current_app.logger.error(f"Validation Error: {str(ve)}")
         return api_response(error=str(ve), status_code=400)
+
     except Exception as e:
         current_app.logger.error(f"Error creating payment record: {str(e)}")
+        current_app.logger.error("Session state before rollback: %s", db.session.dirty)
         db.session.rollback()
         return api_response(error=str(e), status_code=500)
+
 
 # ***************************************************************
 # Endpoint to Update a Payment

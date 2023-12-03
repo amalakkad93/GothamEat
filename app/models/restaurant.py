@@ -1,6 +1,6 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
-from .db import db, environment, SCHEMA, add_prefix_for_prod
+from .db import db, environment, SCHEMA
 from .review import Review
 from .menu_item import MenuItem
 from .order import Order
@@ -38,7 +38,7 @@ class Restaurant(db.Model):
 
     menu_items = db.relationship('MenuItem', backref='restaurant', lazy=True, cascade="all, delete-orphan")
     reviews = db.relationship('Review', backref='restaurant', lazy=True)
-   
+
 
     # # Add the get_delivery_times method to retrieve delivery times for this restaurant
     # def get_delivery_times(self):

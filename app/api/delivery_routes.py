@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, current_app
 from app.models import (
     User,
     db,
@@ -77,18 +77,15 @@ def create_delivery():
             return jsonify({"error": form.errors}), 400
 
     except SQLAlchemyError as e:
+        current_app.logger.error("SQLAlchemyError before rollback: %s", db.session.dirty)
         db.session.rollback()
         logging.error("SQLAlchemyError occurred: %s", e)
         return jsonify({"error": "Database operation failed."}), 500
 
     except Exception as e:
-        logging.error("Unexpected error occurred: %s", e)
         logging.error(f"Unexpected error in create_delivery: {e}", exc_info=True)
         db.session.rollback()
-        return (
-            jsonify({"error": "An error occurred while creating the delivery record."}),
-            500,
-        )
+        return jsonify({"error": "An error occurred while creating the delivery record."}), 500
 
 
 @delivery_routes.route("/<int:delivery_id>", methods=["DELETE"])

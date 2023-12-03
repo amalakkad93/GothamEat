@@ -398,6 +398,6 @@ def clear_cart():
     # Handle any other exceptions and log the error
     except Exception as e:
         current_app.logger.error(f"Unexpected error in clear_cart: {str(e)}")
-        # Rollback any changes to the database in case of errors
+        current_app.logger.error("Session state before rollback: %s", db.session.dirty)
         db.session.rollback()
         return jsonify({"error": "An unexpected error occurred while clearing the cart."}), 500
