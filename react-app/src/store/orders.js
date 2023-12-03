@@ -74,12 +74,12 @@ export const actionCancelOrder = (orderId) => ({
 });
 
 export const setLoading = (loading) => ({
-  type: "SET_LOADING",
+  type: SET_LOADING,
   payload: loading,
 });
 
 export const setError = (error) => ({
-  type: "SET_ERROR",
+  type: SET_ERROR,
   payload: error,
 });
 

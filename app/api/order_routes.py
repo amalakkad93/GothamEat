@@ -244,12 +244,15 @@ def create_order_logic(data):
                 )
                 db.session.add(order_item)
 
+            current_app.logger.info("Attempting to commit transaction")
             db.session.commit()
             current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
+            current_app.logger.info("Transaction committed successfully")
 
             return total_price, new_order
     except Exception as e:
-        current_app.logger.error(f"Error in create_order_logic: {e}")
+        full_traceback = traceback.format_exc()
+        current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
         db.session.rollback()
         raise
 
