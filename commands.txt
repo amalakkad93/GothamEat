@@ -1,61 +1,101 @@
-******************************************Backend******************************************
-****** for flask, flask-migrate, flask-seed ******
-
 flask db init
 flask db migrate
 flask db upgrade
 flask seed all
 
-****** for flask-login ******
+******************************************
+************* Backend Commands ***********
+******************************************
+
+=== Flask Database Management ===
+✨ Initialize Database:
+flask db init
+
+✨ Create Migration Files:
+flask db migrate
+
+✨ Apply Database Migrations:
+flask db upgrade
+
+✨ Seed Database:
+flask seed all
+
+=== Database Reset Script ===
+✨ Reset & Reinitialize Database:
+rm /home/amala/App_Academy/Projects/GothamEats/GothomEats/instance/dev.db && flask db upgrade && flask seed all
+
+=== Python Dependency Management ===
+✨ Generate Requirements File:
 pip freeze > requirements.txt
 
-****** for boto3 AWS S3 bucket ******
-
+=== AWS S3 Integration with Boto3 ===
+✨ Install Boto3:
 pip install boto3
 
-****** for marshmallow ******
+=== Data Serialization with Marshmallow ===
+✨ Install Marshmallow:
 pip install marshmallow
 
-
-****** for arrow ******
+=== Date & Time Handling with Arrow ===
+✨ Install Arrow:
 pip install arrow
 
-****** for flask-cors ******
+=== Cross-Origin Resource Sharing ===
+✨ Install Requests for Flask-CORS:
 pip install requests
 
-******Caching the results of the Geocoding API calls******
+=== Caching for Geocoding API Calls ===
+✨ Install Flask-Caching:
 pip install Flask-Caching
 
-****** for google auth ******
+=== Google Authentication Setup ===
+✨ Install Google Auth Libraries:
 pip install google-auth google-auth-oauthlib
 
-******************************************Frontend******************************************
-****** for react-google-maps ******
+******************************************
+*********** Frontend Commands ************
+******************************************
+
+=== React Google Maps Integration ===
+✨ Install React Google Maps:
 npm install @react-google-maps/api
 
-****** for react version 6 ******
+=== Upgrading to React Version 6 ===
+✨ Upgrade to React 6:
 npm install react@6 react-dom@6
 
-****** for Install js-cookie ******
+=== JavaScript Cookie Management ===
+✨ Install JS-Cookie:
 npm install js-cookie
 
-****** for Install heart symbol ******
+=== Font Awesome Heart Icon ===
+✨ Install Font Awesome Icons:
 npm install @fortawesome/free-regular-svg-icons
 
-****Magnifying Glass****
+=== Image Magnification Feature ===
+✨ Add Image Magnifier:
 npm install react-image-magnify --legacy-peer-deps
 
-****** for Install react persist ******
+=== Redux State Persistence ===
+✨ Install Redux-Persist:
 npm install redux-persist
 
-
+=== Additional UI Tools ===
+✨ Toast Notifications:
 npm install react-toastify
+
+✨ Loading Spinners:
 npm install react-spinners
 
+✨ Immutable State Management:
 npm install immer
 
+✨ Google Login Integration:
 npm install react-google-login
 
+✨ Lazy Loading for Images:
 npm install react-lazy-load-image-component
 
-window.persistor.purge(); // to clear the local storage
+=== Clearing Redux Persist Local Storage ===
+✨ Clear Local Storage Data:
+window.persistor.purge();

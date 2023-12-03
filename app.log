@@ -10,3 +10,11 @@ Starting order creation process
 Creating order with data: User ID: 21, Total Price: 5.99, Delivery ID: 42, Payment ID: 42
 Order committed to DB with ID: 42
 Order creation successful, committed to DB with ID: 42
+Application started in default environment
+Database URL: sqlite:///dev.db
+Application started in default environment
+Database URL: sqlite:///dev.db
+Application started in default environment
+Database URL: sqlite:///dev.db
+Application started in default environment
+Database URL: sqlite:///dev.db
