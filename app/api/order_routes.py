@@ -170,6 +170,9 @@ def get_user_orders(user_id):
 # ***************************************************************
 # Endpoint to Create an Order From Cart
 # ***************************************************************
+# ***************************************************************
+# Endpoint to Create an Order From Cart
+# ***************************************************************
 @order_routes.route('/create_order', methods=['POST'])
 @login_required
 def create_order_from_cart():
@@ -194,12 +197,15 @@ def create_order_from_cart():
             'updated_at': new_order.updated_at.isoformat()
         }), HTTPStatus.OK
 
+    except SQLAlchemyError as e:
+        if db.session.is_active:
+            db.session.rollback()
+        current_app.logger.error(f"Database error in order creation: {e}")
+        return jsonify({'error': 'Database error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
     except Exception as e:
-        db.session.rollback()
-
-        # Log the exception in detail
-        current_app.logger.error(f"Exception in order creation: {type(e).__name__}, {str(e)}")
-        current_app.logger.error("Exception in order creation", exc_info=True)
+        if db.session.is_active:
+            db.session.rollback()
+        current_app.logger.error(f"Exception in order creation: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -250,6 +256,12 @@ def create_order_logic(data):
             current_app.logger.info("Transaction committed successfully")
 
             return total_price, new_order
+
+    except SQLAlchemyError as e:
+        # Log SQLAlchemy specific errors
+        current_app.logger.error(f"Database error in create_order_logic: {e}")
+        raise
+    
     except Exception as e:
         full_traceback = traceback.format_exc()
         current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
