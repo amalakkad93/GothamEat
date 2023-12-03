@@ -41,16 +41,16 @@ const DeliveryForm = ({ userId, deliveryCost, onNext }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     onNext({
-      street_address: deliveryFormData.street_address,
-      city: deliveryFormData.city,
-      state: deliveryFormData.state,
-      postal_code: deliveryFormData.postal_code,
-      country: deliveryFormData.country,
+      ...deliveryFormData,
       cost: deliveryCost,
       status: "Pending",
+      user_id: userId,
     });
   };
 
+  if (!userId) console.error("User ID is undefined. Ensure the user is logged in.");
+
+  if (!userId) console.error("User ID is undefined. Ensure the user is logged in.");
   return (
     <div className="ShippingForm">
       <form onSubmit={handleSubmit}>

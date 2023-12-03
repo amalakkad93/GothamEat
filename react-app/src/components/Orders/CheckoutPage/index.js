@@ -55,8 +55,11 @@ const CheckoutPage = () => {
   }, [paymentData, deliveryData]);
 
 
+
+
   const handleDeliverySubmit = async (deliveryFormData) => {
     try {
+
       const deliveryResponse = await dispatch(
         thunkCreateDelivery(deliveryFormData)
       );
@@ -128,6 +131,7 @@ const CheckoutPage = () => {
       payment_id: paymentData.id,
       items: detailedItems,
     };
+    if (!orderData.user_id) console.error("User ID is missing in the order data.");
 
     try {
       const orderResponse = await dispatch(thunkCreateOrderFromCart(orderData));
@@ -159,6 +163,7 @@ const CheckoutPage = () => {
     }
   };
 
+  if (!userId) console.error("User ID is undefined. Ensure the user is logged in.");
   return (
     <div className="checkout-container">
       <Stepper steps={["Delivery", "Payment"]} currentStep={currentStep} />
