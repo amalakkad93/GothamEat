@@ -56,21 +56,17 @@ def error_response(message, status_code):
 @login_required
 @order_routes.route('/user/<int:user_id>')
 def get_user_orders(user_id):
-    """
-    Retrieve all orders associated with the currently authenticated user.
-
-    Returns:
-        Response: A JSON representation of the user's orders or an error message.
-    """
     try:
         if current_user.id != user_id:
             return jsonify({"error": "Unauthorized access"}), 403
+
         # Fetch orders associated with the current user
         orders = Order.query.filter_by(user_id=current_user.id).all()
 
         if not orders:
+            logging.info(f"No orders found for user ID {user_id}")
             return jsonify({
-                "message": "No orders found for the user.",
+                "message": "No orders found.",
                 "entities": {
                     "orders": {
                         "byId": {},
@@ -89,104 +85,213 @@ def get_user_orders(user_id):
         })
 
     except Exception as e:
-        # In case of unexpected errors, return a generic error message
+        logging.error(f"Error fetching orders for user ID {user_id}: {e}")
         return jsonify({"error": "An unexpected error occurred while fetching the orders."}), 500
 
+
+# ***************************************************************
+# Endpoint to Create an Order
+# ***************************************************************
+@login_required
+@order_routes.route('', methods=['POST'])
+def create_order():
+    """
+    Create a new order with associated order items.
+
+    Returns:
+        Response: A JSON representation of the newly created order and its items or an error message.
+    """
+    form = OrderForm()
+
+    # Validate the form data
+    if form.validate_on_submit():
+        try:
+            # Begin a transaction block
+            with db.session.begin_nested():
+                # Fetch the user's shopping cart
+                shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+
+                if not shopping_cart or not shopping_cart.items:
+                    return jsonify({"error": "Shopping cart is empty."}), 400
+
+                # Calculate total price based on cart items
+                total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+
+                # Create a new order instance with the calculated total price and status from the form
+                order = Order(
+                    user_id=current_user.id,
+                    total_price=total_price,
+                    status=form.status.data
+                )
+                db.session.add(order)
+
+                # Create order items based on shopping cart items
+                for cart_item in shopping_cart.items:
+                    order_item = OrderItem(
+                        menu_item_id=cart_item.menu_item_id,
+                        order_id=order.id,
+                        quantity=cart_item.quantity
+                    )
+                    db.session.add(order_item)
+
+                # Clear the shopping cart
+                for cart_item in shopping_cart.items:
+                    db.session.delete(cart_item)
+
+                # Commit the transaction
+                db.session.commit()
+
+            # Normalize and return the response
+            order_items = [item.to_dict() for item in order.items]
+            normalized_order_items = normalize_data(order_items, 'id')
+            return jsonify({
+                "entities": {
+                    "orders": {
+                        "byId": {
+                            order.id: order.to_dict()
+                        },
+                        "allIds": [order.id]
+                    },
+                    "orderItems": normalized_order_items
+                }
+            })
+
+        except Exception as e:
+            # Roll back in case of any error
+            db.session.rollback()
+            return jsonify({"error": "An unexpected error occurred while creating the order: " + str(e)}), 500
+
+    # If the form did not validate, return the errors
+    return jsonify({'errors': form.errors}), 400
+
 # # ***************************************************************
-# # Endpoint to Create an Order
+# # Endpoint to Create an Order From Cart
 # # ***************************************************************
+# @order_routes.route('/create_order', methods=['POST'])
 # @login_required
-# @order_routes.route('', methods=['POST'])
-# def create_order():
-#     """
-#     Create a new order with associated order items.
+# def create_order_from_cart():
+#     try:
+#         data = request.get_json()
+#         current_app.logger.info(f"Order creation data received: {data}")
 
-#     Returns:
-#         Response: A JSON representation of the newly created order and its items or an error message.
-#     """
-#     form = OrderForm()
+#         # Log start of order creation
+#         current_app.logger.info("Starting order creation process")
 
-#     # Validate the form data
-#     if form.validate_on_submit():
-#         try:
-#             # Begin a transaction block
-#             with db.session.begin_nested():
-#                 # Fetch the user's shopping cart
-#                 shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+#         total_price, new_order = create_order_logic(data)
 
-#                 if not shopping_cart or not shopping_cart.items:
-#                     return jsonify({"error": "Shopping cart is empty."}), 400
+#         # Log successful commit
+#         current_app.logger.info(f"Order creation successful, committed to DB with ID: {new_order.id}")
 
-#                 # Calculate total price based on cart items
-#                 total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+#         return jsonify({
+#             'success': True,
+#             'order_id': new_order.id,
+#             'total_price': total_price,
+#             'status': new_order.status,
+#             'created_at': new_order.created_at.isoformat(),
+#             'updated_at': new_order.updated_at.isoformat()
+#         }), HTTPStatus.OK
 
-#                 # Create a new order instance with the calculated total price and status from the form
-#                 order = Order(
-#                     user_id=current_user.id,
-#                     total_price=total_price,
-#                     status=form.status.data
-#                 )
-#                 db.session.add(order)
-
-#                 # Create order items based on shopping cart items
-#                 for cart_item in shopping_cart.items:
-#                     order_item = OrderItem(
-#                         menu_item_id=cart_item.menu_item_id,
-#                         order_id=order.id,
-#                         quantity=cart_item.quantity
-#                     )
-#                     db.session.add(order_item)
-
-#                 # Clear the shopping cart
-#                 for cart_item in shopping_cart.items:
-#                     db.session.delete(cart_item)
-
-#                 # Commit the transaction
-#                 db.session.commit()
-
-#             # Normalize and return the response
-#             order_items = [item.to_dict() for item in order.items]
-#             normalized_order_items = normalize_data(order_items, 'id')
-#             return jsonify({
-#                 "entities": {
-#                     "orders": {
-#                         "byId": {
-#                             order.id: order.to_dict()
-#                         },
-#                         "allIds": [order.id]
-#                     },
-#                     "orderItems": normalized_order_items
-#                 }
-#             })
-
-#         except Exception as e:
-#             # Roll back in case of any error
+#     except SQLAlchemyError as e:
+#         if db.session.is_active:
 #             db.session.rollback()
-#             return jsonify({"error": "An unexpected error occurred while creating the order: " + str(e)}), 500
+#         current_app.logger.error(f"Database error in order creation: {e}")
+#         return jsonify({'error': 'Database error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+#     except Exception as e:
+#         if db.session.is_active:
+#             db.session.rollback()
+#         current_app.logger.error(f"Exception in order creation: {e}")
+#         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
-#     # If the form did not validate, return the errors
-#     return jsonify({'errors': form.errors}), 400
 
+
+# # ++++++++++++++++++++++++++++
+# # Helper Function to Create an Order From Cart
+# def create_order_logic(data):
+#     try:
+#         with db.session.begin_nested():  # Starts a nested transaction
+#             shopping_cart = ShoppingCart.query.options(
+#                 joinedload(ShoppingCart.items)
+#             ).filter_by(user_id=current_user.id).first()
+
+#             if not shopping_cart or not shopping_cart.items:
+#                 raise ValueError("Shopping cart is empty")
+
+#             total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
+
+#             delivery_id = data.get('delivery_id')
+#             payment_id = data.get('payment_id')
+
+#             ic(current_user.id)
+
+#             new_order = Order(
+#                 user_id=current_user.id,
+#                 total_price=total_price,
+#                 delivery_id=delivery_id,
+#                 payment_id=payment_id,
+#                 status='Pending',
+#                 created_at=datetime.datetime.now(datetime.timezone.utc),
+#                 updated_at=datetime.datetime.now(datetime.timezone.utc),
+#                 is_deleted=False
+#             )
+#             current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
+#             db.session.add(new_order)
+#             db.session.flush()
+
+#             # Create order items from shopping cart
+#             for cart_item in shopping_cart.items:
+#                 order_item = OrderItem(
+#                     order_id=new_order.id,
+#                     menu_item_id=cart_item.menu_item_id,
+#                     quantity=cart_item.quantity
+#                 )
+#                 db.session.add(order_item)
+
+#             current_app.logger.info("Attempting to commit transaction")
+#             db.session.commit()
+#             current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
+#             current_app.logger.info("Transaction committed successfully")
+
+#             return total_price, new_order
+
+#     except SQLAlchemyError as e:
+#         # Log SQLAlchemy specific errors
+#         current_app.logger.error(f"Database error in create_order_logic: {e}")
+#         raise
+
+#     except Exception as e:
+#         full_traceback = traceback.format_exc()
+#         current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
+#         db.session.rollback()
+#         raise
 # ***************************************************************
 # Endpoint to Create an Order From Cart
 # ***************************************************************
-# ***************************************************************
-# Endpoint to Create an Order From Cart
-# ***************************************************************
+
 @order_routes.route('/create_order', methods=['POST'])
 @login_required
 def create_order_from_cart():
     try:
+        # Step 1: Get order data and validate
         data = request.get_json()
         current_app.logger.info(f"Order creation data received: {data}")
 
-        # Log start of order creation
-        current_app.logger.info("Starting order creation process")
+        # Validate shopping cart
+        shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
+        if not shopping_cart or not shopping_cart.items:
+            return jsonify({'error': 'Shopping cart is empty'}), HTTPStatus.BAD_REQUEST
 
-        total_price, new_order = create_order_logic(data)
+        # Calculate total price
+        total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
 
-        # Log successful commit
-        current_app.logger.info(f"Order creation successful, committed to DB with ID: {new_order.id}")
+        # Step 2: Create the order
+        new_order = create_new_order(data, total_price)
+
+        # Step 3: Create order items
+        create_order_items(shopping_cart, new_order)
+
+        # Step 4: Commit transaction
+        db.session.commit()
+        current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
 
         return jsonify({
             'success': True,
@@ -198,77 +303,51 @@ def create_order_from_cart():
         }), HTTPStatus.OK
 
     except SQLAlchemyError as e:
-        if db.session.is_active:
-            db.session.rollback()
-        current_app.logger.error(f"Database error in order creation: {e}")
-        return jsonify({'error': 'Database error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
+        db.session.rollback()
+        error_details = f"Database error in order creation: {type(e).__name__}, {str(e)}"
+        current_app.logger.error(error_details)
+        return jsonify({'error': 'Database error occurred', 'details': error_details}), HTTPStatus.INTERNAL_SERVER_ERROR
+
     except Exception as e:
-        if db.session.is_active:
-            db.session.rollback()
-        current_app.logger.error(f"Exception in order creation: {e}")
-        return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
-
-
+        db.session.rollback()
+        error_details = f"Exception in order creation: {type(e).__name__}, {str(e)}"
+        error_traceback = traceback.format_exc()
+        current_app.logger.error(f"{error_details}\n{error_traceback}")
+        return jsonify({'error': 'An unexpected error occurred', 'details': error_details, 'traceback': error_traceback}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 # ++++++++++++++++++++++++++++
-# Helper Function to Create an Order From Cart
-def create_order_logic(data):
-    try:
-        with db.session.begin_nested():  # Starts a nested transaction
-            shopping_cart = ShoppingCart.query.options(
-                joinedload(ShoppingCart.items)
-            ).filter_by(user_id=current_user.id).first()
+# Helper Function to Create an Order
+def create_new_order(data, total_price):
+    delivery_id = data.get('delivery_id')
+    payment_id = data.get('payment_id')
 
-            if not shopping_cart or not shopping_cart.items:
-                raise ValueError("Shopping cart is empty")
+    new_order = Order(
+        user_id=current_user.id,
+        total_price=total_price,
+        delivery_id=delivery_id,
+        payment_id=payment_id,
+        status='Pending',
+        created_at=datetime.datetime.now(datetime.timezone.utc),
+        updated_at=datetime.datetime.now(datetime.timezone.utc),
+        is_deleted=False
+    )
+    current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
+    db.session.add(new_order)
+    return new_order
 
-            total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-
-            delivery_id = data.get('delivery_id')
-            payment_id = data.get('payment_id')
-
-            ic(current_user.id)
-            
-            new_order = Order(
-                user_id=current_user.id,
-                total_price=total_price,
-                delivery_id=delivery_id,
-                payment_id=payment_id,
-                status='Pending',
-                created_at=datetime.datetime.now(datetime.timezone.utc),
-                updated_at=datetime.datetime.now(datetime.timezone.utc),
-                is_deleted=False
-            )
-            current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
-            db.session.add(new_order)
-            db.session.flush()
-
-            # Create order items from shopping cart
-            for cart_item in shopping_cart.items:
-                order_item = OrderItem(
-                    order_id=new_order.id,
-                    menu_item_id=cart_item.menu_item_id,
-                    quantity=cart_item.quantity
-                )
-                db.session.add(order_item)
-
-            current_app.logger.info("Attempting to commit transaction")
-            db.session.commit()
-            current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
-            current_app.logger.info("Transaction committed successfully")
-
-            return total_price, new_order
-
-    except SQLAlchemyError as e:
-        # Log SQLAlchemy specific errors
-        current_app.logger.error(f"Database error in create_order_logic: {e}")
-        raise
-
-    except Exception as e:
-        full_traceback = traceback.format_exc()
-        current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
-        db.session.rollback()
-        raise
+# ++++++++++++++++++++++++++++
+# Helper Function to Create an Order Item
+def create_order_items(shopping_cart, new_order):
+    db.session.add(new_order)
+    db.session.flush()
+    for cart_item in shopping_cart.items:
+        order_item = OrderItem(
+            order_id=new_order.id,
+            menu_item_id=cart_item.menu_item_id,
+            quantity=cart_item.quantity
+        )
+        db.session.add(order_item)
+    current_app.logger.info("Order items created successfully")
 
 # # ***************************************************************
 # # Endpoint to Get Order Details
@@ -337,9 +416,10 @@ def get_order_details(order_id):
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
         logging.info(f"Order items fetched for order ID {order_id}: {order_items}")
 
+        # Handling case where no order items are found
         if not order_items:
             logging.warning(f"No order items found for order ID {order_id}")
-            abort(404, description=f"No order items found for order ID {order_id}")
+            order_items = []  # Return an empty list instead of aborting
 
         # Fetching menu items
         menu_item_ids = [oi.menu_item_id for oi in order_items]

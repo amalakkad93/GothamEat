@@ -222,16 +222,36 @@ export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
 };
 
 // Thunk to get user's orders
+// export const thunkGetUserOrders = (userId) => async (dispatch) => {
+//   try {
+//     const response = await fetch(`/api/orders/user/${userId}`);
+
+//     if (!response.ok) {
+//       const errors = await response.json();
+//       console.error(`Error fetching orders for user ID ${userId}:`, errors);
+//       dispatch(setError(errors.message || "Failed to fetch orders"));
+//     } else {
+//       const orders = await response.json();
+//       dispatch(actionSetUserOrders(orders));
+//     }
+//   } catch (error) {
+//     console.error(`An error occurred while fetching orders for user ID ${userId}:`, error);
+//     dispatch(setError("Network error or server is down"));
+//   }
+// };
 export const thunkGetUserOrders = (userId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/orders/user/${userId}`);
     if (response.ok) {
       const orders = await response.json();
-      dispatch(actionSetUserOrders(orders));
+      console.log("🚀 ~ file: orders.js:250 ~ thunkGetUserOrders ~  orders:",  orders)
+      // dispatch(actionSetUserOrders(orders));
+      dispatch(actionSetUserOrders(orders.entities.orders || { byId: {}, allIds: [] }));
       return orders;
     } else {
       const errors = await response.json();
       console.error(`Error fetching orders for user ID ${userId}:`, errors);
+      // Handle your error dispatching here, if needed
     }
   } catch (error) {
     console.error(
@@ -306,16 +326,25 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   // dispatch(setLoading(true));
   try {
+    console.log(`Fetching order details for order ID: ${orderId}`);
     const response = await fetch(`/api/orders/${orderId}`);
+    console.log("Response received:", response);
 
     if (!response.ok) {
       const errorText = await response.text();
       try {
         const errorJSON = JSON.parse(errorText);
         if (response.status === 403) {
-          dispatch(setError(errorJSON.description || "You do not have permission to view this order."));
+          dispatch(
+            setError(
+              errorJSON.description ||
+                "You do not have permission to view this order."
+            )
+          );
         } else {
-          dispatch(setError(errorJSON.message || "Failed to fetch order details"));
+          dispatch(
+            setError(errorJSON.message || "Failed to fetch order details")
+          );
         }
       } catch (jsonError) {
         dispatch(setError(`Server responded with status: ${response.status}`));
@@ -332,7 +361,6 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
   //   dispatch(setLoading(false));
   // }
 };
-
 
 // Initial state
 const initialState = {

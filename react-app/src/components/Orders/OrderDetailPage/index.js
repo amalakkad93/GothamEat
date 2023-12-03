@@ -65,7 +65,7 @@ const OrderDetailPage = ({ orderIdProp }) => {
   }, [dispatch, orderId, order]);
 
   // Check for loading states
-  if (isLoading || isFetching) return <p>Loading order details...</p>;
+  // if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
   if (error || fetchError) return <p>Error: {error || fetchError}</p>;
   // Check if order details are available

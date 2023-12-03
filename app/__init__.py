@@ -15,7 +15,7 @@ from .config import Config, cache
 import logging
 from logging.handlers import RotatingFileHandler
 
-load_dotenv()
+# load_dotenv()
 
 app = Flask(__name__, static_folder='../react-app/build', static_url_path='/')
 
@@ -38,7 +38,7 @@ app.cli.add_command(seed_commands)
 
 app.config.from_object(Config)
 
-flask_env = app.config.get('FLASK_ENV', 'default')  
+flask_env = app.config.get('FLASK_ENV', 'default')
 app.logger.info(f"Application started in {flask_env} environment")
 app.logger.info(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
 

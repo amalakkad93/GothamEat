@@ -1,8 +1,13 @@
 // Merges new entities into the existing state
+// export const mergeEntities = (entityState, newEntities) => {
+//   Object.assign(entityState.byId, newEntities.byId);
+//   entityState.allIds = Array.from(new Set([...entityState.allIds, ...newEntities.allIds]));
+// };
 export const mergeEntities = (entityState, newEntities) => {
   Object.assign(entityState.byId, newEntities.byId);
-  entityState.allIds = Array.from(new Set([...entityState.allIds, ...newEntities.allIds]));
+  entityState.allIds = newEntities.allIds ? Array.from(new Set([...entityState.allIds, ...newEntities.allIds])) : entityState.allIds;
 };
+
 
 // Adds a new entity to the state
 export const addEntity = (entityState, entity) => {
