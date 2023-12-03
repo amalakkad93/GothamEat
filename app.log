@@ -88,3 +88,11 @@ Order items created successfully
 Order committed to DB with ID: 6
 Application started in default environment
 Database URL: sqlite:///dev.db
+Received request to fetch all restaurants.
+Received data: {'menu_item_id': 111, 'quantity': 1}
+Using payment gateway: Stripe
+Order creation data received: {'user_id': 19, 'delivery_id': 7, 'payment_id': 7, 'items': [{'menu_item_id': 111, 'quantity': 1, 'name': 'Chocolate Chip Cookie', 'price': 2.5}]}
+Creating order with data: User ID: 19, Total Price: 2.5, Delivery ID: 7, Payment ID: 7
+Order items created successfully
+Order committed to DB with ID: 7
+Received request to fetch all restaurants.

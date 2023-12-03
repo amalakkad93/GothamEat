@@ -222,44 +222,45 @@ export const thunkUpdateOrderStatus = (orderId, status) => async (dispatch) => {
 };
 
 // Thunk to get user's orders
-// export const thunkGetUserOrders = (userId) => async (dispatch) => {
-//   try {
-//     const response = await fetch(`/api/orders/user/${userId}`);
-
-//     if (!response.ok) {
-//       const errors = await response.json();
-//       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-//       dispatch(setError(errors.message || "Failed to fetch orders"));
-//     } else {
-//       const orders = await response.json();
-//       dispatch(actionSetUserOrders(orders));
-//     }
-//   } catch (error) {
-//     console.error(`An error occurred while fetching orders for user ID ${userId}:`, error);
-//     dispatch(setError("Network error or server is down"));
-//   }
-// };
 export const thunkGetUserOrders = (userId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/orders/user/${userId}`);
-    if (response.ok) {
-      const orders = await response.json();
-      console.log("🚀 ~ file: orders.js:250 ~ thunkGetUserOrders ~  orders:",  orders)
-      // dispatch(actionSetUserOrders(orders));
-      dispatch(actionSetUserOrders(orders.entities.orders || { byId: {}, allIds: [] }));
-      return orders;
-    } else {
+
+    if (!response.ok) {
       const errors = await response.json();
       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-      // Handle your error dispatching here, if needed
+      dispatch(setError(errors.message || "Failed to fetch orders"));
+    } else {
+      const orders = await response.json();
+      dispatch(actionSetUserOrders(orders));
     }
   } catch (error) {
-    console.error(
-      `An error occurred while fetching orders for user ID ${userId}:`,
-      error
-    );
+    console.error(`An error occurred while fetching orders for user ID ${userId}:`, error);
+    dispatch(setError("Network error or server is down"));
   }
 };
+// export const thunkGetUserOrders = (userId) => async (dispatch) => {
+//   console.log("🚀 ~ file: orders.js:243 ~ thunkGetUserOrders ~ userId:", userId)
+//   try {
+//     const response = await fetch(`/api/orders/user/${userId}`);
+//     if (response.ok) {
+//       const orders = await response.json();
+//       console.log("🚀 ~ file: orders.js:250 ~ thunkGetUserOrders ~  orders:",  orders)
+//       // dispatch(actionSetUserOrders(orders));
+//       dispatch(actionSetUserOrders(orders.entities.orders || { byId: {}, allIds: [] }));
+//       return orders;
+//     } else {
+//       const errors = await response.json();
+//       console.error(`Error fetching orders for user ID ${userId}:`, errors);
+//       // Handle your error dispatching here, if needed
+//     }
+//   } catch (error) {
+//     console.error(
+//       `An error occurred while fetching orders for user ID ${userId}:`,
+//       error
+//     );
+//   }
+// };
 
 // Thunk to reorder a past order
 export const thunkReorderPastOrder = (orderId) => async (dispatch) => {

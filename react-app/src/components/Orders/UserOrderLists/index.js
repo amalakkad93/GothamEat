@@ -33,7 +33,7 @@ const UserOrderLists = () => {
   };
 
   if (isLoading) return <div>Loading orders...</div>;
-  if (error) return <div>Error loading orders: {error}</div>;
+  if (error) return <div>Error loading order lists: {error}</div>;
   if (!sessionUser) return <div>Please log in to view your orders.</div>;
   if (!userOrders.length) {
     return <div className="no-order-found-div"><h1 className="no-order-found-h1">No orders found.</h1></div>;
