@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { thunkGetUserOrders } from "../../../store/orders";
 import OrderDetailPage from "../OrderDetailPage";
 import CancelOrderButton from "../CancelOrderButton";
+import { useNavigate } from "react-router-dom";
 
 import "./UserOrderLists.css";
 
 const UserOrderLists = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { orders, sessionUser, isLoading, error} = useSelector((state) => ({
     orders: state.orders.orders.byId,
     sessionUser: state.session.user,
@@ -29,7 +31,8 @@ const UserOrderLists = () => {
 
 
   const handleOrderClick = (orderId) => {
-    setSelectedOrderId(selectedOrderId === orderId ? null : orderId);
+    // setSelectedOrderId(selectedOrderId === orderId ? null : orderId);
+    navigate(`/orders/${orderId}`);
   };
 
   if (isLoading) return <div>Loading orders...</div>;
