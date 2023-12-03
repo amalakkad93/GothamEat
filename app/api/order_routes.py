@@ -227,6 +227,8 @@ def create_order_logic(data):
             delivery_id = data.get('delivery_id')
             payment_id = data.get('payment_id')
 
+            ic(current_user.id)
+            
             new_order = Order(
                 user_id=current_user.id,
                 total_price=total_price,
@@ -261,7 +263,7 @@ def create_order_logic(data):
         # Log SQLAlchemy specific errors
         current_app.logger.error(f"Database error in create_order_logic: {e}")
         raise
-    
+
     except Exception as e:
         full_traceback = traceback.format_exc()
         current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
