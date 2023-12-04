@@ -71,7 +71,7 @@ export default function MenuItem({
               modalComponent={
                 <DeleteMenuItem
                   menuItemId={item?.id}
-                  imageId={item?.menu_item_img_ids[0]}
+                  imageId={item?.menu_item_img_ids?.[0]}
                   restaurantId={item?.restaurant_id}
                   setReloadPage={setReloadPage}
                 />
