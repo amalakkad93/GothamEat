@@ -1,16 +1,22 @@
 // import { fetch } from './csrf';
 
 // Action Types
-const SET_DELIVERIES = 'delivery/SET_DELIVERIES';
-const ADD_DELIVERY = 'delivery/ADD_DELIVERY';
-const UPDATE_DELIVERY = 'delivery/UPDATE_DELIVERY';
-const REMOVE_DELIVERY = 'delivery/REMOVE_DELIVERY';
-const SET_DELIVERY_ERROR = 'delivery/SET_DELIVERY_ERROR';
+const SET_DELIVERIES = "delivery/SET_DELIVERIES";
+const SET_DELIVERY = "delivery/SET_DELIVERY";
+const ADD_DELIVERY = "delivery/ADD_DELIVERY";
+const UPDATE_DELIVERY = "delivery/UPDATE_DELIVERY";
+const REMOVE_DELIVERY = "delivery/REMOVE_DELIVERY";
+const SET_DELIVERY_ERROR = "delivery/SET_DELIVERY_ERROR";
 
 // Action Creators
 const actionSetDeliveries = (deliveries) => ({
   type: SET_DELIVERIES,
   deliveries,
+});
+
+const actionSetDelivery = (delivery) => ({
+  type: SET_DELIVERY,
+  payload: delivery,
 });
 
 const actionAddDelivery = (delivery) => ({
@@ -37,21 +43,21 @@ const actionSetDeliveryError = (error) => ({
 // Thunks
 export const thunkGetDeliveries = () => async (dispatch) => {
   try {
-    const response = await fetch('/api/delivery');
+    const response = await fetch("/api/delivery");
 
     // Check if the network response was not ok to throw an error
     if (!response.ok) {
-      const errMessage = response.status === 404 ? 'Deliveries not found.' : 'Failed to fetch deliveries.';
+      const errMessage =
+        response.status === 404
+          ? "Deliveries not found."
+          : "Failed to fetch deliveries.";
       throw new Error(errMessage);
     }
-
-    // Ensure the response is in JSON format
     let deliveries;
     try {
       deliveries = await response.json();
-
     } catch (e) {
-      throw new Error('Invalid JSON response from server.');
+      throw new Error("Invalid JSON response from server.");
     }
 
     // Dispatch the success action with the deliveries
@@ -59,24 +65,22 @@ export const thunkGetDeliveries = () => async (dispatch) => {
   } catch (error) {
     // Handle network errors
     if (!navigator.onLine) {
-      error.message = 'No internet connection.';
+      error.message = "No internet connection.";
     }
 
-    // Optionally log the error to the console for debugging
-    console.error('Error in thunkGetDeliveries:', error);
+    console.error("Error in thunkGetDeliveries:", error);
 
     // Dispatch the error action with the error message
     dispatch(actionSetDeliveryError(error.message));
   }
 };
 
-
 export const thunkCreateDelivery = (deliveryData) => async (dispatch) => {
   try {
-    const response = await fetch('/api/delivery', {
-      method: 'POST',
+    const response = await fetch("/api/delivery", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(deliveryData),
     });
@@ -94,65 +98,87 @@ export const thunkCreateDelivery = (deliveryData) => async (dispatch) => {
   }
 };
 
-
-
-export const thunkUpdateDelivery = (deliveryId, updates) => async (dispatch) => {
-  try {
-    const response = await fetch(`/api/delivery/${deliveryId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
-
-    if (!response.ok) {
-      const errMessage = response.status === 404 ? 'Delivery not found.' :
-                         response.status === 400 ? 'Invalid update data.' : 'Failed to update delivery.';
-      throw new Error(errMessage);
-    }
-
-    let delivery;
+export const thunkUpdateDelivery =
+  (deliveryId, updates) => async (dispatch) => {
     try {
-      delivery = await response.json();
-    } catch (e) {
-      throw new Error('Invalid JSON response from server.');
-    }
+      const response = await fetch(`/api/delivery/${deliveryId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+      });
 
-    dispatch(actionUpdateDelivery(deliveryId, delivery));
-  } catch (error) {
-    if (!navigator.onLine) {
-      error.message = 'No internet connection.';
-    }
+      if (!response.ok) {
+        const errMessage =
+          response.status === 404
+            ? "Delivery not found."
+            : response.status === 400
+            ? "Invalid update data."
+            : "Failed to update delivery.";
+        throw new Error(errMessage);
+      }
 
-    console.error('Error in thunkUpdateDelivery:', error);
-    dispatch(actionSetDeliveryError(error.message));
-  }
-};
+      let delivery;
+      try {
+        delivery = await response.json();
+      } catch (e) {
+        throw new Error("Invalid JSON response from server.");
+      }
+
+      dispatch(actionUpdateDelivery(deliveryId, delivery));
+    } catch (error) {
+      if (!navigator.onLine) {
+        error.message = "No internet connection.";
+      }
+
+      console.error("Error in thunkUpdateDelivery:", error);
+      dispatch(actionSetDeliveryError(error.message));
+    }
+  };
 
 export const thunkDeleteDelivery = (deliveryId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/delivery/${deliveryId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
-      const errMessage = response.status === 404 ? 'Delivery not found to delete.' : 'Failed to delete delivery.';
+      const errMessage =
+        response.status === 404
+          ? "Delivery not found to delete."
+          : "Failed to delete delivery.";
       throw new Error(errMessage);
     }
 
     dispatch(actionRemoveDelivery(deliveryId));
   } catch (error) {
     if (!navigator.onLine) {
-      error.message = 'No internet connection.';
+      error.message = "No internet connection.";
     }
 
-    console.error('Error in thunkDeleteDelivery:', error);
+    console.error("Error in thunkDeleteDelivery:", error);
     dispatch(actionSetDeliveryError(error.message));
   }
 };
 
+export const thunkGetDeliveryById = (deliveryId) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/delivery/${deliveryId}`);
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch delivery.");
+    }
+
+    const delivery = await response.json();
+    dispatch(actionSetDelivery(delivery));
+    return { payload: delivery };
+  } catch (error) {
+    dispatch(actionSetDeliveryError(error.message));
+    return { error };
+  }
+};
 
 // Initial State
 const initialState = {
@@ -185,7 +211,10 @@ const deliveryReducer = (state = initialState, action) => {
       const { deliveryId, updates } = action;
       return {
         ...state,
-        byId: { ...state.byId, [deliveryId]: { ...state.byId[deliveryId], ...updates } },
+        byId: {
+          ...state.byId,
+          [deliveryId]: { ...state.byId[deliveryId], ...updates },
+        },
       };
     }
     case REMOVE_DELIVERY: {
@@ -196,6 +225,17 @@ const deliveryReducer = (state = initialState, action) => {
         ...state,
         byId: newById,
         allIds: state.allIds.filter((id) => id !== deliveryId),
+      };
+    }
+
+    case SET_DELIVERY: {
+      const delivery = action.payload;
+      return {
+        ...state,
+        byId: { ...state.byId, [delivery.id]: delivery },
+        allIds: state.allIds.includes(delivery.id)
+          ? state.allIds
+          : [...state.allIds, delivery.id],
       };
     }
     case SET_DELIVERY_ERROR: {

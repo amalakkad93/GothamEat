@@ -6,6 +6,7 @@ from sqlalchemy import func, distinct, or_, desc
 from ..forms import ShoppingCartItemForm
 import json
 from ..helper_functions import normalize_data
+from icecream import ic
 
 # Define the blueprint for shopping cart routes
 shopping_cart_routes = Blueprint('shopping_cart', __name__)
@@ -83,9 +84,6 @@ def get_cart():
 # ***************************************************************
 # Endpoint to Add an Item to the Current User's Shopping Cart
 # ***************************************************************
-# @login_required
-# @shopping_cart_routes.route('/<int:id>/items', methods=['POST'])
-# def add_item_to_cart(id):
 @login_required
 @shopping_cart_routes.route('/items/add', methods=['POST'])
 def add_item_to_cart():
@@ -303,29 +301,33 @@ def delete_cart_item(item_id):
         if not cart_item:
             return jsonify({"error": "Cart item not found."}), 404
 
-        # Check if the cart_item is associated with a cart
-        if not cart_item.cart:
-            return jsonify({"error": "Cart item is not associated with a valid cart."}), 400
+        # Check if the cart_item is associated with a cart or
+        # ensure that the current user is the owner of the cart item
+        if not cart_item.cart or cart_item.cart.user_id != current_user.id:
+            return jsonify({"error": "You don't have permission to delete this cart item."}), 403
 
-        # Ensure that the current user is the owner of the cart item
-        if cart_item.cart.user_id != current_user.id:
-            raise PermissionError("You don't have permission to delete this cart item.", 403)
+        # Get the shopping cart ID before deleting the item
+        shopping_cart_id = cart_item.shopping_cart_id
 
         # Remove the cart item from the database
         db.session.delete(cart_item)
         db.session.commit()
 
-        # Return a success message indicating the item was removed
+        # Fetch the updated shopping cart (if it still exists)
+        shopping_cart = ShoppingCart.query.get(shopping_cart_id)
+
+        # Calculate the new total price of the shopping cart
+        if shopping_cart:
+            db.session.refresh(shopping_cart)
+            new_total_price = shopping_cart.calculate_total_price()
+            ic('new_total_price', new_total_price)
+        else:
+            new_total_price = 0
+
+        # Return a success message with the new total price
         return jsonify({
             "message": "Item removed from cart successfully",
-            "entities": {
-                "shoppingCartItems": {
-                    "byId": {
-                        cart_item.id: cart_item.to_dict()
-                    },
-                    "allIds": [cart_item.id]
-                }
-            }
+            "totalPrice": new_total_price
         }), 200
 
     # Handle various types of exceptions and log the errors
@@ -337,6 +339,7 @@ def delete_cart_item(item_id):
     except Exception as e:
         current_app.logger.error(f"Unexpected error in delete_cart_item: {str(e)}")
         return jsonify({"error": "An unexpected error occurred while deleting the cart item."}), 500
+
 
 # ***************************************************************
 # Endpoint to Clear All Items from the Current User's Shopping Cart

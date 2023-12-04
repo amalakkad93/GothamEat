@@ -58,9 +58,9 @@ export const actionSetOrderDetails = (orderDetails) => ({
   payload: orderDetails,
 });
 
-export const actionReorderPastOrder = (order) => ({
+export const actionReorderPastOrder = (orderData) => ({
   type: REORDER_PAST_ORDER,
-  payload: { order },
+  payload: orderData,
 });
 
 export const actionSetOrderItems = (orderItems) => ({
@@ -235,32 +235,13 @@ export const thunkGetUserOrders = (userId) => async (dispatch) => {
       dispatch(actionSetUserOrders(orders));
     }
   } catch (error) {
-    console.error(`An error occurred while fetching orders for user ID ${userId}:`, error);
+    console.error(
+      `An error occurred while fetching orders for user ID ${userId}:`,
+      error
+    );
     dispatch(setError("Network error or server is down"));
   }
 };
-// export const thunkGetUserOrders = (userId) => async (dispatch) => {
-//   console.log("🚀 ~ file: orders.js:243 ~ thunkGetUserOrders ~ userId:", userId)
-//   try {
-//     const response = await fetch(`/api/orders/user/${userId}`);
-//     if (response.ok) {
-//       const orders = await response.json();
-//       console.log("🚀 ~ file: orders.js:250 ~ thunkGetUserOrders ~  orders:",  orders)
-//       // dispatch(actionSetUserOrders(orders));
-//       dispatch(actionSetUserOrders(orders.entities.orders || { byId: {}, allIds: [] }));
-//       return orders;
-//     } else {
-//       const errors = await response.json();
-//       console.error(`Error fetching orders for user ID ${userId}:`, errors);
-//       // Handle your error dispatching here, if needed
-//     }
-//   } catch (error) {
-//     console.error(
-//       `An error occurred while fetching orders for user ID ${userId}:`,
-//       error
-//     );
-//   }
-// };
 
 // Thunk to reorder a past order
 export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
@@ -268,10 +249,19 @@ export const thunkReorderPastOrder = (orderId) => async (dispatch) => {
     const response = await fetch(`/api/orders/${orderId}/reorder`, {
       method: "POST",
     });
+
     if (response.ok) {
-      const order = await response.json();
-      dispatch(actionReorderPastOrder(order));
-      return order;
+      const data = await response.json();
+
+      const newOrderId = data.entities.orders.allIds[0];
+
+      const newOrderData = data.entities.orders.byId[newOrderId];
+      if (newOrderData) {
+        dispatch(actionReorderPastOrder(newOrderData));
+        return newOrderId;
+      } else {
+        console.error("Error: New order data not found in the response");
+      }
     } else {
       const errors = await response.json();
       console.error(`Error reordering order ID ${orderId}:`, errors);
@@ -325,7 +315,6 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
 };
 
 export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
-  // dispatch(setLoading(true));
   try {
     console.log(`Fetching order details for order ID: ${orderId}`);
     const response = await fetch(`/api/orders/${orderId}`);
@@ -358,10 +347,8 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
     console.error("Error fetching order details:", error);
     dispatch(setError("Error fetching order details"));
   }
-  // finally {
-  //   dispatch(setLoading(false));
-  // }
 };
+
 
 // Initial state
 const initialState = {
@@ -384,37 +371,6 @@ export default function ordersReducer(state = initialState, action) {
         mergeEntities(draft.orders, action.payload.orders);
         break;
 
-      // case SET_CREATED_ORDER:
-      //   if (action.payload && Array.isArray(action.payload.items)) {
-      //     // Update the createdOrder in the state
-      //     draft.createdOrder = action.payload.order;
-
-      //     // Iterate through items and update orderItems and menuItems
-      //     action.payload.items.forEach((item) => {
-      //       if (item && item.menu_item_id) {
-      // draft.orderItems.byId[item.menu_item_id] = {
-      //   id: item.menu_item_id,
-      //   name: item.name,
-      //   price: item.price,
-      //   quantity: item.quantity,
-      // };
-
-      //         // Add item to menuItems if not already present
-      //         if (!draft.menuItems.byId[item.menu_item_id]) {
-      // draft.menuItems.byId[item.menu_item_id] = {
-      //   id: item.menu_item_id,
-      //   name: item.name,
-      //   price: item.price,
-      // };
-      //         }
-      //       }
-      //     });
-      //   } else {
-      //     console.error(
-      //       "SET_CREATED_ORDER: 'items' not found or not an array in action payload"
-      //     );
-      //   }
-      //   break;
       case SET_CREATED_ORDER:
         if (action.payload && Array.isArray(action.payload.items)) {
           draft.createdOrder = action.payload.order;
@@ -467,8 +423,17 @@ export default function ordersReducer(state = initialState, action) {
         break;
 
       case REORDER_PAST_ORDER:
-        addEntity(draft.orders, action.order);
-        break;
+        console.log("--Previous State:", state);
+        const updatedState = {
+          ...state,
+          orders: {
+            ...state.orders,
+            byId: { ...state.orders.byId, [action.payload.id]: action.payload },
+            allIds: [...state.orders.allIds, action.payload.id],
+          },
+        };
+        console.log("--Updated State:", updatedState);
+        return updatedState;
 
       case SET_ORDER_ITEMS:
         mergeEntities(draft.orderItems, action.payload.orderItems);

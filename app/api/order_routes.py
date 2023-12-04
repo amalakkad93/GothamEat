@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, request, abort, current_app
+import requests
+
 from flask_login import login_required, current_user
 from icecream import ic
+from sqlalchemy import desc
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
 from datetime import datetime
@@ -8,11 +11,11 @@ from http import HTTPStatus
 from uuid import uuid4
 from app.models import db, Order, OrderItem, MenuItem, ShoppingCart, ShoppingCartItem, Payment, Delivery
 from app.forms import OrderForm, OrderItemForm
-from ..helper_functions import normalize_data, is_authorized_to_access_order, get_payment_gateway_enum
-from ..helper_functions.payment_gateway import PaymentGateway
+from .. import helper_functions as hf
 import traceback
 import logging
 import datetime
+import uuid
 
 # Blueprint for routes related to Orders
 order_routes = Blueprint('orders', __name__)
@@ -74,9 +77,8 @@ def get_user_orders(user_id):
                     }
                 }
             }), 404
-
-        # Normalize the order data for frontend consumption
-        normalized_orders = normalize_data([order.to_dict() for order in orders], 'id')
+        
+        normalized_orders = hf.normalize_data([order.to_dict() for order in orders], 'id')
 
         return jsonify({
             "entities": {
@@ -90,183 +92,8 @@ def get_user_orders(user_id):
 
 
 # ***************************************************************
-# Endpoint to Create an Order
-# ***************************************************************
-@login_required
-@order_routes.route('', methods=['POST'])
-def create_order():
-    """
-    Create a new order with associated order items.
-
-    Returns:
-        Response: A JSON representation of the newly created order and its items or an error message.
-    """
-    form = OrderForm()
-
-    # Validate the form data
-    if form.validate_on_submit():
-        try:
-            # Begin a transaction block
-            with db.session.begin_nested():
-                # Fetch the user's shopping cart
-                shopping_cart = ShoppingCart.query.filter_by(user_id=current_user.id).first()
-
-                if not shopping_cart or not shopping_cart.items:
-                    return jsonify({"error": "Shopping cart is empty."}), 400
-
-                # Calculate total price based on cart items
-                total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-
-                # Create a new order instance with the calculated total price and status from the form
-                order = Order(
-                    user_id=current_user.id,
-                    total_price=total_price,
-                    status=form.status.data
-                )
-                db.session.add(order)
-
-                # Create order items based on shopping cart items
-                for cart_item in shopping_cart.items:
-                    order_item = OrderItem(
-                        menu_item_id=cart_item.menu_item_id,
-                        order_id=order.id,
-                        quantity=cart_item.quantity
-                    )
-                    db.session.add(order_item)
-
-                # Clear the shopping cart
-                for cart_item in shopping_cart.items:
-                    db.session.delete(cart_item)
-
-                # Commit the transaction
-                db.session.commit()
-
-            # Normalize and return the response
-            order_items = [item.to_dict() for item in order.items]
-            normalized_order_items = normalize_data(order_items, 'id')
-            return jsonify({
-                "entities": {
-                    "orders": {
-                        "byId": {
-                            order.id: order.to_dict()
-                        },
-                        "allIds": [order.id]
-                    },
-                    "orderItems": normalized_order_items
-                }
-            })
-
-        except Exception as e:
-            # Roll back in case of any error
-            db.session.rollback()
-            return jsonify({"error": "An unexpected error occurred while creating the order: " + str(e)}), 500
-
-    # If the form did not validate, return the errors
-    return jsonify({'errors': form.errors}), 400
-
-# # ***************************************************************
-# # Endpoint to Create an Order From Cart
-# # ***************************************************************
-# @order_routes.route('/create_order', methods=['POST'])
-# @login_required
-# def create_order_from_cart():
-#     try:
-#         data = request.get_json()
-#         current_app.logger.info(f"Order creation data received: {data}")
-
-#         # Log start of order creation
-#         current_app.logger.info("Starting order creation process")
-
-#         total_price, new_order = create_order_logic(data)
-
-#         # Log successful commit
-#         current_app.logger.info(f"Order creation successful, committed to DB with ID: {new_order.id}")
-
-#         return jsonify({
-#             'success': True,
-#             'order_id': new_order.id,
-#             'total_price': total_price,
-#             'status': new_order.status,
-#             'created_at': new_order.created_at.isoformat(),
-#             'updated_at': new_order.updated_at.isoformat()
-#         }), HTTPStatus.OK
-
-#     except SQLAlchemyError as e:
-#         if db.session.is_active:
-#             db.session.rollback()
-#         current_app.logger.error(f"Database error in order creation: {e}")
-#         return jsonify({'error': 'Database error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
-#     except Exception as e:
-#         if db.session.is_active:
-#             db.session.rollback()
-#         current_app.logger.error(f"Exception in order creation: {e}")
-#         return jsonify({'error': 'An unexpected error occurred'}), HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-
-# # ++++++++++++++++++++++++++++
-# # Helper Function to Create an Order From Cart
-# def create_order_logic(data):
-#     try:
-#         with db.session.begin_nested():  # Starts a nested transaction
-#             shopping_cart = ShoppingCart.query.options(
-#                 joinedload(ShoppingCart.items)
-#             ).filter_by(user_id=current_user.id).first()
-
-#             if not shopping_cart or not shopping_cart.items:
-#                 raise ValueError("Shopping cart is empty")
-
-#             total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
-
-#             delivery_id = data.get('delivery_id')
-#             payment_id = data.get('payment_id')
-
-#             ic(current_user.id)
-
-#             new_order = Order(
-#                 user_id=current_user.id,
-#                 total_price=total_price,
-#                 delivery_id=delivery_id,
-#                 payment_id=payment_id,
-#                 status='Pending',
-#                 created_at=datetime.datetime.now(datetime.timezone.utc),
-#                 updated_at=datetime.datetime.now(datetime.timezone.utc),
-#                 is_deleted=False
-#             )
-#             current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
-#             db.session.add(new_order)
-#             db.session.flush()
-
-#             # Create order items from shopping cart
-#             for cart_item in shopping_cart.items:
-#                 order_item = OrderItem(
-#                     order_id=new_order.id,
-#                     menu_item_id=cart_item.menu_item_id,
-#                     quantity=cart_item.quantity
-#                 )
-#                 db.session.add(order_item)
-
-#             current_app.logger.info("Attempting to commit transaction")
-#             db.session.commit()
-#             current_app.logger.info(f"Order committed to DB with ID: {new_order.id}")
-#             current_app.logger.info("Transaction committed successfully")
-
-#             return total_price, new_order
-
-#     except SQLAlchemyError as e:
-#         # Log SQLAlchemy specific errors
-#         current_app.logger.error(f"Database error in create_order_logic: {e}")
-#         raise
-
-#     except Exception as e:
-#         full_traceback = traceback.format_exc()
-#         current_app.logger.error(f"Error in create_order_logic: {e}\nFull traceback: {full_traceback}")
-#         db.session.rollback()
-#         raise
-# ***************************************************************
 # Endpoint to Create an Order From Cart
 # ***************************************************************
-
 @order_routes.route('/create_order', methods=['POST'])
 @login_required
 def create_order_from_cart():
@@ -284,10 +111,10 @@ def create_order_from_cart():
         total_price = sum(item.quantity * item.menu_item.price for item in shopping_cart.items)
 
         # Step 2: Create the order
-        new_order = create_new_order(data, total_price)
+        new_order = hf.create_new_order(data, total_price)
 
         # Step 3: Create order items
-        create_order_items(shopping_cart, new_order)
+        hf.create_order_items(shopping_cart, new_order)
 
         # Step 4: Commit transaction
         db.session.commit()
@@ -315,80 +142,6 @@ def create_order_from_cart():
         current_app.logger.error(f"{error_details}\n{error_traceback}")
         return jsonify({'error': 'An unexpected error occurred', 'details': error_details, 'traceback': error_traceback}), HTTPStatus.INTERNAL_SERVER_ERROR
 
-# ++++++++++++++++++++++++++++
-# Helper Function to Create an Order
-def create_new_order(data, total_price):
-    delivery_id = data.get('delivery_id')
-    payment_id = data.get('payment_id')
-
-    new_order = Order(
-        user_id=current_user.id,
-        total_price=total_price,
-        delivery_id=delivery_id,
-        payment_id=payment_id,
-        status='Pending',
-        created_at=datetime.datetime.now(datetime.timezone.utc),
-        updated_at=datetime.datetime.now(datetime.timezone.utc),
-        is_deleted=False
-    )
-    current_app.logger.info(f"Creating order with data: User ID: {current_user.id}, Total Price: {total_price}, Delivery ID: {delivery_id}, Payment ID: {payment_id}")
-    db.session.add(new_order)
-    return new_order
-
-# ++++++++++++++++++++++++++++
-# Helper Function to Create an Order Item
-def create_order_items(shopping_cart, new_order):
-    db.session.add(new_order)
-    db.session.flush()
-    for cart_item in shopping_cart.items:
-        order_item = OrderItem(
-            order_id=new_order.id,
-            menu_item_id=cart_item.menu_item_id,
-            quantity=cart_item.quantity
-        )
-        db.session.add(order_item)
-    current_app.logger.info("Order items created successfully")
-
-# # ***************************************************************
-# # Endpoint to Get Order Details
-# # ***************************************************************
-# @login_required
-# @order_routes.route('/<int:order_id>', methods=['GET'])
-# def get_order_details(order_id):
-#     try:
-#         logging.info(f"Fetching details for order ID: {order_id}")
-#         order = Order.query.get(order_id)
-
-#         if not order:
-#             logging.warning(f"Order with ID {order_id} not found.")
-#             abort(404, description=f"Order with ID {order_id} not found.")
-
-#         order_items = OrderItem.query.filter_by(order_id=order_id).all()
-#         if not order_items:
-#             logging.warning(f"No order items found for order ID {order_id}")
-#             abort(404, description=f"No order items found for order ID {order_id}")
-
-#         menu_item_ids = [oi.menu_item_id for oi in order_items]
-#         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_item_ids)).all()
-
-#         order_items_dict = {oi.id: oi.to_dict() for oi in order_items}
-#         menu_items_dict = {mi.id: mi.to_dict() for mi in menu_items}
-
-#         normalized_order_details = {
-#             'order': order.to_dict(),
-#             'orderItems': {"byId": order_items_dict, "allIds": list(order_items_dict.keys())},
-#             'menuItems': {"byId": menu_items_dict, "allIds": list(menu_items_dict.keys())}
-#         }
-
-#         return jsonify(normalized_order_details)
-
-#     except SQLAlchemyError as e:
-#         logging.error(f"Database Error: {e}")
-#         abort(500, description='Database operation failed')
-
-#     except Exception as e:
-#         logging.error(f"Unexpected Error: {e}")
-#         abort(500, description='An unexpected error occurred')
 # ***************************************************************
 # Endpoint to Get Order Details
 # ***************************************************************
@@ -464,70 +217,103 @@ def reorder_past_order(order_id):
                   and menu items, or an error message.
     """
     try:
-        # Fetch the past order using the provided ID
         past_order = Order.query.get(order_id)
-
-        # Check if the past order exists
         if not past_order:
             raise ValueError("Order not found.", 404)
 
-        # Check if the current user has permission to reorder the past order
         if past_order.user_id != current_user.id:
             raise PermissionError("You don't have permission to reorder this order.", 403)
 
-        # Create a new order with the same details as the past order
+        # Create new delivery and payment records
+        ic(past_order)
+        new_delivery = duplicate_delivery(past_order.delivery_id)
+        ic(past_order.delivery_id)
+        new_payment = duplicate_payment(past_order.payment_id)
+        ic(past_order.payment_id)
+
         new_order = Order(
             user_id=current_user.id,
             total_price=past_order.total_price,
-            status='Pending'
+            status='Pending',
+            delivery_id=new_delivery.id,
+            payment_id=new_payment.id
         )
-
-        # Add the new order to the session and get its ID
         db.session.add(new_order)
         db.session.flush()
 
-         # Prepare a list of new order items
+        # Duplicate order items
         new_order_items = [
             OrderItem(menu_item_id=item.menu_item_id, order_id=new_order.id, quantity=item.quantity)
             for item in past_order.items
         ]
-
-        # Bulk insert new order items
         db.session.bulk_save_objects(new_order_items)
         db.session.commit()
 
-        # Extract the new order's items and their associated menu items
+        # Fetch additional details and prepare the response
         order_items = [item.to_dict() for item in new_order.items]
         menu_items_ids = [item['menu_item_id'] for item in order_items]
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
+        normalized_order_items = hf.normalize_data(order_items, 'id')
+        normalized_menu_items = hf.normalize_data([item.to_dict() for item in menu_items], 'id')
 
-        # Normalize the data for order items and menu items for a structured response
-        normalized_order_items = normalize_data(order_items, 'id')
-        normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
-
-        # Return the new order's details, including the associated items and menu items
         return jsonify({
             "message": "Order has been successfully reordered.",
+
             "entities": {
-                "orders": {
-                    "byId": {
-                        new_order.id: new_order.to_dict()
-                    },
-                    "allIds": [new_order.id]
-                },
+                "orders": {"byId": {new_order.id: new_order.to_dict()}, "allIds": [new_order.id]},
                 "orderItems": normalized_order_items,
                 "menuItems": normalized_menu_items
             }
         })
-
-    # Handle specific exceptions for meaningful error messages
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 404
     except PermissionError as pe:
         return jsonify({"error": str(pe)}), 403
     except Exception as e:
-        # Catch any other unexpected exceptions
-        return jsonify({"error": "An unexpected error occurred while reordering."}), 500
+        db.session.rollback()
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+def duplicate_delivery(delivery_id):
+    original_delivery = Delivery.query.get(delivery_id)
+    ic("***********************", original_delivery)
+    if not original_delivery:
+        raise ValueError("Original delivery not found.")
+
+    new_delivery = Delivery(
+        user_id=original_delivery.user_id,
+        street_address=original_delivery.street_address,
+        city=original_delivery.city,
+        state=original_delivery.state,
+        postal_code=original_delivery.postal_code,
+        country=original_delivery.country,
+        cost=original_delivery.cost,
+        status='Pending',
+        tracking_number=str(uuid.uuid4())
+    )
+    db.session.add(new_delivery)
+    db.session.flush()
+    return new_delivery
+
+def duplicate_payment(payment_id):
+    original_payment = Payment.query.get(payment_id)
+    if not original_payment:
+        raise ValueError("Original payment not found.")
+
+    new_payment = Payment(
+        gateway=original_payment.gateway,
+        amount=original_payment.amount,
+        status='Pending',
+
+        cardholder_name=original_payment.cardholder_name,
+        card_number=original_payment.card_number,
+        card_expiry_month=original_payment.card_expiry_month,
+        card_expiry_year=original_payment.card_expiry_year,
+        card_cvc=original_payment.card_cvc,
+        postal_code=original_payment.postal_code
+    )
+    db.session.add(new_payment)
+    db.session.flush()
+    return new_payment
 
 # ***************************************************************
 # Endpoint to Get Order Items
@@ -563,8 +349,8 @@ def get_order_items(order_id):
         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
         # Normalize the data for items and menu items for a structured response
-        normalized_items = normalize_data(items, 'id')
-        normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
+        normalized_items = hf.normalize_data(items, 'id')
+        normalized_menu_items = hf.normalize_data([item.to_dict() for item in menu_items], 'id')
 
         # Return the order's items and their associated menu items
         return jsonify({
@@ -635,7 +421,7 @@ def update_order(order_id):
     Returns:
         Response: A JSON representation of the updated order or an error message.
     """
-    order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+    order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
     if not order:
         return jsonify({"error": "Order not found."}), 404
@@ -664,7 +450,7 @@ def cancel_order(order_id):
     Returns:
         Response: A JSON representation of the canceled order or an error message.
     """
-    order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+    order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
     if not order:
         return jsonify({"error": "Order not found."}), 404
@@ -694,7 +480,7 @@ def update_order_status(order_id):
     Returns:
         Response: A JSON representation of the updated order or an error message.
     """
-    order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+    order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
     if not order:
         return jsonify({"error": "Order not found."}), 404
@@ -737,7 +523,7 @@ def update_order_status(order_id):
 # from flask_login import login_required, current_user
 # from app.models import db, Order, OrderItem, MenuItem
 # from app.forms import OrderForm, OrderItemForm
-# from ..helper_functions import normalize_data, is_authorized_to_access_order
+# from ..helper_functions import hf.normalize_data, hf.is_authorized_to_access_order
 
 # # Blueprint for routes related to Orders
 # order_routes = Blueprint('orders', __name__)
@@ -770,7 +556,7 @@ def update_order_status(order_id):
 #             }), 404
 
 #         # Normalize the order data for frontend consumption
-#         normalized_orders = normalize_data([order.to_dict() for order in orders], 'id')
+#         normalized_orders = hf.normalize_data([order.to_dict() for order in orders], 'id')
 
 #         return jsonify({
 #             "entities": {
@@ -832,7 +618,7 @@ def update_order_status(order_id):
 
 # #         # Return the created order and associated items in a normalized format
 # #         order_items = [item.to_dict() for item in order.items]
-# #         normalized_order_items = normalize_data(order_items, 'id')
+# #         normalized_order_items = hf.normalize_data(order_items, 'id')
 
 # #         return jsonify({
 # #             "entities": {
@@ -897,7 +683,7 @@ def update_order_status(order_id):
 
 #             # Normalize and return the response
 #             order_items = [item.to_dict() for item in order.items]
-#             normalized_order_items = normalize_data(order_items, 'id')
+#             normalized_order_items = hf.normalize_data(order_items, 'id')
 #             return jsonify({
 #                 "entities": {
 #                     "orders": {
@@ -953,8 +739,8 @@ def update_order_status(order_id):
 # #         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
 # #         # Normalize the data for order items and menu items for a structured response
-# #         normalized_order_items = normalize_data(order_items, 'id')
-# #         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
+# #         normalized_order_items = hf.normalize_data(order_items, 'id')
+# #         normalized_menu_items = hf.normalize_data([item.to_dict() for item in menu_items], 'id')
 
 # #         # Return the order details, including the associated items and menu items
 # #         return jsonify({
@@ -1078,8 +864,8 @@ def update_order_status(order_id):
 #         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
 #         # Normalize the data for order items and menu items for a structured response
-#         normalized_order_items = normalize_data(order_items, 'id')
-#         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
+#         normalized_order_items = hf.normalize_data(order_items, 'id')
+#         normalized_menu_items = hf.normalize_data([item.to_dict() for item in menu_items], 'id')
 
 #         # Return the new order's details, including the associated items and menu items
 #         return jsonify({
@@ -1139,8 +925,8 @@ def update_order_status(order_id):
 #         menu_items = MenuItem.query.filter(MenuItem.id.in_(menu_items_ids)).all()
 
 #         # Normalize the data for items and menu items for a structured response
-#         normalized_items = normalize_data(items, 'id')
-#         normalized_menu_items = normalize_data([item.to_dict() for item in menu_items], 'id')
+#         normalized_items = hf.normalize_data(items, 'id')
+#         normalized_menu_items = hf.normalize_data([item.to_dict() for item in menu_items], 'id')
 
 #         # Return the order's items and their associated menu items
 #         return jsonify({
@@ -1210,7 +996,7 @@ def update_order_status(order_id):
 #     Returns:
 #         Response: A JSON representation of the updated order or an error message.
 #     """
-#     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+#     order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
 #     if not order:
 #         return jsonify({"error": "Order not found."}), 404
@@ -1239,7 +1025,7 @@ def update_order_status(order_id):
 #     Returns:
 #         Response: A JSON representation of the canceled order or an error message.
 #     """
-#     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+#     order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
 #     if not order:
 #         return jsonify({"error": "Order not found."}), 404
@@ -1268,7 +1054,7 @@ def update_order_status(order_id):
 #     Returns:
 #         Response: A JSON representation of the updated order or an error message.
 #     """
-#     order, is_authorized = is_authorized_to_access_order(current_user, order_id)
+#     order, is_authorized = hf.is_authorized_to_access_order(current_user, order_id)
 
 #     if not order:
 #         return jsonify({"error": "Order not found."}), 404

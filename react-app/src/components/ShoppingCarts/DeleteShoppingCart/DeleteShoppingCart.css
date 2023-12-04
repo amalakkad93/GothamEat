@@ -1,0 +1,76 @@
+.success-message {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.confirm-modal {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin: 20px 0;
+  position: fixed;
+  left: 50%;
+  top: 19%;
+  transform: translate(-40%, -50%);
+  background-color: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.confirm-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.delete-button:hover {
+  color: darkred;
+}
+
+.confirm-modal button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.confirm-modal .yes-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.confirm-modal .yes-button:hover {
+  background-color: #45a049;
+}
+
+.confirm-modal .no-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.confirm-modal .no-button:hover {
+  background-color: #d73833;
+}

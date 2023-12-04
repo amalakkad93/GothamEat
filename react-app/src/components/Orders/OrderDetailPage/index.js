@@ -7,6 +7,7 @@ import {
   thunkUpdateOrderStatus,
 } from "../../../store/orders";
 import CancelOrderButton from "../CancelOrderButton";
+import ReorderComponent from "../ReorderComponent";
 import DeleteOrder from "../DeleteOrder";
 import OpenModalButton from "../../Modals/OpenModalButton";
 import {
@@ -49,8 +50,11 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const [dataFetched, setDataFetched] = useState(false);
 
   useEffect(() => {
-
-    if (orderId && (!order || order.id !== orderId) && !initialLoadDone.current) {
+    if (
+      orderId &&
+      (!order || order.id !== orderId) &&
+      !initialLoadDone.current
+    ) {
       setIsFetching(true);
       dispatch(thunkGetOrderDetails(orderId))
         .catch((error) => {
@@ -72,7 +76,8 @@ const OrderDetailPage = ({ orderIdProp }) => {
   // Check if dataFetched is true before showing "not found" message
   if (dataFetched && !order) return <p>Order details not found.</p>;
   // Check if the user has permission to view the order
-  if (!isCurrentUserOrder) return <p>You do not have permission to view this order.</p>;
+  if (!isCurrentUserOrder)
+    return <p>You do not have permission to view this order.</p>;
 
   // Generate list of items for the order
   const itemsList = Object.values(orderItems)
@@ -169,9 +174,24 @@ const OrderDetailPage = ({ orderIdProp }) => {
           </div>
         </div>
 
+        {/* {order?.status === "Completed" && (
+          <OpenModalButton
+            className="cancel-button"
+            buttonText="Cancel Order"
+            modalComponent={
+              <ReorderComponent
+                orderId={order?.id}
+                className="cancel-button"
+              />
+            }
+          />
+        )} */}
+
+        <div className="reorder-btn">
+          <ReorderComponent orderId={order?.id} />
+        </div>
         <div className="order-footer">
           <button className="back-button" onClick={() => navigate("/orders")}>
-
             <FaArrowLeft /> Back to Orders
           </button>
           {order?.status === "Pending" && (
@@ -197,7 +217,6 @@ const OrderDetailPage = ({ orderIdProp }) => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

@@ -9,13 +9,26 @@ export const mergeEntities = (entityState, newEntities) => {
 };
 
 
-// Adds a new entity to the state
+// // Adds a new entity to the state
+// export const addEntity = (entityState, entity) => {
+//   entityState.byId[entity.id] = entity;
+//   if (!entityState.allIds.includes(entity.id)) {
+//     entityState.allIds.push(entity.id);
+//   }
+// };
+// Example of addEntity function
 export const addEntity = (entityState, entity) => {
-  entityState.byId[entity.id] = entity;
-  if (!entityState.allIds.includes(entity.id)) {
-    entityState.allIds.push(entity.id);
+  console.log("--Entity received in addEntity:", entity);
+  if (entity && entity.id) {
+    entityState.byId[entity.id] = entity;
+    if (!entityState.allIds.includes(entity.id)) {
+      entityState.allIds.push(entity.id);
+    }
+  } else {
+    console.error("Invalid entity data received:", entity);
   }
 };
+
 
 // Removes an entity from the state
 export const removeEntity = (entityState, entityId) => {

@@ -8,7 +8,7 @@ import { thunkCreatePayment } from "../../../store/payments";
 import { thunkClearCart } from "../../../store/shoppingCarts";
 
 import DeliveryForm from "../../Delivery/DeliveryForm";
-import PaymentForm from "../../Payments/PaymentForm";
+import CreatePaymentForm from "../../Payments/PaymentForm/CreatePaymentForm";
 import Stepper from "../../Stepper";
 
 import "./CheckoutPage.css";
@@ -175,7 +175,7 @@ const CheckoutPage = () => {
         />
       )}
       {currentStep === 1 && (
-        <PaymentForm
+        <CreatePaymentForm
           totalWithDeliveryCost={totalWithDeliveryCost}
           deliveryCost={deliveryCost}
           totalAmount={totalAmount}

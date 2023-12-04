@@ -7,7 +7,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import "./PaymentForm.css";
 
-function PaymentForm({
+export default function CreatePaymentForm({
   totalWithDeliveryCost,
   deliveryCost,
   totalAmount,
@@ -122,5 +122,3 @@ function PaymentForm({
     </div>
   );
 }
-
-export default PaymentForm;

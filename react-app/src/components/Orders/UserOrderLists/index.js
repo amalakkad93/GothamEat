@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { thunkGetUserOrders } from "../../../store/orders";
 import OrderDetailPage from "../OrderDetailPage";
+import OpenModalButton from "../../Modals/OpenModalButton";
 import CancelOrderButton from "../CancelOrderButton";
+import ReorderComponent from "../ReorderComponent";
 import { useNavigate } from "react-router-dom";
 
 import "./UserOrderLists.css";
@@ -45,10 +47,14 @@ const UserOrderLists = () => {
   return (
     <div className="orderList-main-container">
       {userOrders.map((order) => (
-        <div key={order?.id} className="order-list-item" onClick={() => handleOrderClick(order?.id)}>
-          <h2>Order #{order.id}</h2>
-          {selectedOrderId === order?.id && <OrderDetailPage orderIdProp={order?.id} />}
-        </div>
+        <>
+          <div key={order?.id} className="order-list-item" onClick={() => handleOrderClick(order?.id)}>
+            <h2>Order #{order.id}</h2>
+            {selectedOrderId === order?.id && <OrderDetailPage orderIdProp={order?.id} />}
+              {/* <ReorderComponent orderId={order?.id} /> */}
+          </div>
+
+        </>
       ))}
     </div>
   );

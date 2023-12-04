@@ -1,14 +1,20 @@
 // import { fetch } from "./csrf";
 
-const SET_PAYMENTS = 'payments/SET_PAYMENTS';
-const ADD_PAYMENT = 'payments/ADD_PAYMENT';
-const UPDATE_PAYMENT = 'payments/UPDATE_PAYMENT';
-const DELETE_PAYMENT = 'payments/DELETE_PAYMENT';
-const PAYMENT_ERROR = 'payments/PAYMENT_ERROR';
+const SET_PAYMENTS = "payments/SET_PAYMENTS";
+const SET_PAYMENT = "payments/SET_PAYMENT";
+const ADD_PAYMENT = "payments/ADD_PAYMENT";
+const UPDATE_PAYMENT = "payments/UPDATE_PAYMENT";
+const DELETE_PAYMENT = "payments/DELETE_PAYMENT";
+const PAYMENT_ERROR = "payments/PAYMENT_ERROR";
 
 const actionSetPayments = (payments) => ({
   type: SET_PAYMENTS,
   payload: payments,
+});
+
+export const actionSetPayment = (payment) => ({
+  type: SET_PAYMENT,
+  payment,
 });
 
 const actionAddPayment = (payment) => ({
@@ -31,16 +37,30 @@ const actionPaymentError = (error) => ({
   payload: error,
 });
 
-
 export const thunkGetPayments = () => async (dispatch) => {
   try {
-    const response = await fetch('/api/payments');
+    const response = await fetch("/api/payments");
 
     if (response.ok) {
       const payments = await response.json();
       dispatch(actionSetPayments(payments));
     } else {
-      throw new Error('Failed to fetch payments.');
+      throw new Error("Failed to fetch payments.");
+    }
+  } catch (error) {
+    dispatch(actionPaymentError(error.message));
+  }
+};
+
+export const thunkGetPaymentById = (paymentId) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/payments/${paymentId}`);
+
+    if (response.ok) {
+      const payment = await response.json();
+      dispatch(actionSetPayment(payment));
+    } else {
+      throw new Error("Failed to fetch payment.");
     }
   } catch (error) {
     dispatch(actionPaymentError(error.message));
@@ -49,10 +69,10 @@ export const thunkGetPayments = () => async (dispatch) => {
 
 export const thunkCreatePayment = (paymentData) => async (dispatch) => {
   try {
-    const response = await fetch('/api/payments', {
-      method: 'POST',
+    const response = await fetch("/api/payments", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(paymentData),
     });
@@ -73,39 +93,40 @@ export const thunkCreatePayment = (paymentData) => async (dispatch) => {
   }
 };
 
-export const thunkEditPayment = (paymentId, paymentData) => async (dispatch) => {
-  try {
-    const response = await fetch(`/api/payments/${paymentId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(paymentData),
-    });
+export const thunkEditPayment =
+  (paymentId, paymentData) => async (dispatch) => {
+    try {
+      const response = await fetch(`/api/payments/${paymentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
+      });
 
-    if (response.ok) {
-      const payment = await response.json();
-      dispatch(actionUpdatePayment(payment));
-    } else {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update payment.');
+      if (response.ok) {
+        const payment = await response.json();
+        dispatch(actionUpdatePayment(payment));
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update payment.");
+      }
+    } catch (error) {
+      dispatch(actionPaymentError(error.message));
     }
-  } catch (error) {
-    dispatch(actionPaymentError(error.message));
-  }
-};
+  };
 
 export const thunkRemovePayment = (paymentId) => async (dispatch) => {
   try {
     const response = await fetch(`/api/payments/${paymentId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (response.ok) {
       dispatch(actionDeletePayment(paymentId));
     } else {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to delete payment.');
+      throw new Error(error.error || "Failed to delete payment.");
     }
   } catch (error) {
     dispatch(actionPaymentError(error.message));
@@ -113,8 +134,8 @@ export const thunkRemovePayment = (paymentId) => async (dispatch) => {
 };
 
 const initialState = {
-  byId: {},  // Store payments by their ID
-  allIds: [],  // Keep track of all payment IDs
+  byId: {}, // Store payments by their ID
+  allIds: [], // Keep track of all payment IDs
   error: null,
 };
 
@@ -141,13 +162,24 @@ const paymentReducer = (state = initialState, action) => {
           },
         },
       };
+    case SET_PAYMENT: {
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.payment.id]: action.payment,
+        },
+        allIds: [...new Set([...state.allIds, action.payment.id])],
+      };
+    }
+
     case DELETE_PAYMENT:
       const newState = { ...state.byId };
       delete newState[action.payload];
       return {
         ...state,
         byId: newState,
-        allIds: state.allIds.filter(id => id !== action.payload),
+        allIds: state.allIds.filter((id) => id !== action.payload),
       };
     case PAYMENT_ERROR:
       return {

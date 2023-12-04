@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import PaymentForm from '../../Payments/PaymentForm';
+import  CreatePaymentForm from '../../Payments/PaymentForm/CreatePaymentForm';
 import { selectOrderDetails } from '../../../store/selectors';
 
 const PaymentPage = () => {
@@ -15,7 +15,7 @@ const PaymentPage = () => {
   return (
     <div>
       <h1>Complete Your Payment</h1>
-      <PaymentForm orderId={orderId} totalAmount={orderDetails.total_price} />
+      < CreatePaymentForm orderId={orderId} totalAmount={orderDetails.total_price} />
     </div>
   );
 };

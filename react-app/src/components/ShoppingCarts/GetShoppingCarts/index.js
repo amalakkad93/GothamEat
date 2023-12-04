@@ -6,6 +6,7 @@ import EditShoppingCart from "../EditShoppingCart";
 import ClearShoppingCart from "../ClearShoppingCart";
 
 import "./ShoppingCart.css";
+import DeleteShoppingCart from '../DeleteShoppingCart/index';
 
 export default function GetShoppingCart({ onClose }) {
   const dispatch = useDispatch();
@@ -90,6 +91,7 @@ export default function GetShoppingCart({ onClose }) {
     }
   };
 
+
   return (
     <div className="shopping-cart-container">
       {cartItemIds?.length > 0 ? (
@@ -100,7 +102,7 @@ export default function GetShoppingCart({ onClose }) {
           </div>
           <div className="shopping-cart-summary">
             <span>{cartItemIds?.length} item(s)</span>
-            <span>Total: ${cartTotalPrice.toFixed(2)}</span>
+            <span>Total: ${cartTotalPrice?.toFixed(2)}</span>
           </div>
           <ul className="shopping-cart-ul" ref={ulRef}>
             {cartItemIds?.map((itemId) => {
@@ -138,6 +140,7 @@ export default function GetShoppingCart({ onClose }) {
                   </div>
                   <div className="cart-item-details">
                     <EditShoppingCart itemId={itemId} />
+                    <DeleteShoppingCart item={item} />
                     <span>
                       ${(menuItemDetails?.price * item?.quantity)?.toFixed(2)}
                     </span>
@@ -148,7 +151,7 @@ export default function GetShoppingCart({ onClose }) {
           </ul>
           <div className="shopping-cart-total">
             <strong>Total</strong>
-            <span>${cartTotalPrice.toFixed(2)}</span>
+            <span>${cartTotalPrice?.toFixed(2)}</span>
           </div>
           <div className="shopping-cart-btns">
             <button onClick={handleGoToCheckout} className="checkout-button">
