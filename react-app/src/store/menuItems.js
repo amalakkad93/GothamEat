@@ -106,12 +106,6 @@ const actionUploadMenuItemImage = (imageId, imagePath, menuItemId) => ({
   },
 });
 
-/** Creates an action to update a menu item types in the store */
-const actionUpdateMenuItem = (updatedMenuItem) => ({
-  type: UPDATE_MENU_ITEM,
-  updatedMenuItem,
-});
-
 /** Creates an action to delete a menu item types in the store */
 export const actionDeleteMenuItem = (menuItemId) => ({
   type: DELETE_MENU_ITEM,

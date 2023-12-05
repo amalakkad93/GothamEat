@@ -16,12 +16,12 @@ const DeleteOrder = ({ orderId }) => {
   const handleDelete = async () => {
     try {
       await dispatch(thunkDeleteOrder(orderId, userId));
-      // await dispatch(thunkGetUserOrders(userId));
+      await dispatch(thunkGetUserOrders(userId));
 
-      // navigate('/orders');
+      navigate('/orders');
       closeModal();
     } catch (error) {
-      toast.error("Failed to cancel order: " + (error.message || error)); 
+      toast.error("Failed to cancel order: " + (error.message || error));
     }
   };
 

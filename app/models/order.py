@@ -43,8 +43,11 @@ class Order(db.Model):
             'total_price': self.total_price,
             'status': self.status,
             'delivery_time': self.delivery_time,
-            'created_at': format_review_date(self.created_at),
-            'updated_at': format_review_date(self.updated_at),
+            # 'created_at': format_review_date(self.created_at),
+            # 'updated_at': format_review_date(self.updated_at),
+            'created_at': self.created_at.strftime('%m/%d/%y') if self.created_at else None,
+            'updated_at': self.updated_at.strftime('%m/%d/%y') if self.updated_at else None,
+            
             'is_deleted': self.is_deleted,
             'delivery': self.delivery.to_dict() if self.delivery else None,
             'payment': self.payment.to_dict() if self.payment else None,

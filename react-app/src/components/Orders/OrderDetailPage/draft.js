@@ -26,14 +26,16 @@ import "./OrderDetailPage.css";
 const OrderDetailPage = ({ orderIdProp }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const initialLoadDone = useRef(false);
   const { orderId: orderIdFromUrl } = useParams();
   const orderId = orderIdProp || orderIdFromUrl;
-  const order = useSelector(state => state.orders.orders.byId[orderId], shallowEqual);
-  const orderItems = useSelector(state => state.orders.orderItems.byId, shallowEqual);
-  const menuItems = useSelector(state => state.orders.menuItems.byId, shallowEqual);
-  const currentUserId = useSelector(state => state.session.user?.id, shallowEqual);
-  const isLoading = useSelector(state => state.orders.isLoading, shallowEqual);
-  const error = useSelector(state => state.orders.error, shallowEqual);
+  const order = useSelector((state) => state.orders.orders.byId[orderId]);
+  const orderItems = useSelector((state) => state.orders.orderItems.byId);
+  const menuItems = useSelector((state) => state.orders.menuItems.byId);
+  const currentUserId = useSelector((state) => state.session.user?.id);
+  const isLoading = useSelector((state) => state.orders.isLoading);
+  const error = useSelector((state) => state.orders.error);
+  const orderStatus = useSelector(state => state.orders.orders.byId[orderId]?.status);
 
   const [fetchError, setFetchError] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -43,31 +45,35 @@ const OrderDetailPage = ({ orderIdProp }) => {
   const orderTaxAmount = calculateTax(orderAndDeliverySubtotal);
   const totalWithTax = orderAndDeliverySubtotal + orderTaxAmount;
   const formattedFinalTotal = totalWithTax?.toFixed(2);
+
+  const [dataFetched, setDataFetched] = useState(false);
+
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      if (orderId) {
-        setIsFetching(true);
-        try {
-          await dispatch(thunkGetOrderDetails(orderId));
-        } catch (error) {
-          console.error('Error fetching order details:', error);
-          setFetchError('Failed to load order details.');
-        } finally {
+    if (
+      orderId &&
+      (!order || order.id !== orderId) &&
+      !initialLoadDone.current
+    ) {
+      setIsFetching(true);
+      dispatch(thunkGetOrderDetails(orderId))
+        .catch((error) => {
+          console.error("Error fetching order details:", error);
+          setFetchError("Failed to load order details.");
+        })
+        .finally(() => {
           setIsFetching(false);
-        }
-      }
-    };
+          initialLoadDone.current = true;
+        });
+    }
+  }, [dispatch, orderId, order]);
 
-    fetchOrderDetails();
-  }, [dispatch, orderId]);
-
-  console.log("---Rendering OrderDetailPage with orderId:", orderId);
-  console.log("---Current order from Redux store:", order);
-
+  // Check for loading states
+  // if (isLoading || isFetching) return <p>Loading order details...</p>;
   // Check for errors
-  if (error || fetchError) return <p>Error fetching Order Detail: {error || fetchError}</p>;
+  // if (error || fetchError) return <p>Error fetching Order Detail: {error || fetchError}</p>;
   // Check if order details are available
-  if (!order) return null;
+  // Check if dataFetched is true before showing "not found" message
+  if (dataFetched && !order) return <p>Order details not found.</p>;
 
   // Check if the user has permission to view the order
   if (order?.user_id !== currentUserId) return null;

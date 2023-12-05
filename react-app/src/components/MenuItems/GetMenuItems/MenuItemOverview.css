@@ -1,6 +1,10 @@
 .menu-overview-main-container {
   gap: 40px;
+
+  /* margin-left: 391px; */
+  margin-top: 40px;
 }
+
 .menu-item-overview-content {
   display: flex;
   flex-direction: column;
@@ -32,6 +36,16 @@
   /* transform: scale(1.05); */
   cursor: zoom-in;
 }
+
+.magnify-container {
+  width: 500px;
+  height: 500px;
+  border-radius: 20px;
+}
+.magnify-container img {
+  border-radius: 20px;
+}
+
 .magnify-container img:hover {
   cursor: zoom-in;
 }
@@ -40,7 +54,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 90%;
+  /* width: 90%; */
+  width: 33%;
 }
 
 .button-container {
@@ -52,7 +67,7 @@
 
 .menuItemOverview-back-btn {
   padding: 10px 15px;
-  background-color:goldenrod;
+  background-color: goldenrod;
   color: white;
   border: none;
   border-radius: 5px;
@@ -66,7 +81,7 @@
 }
 .menuItemOverview-add-btn {
   padding: 10px 15px;
-  background-color:black;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 5px;
@@ -123,6 +138,6 @@
   }
 
   .overview-text-content {
-    width: 100%; 
+    width: 100%;
   }
 }

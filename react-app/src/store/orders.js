@@ -301,6 +301,9 @@ export const thunkCancelOrder = (orderId) => async (dispatch) => {
       method: "POST",
     });
     if (response.ok) {
+      console.log(
+        `---Cancel Order Thunk: Successfully cancelled order with ID ${orderId}`
+      );
       dispatch(actionCancelOrder(orderId));
     } else {
       const errors = await response.json();
@@ -348,7 +351,6 @@ export const thunkGetOrderDetails = (orderId) => async (dispatch) => {
     dispatch(setError("Error fetching order details"));
   }
 };
-
 
 // Initial state
 const initialState = {
@@ -439,9 +441,15 @@ export default function ordersReducer(state = initialState, action) {
         mergeEntities(draft.orderItems, action.payload.orderItems);
         break;
 
+      // case CANCEL_ORDER:
+      //   if (draft.orders.byId[action.orderId]) {
+      //     draft.orders.byId[action.orderId].status = "Cancelled";
+      //   }
+      //   break;
       case CANCEL_ORDER:
-        if (draft.orders.byId[action.orderId]) {
-          draft.orders.byId[action.orderId].status = "Cancelled";
+        if (draft.orders.byId[action.payload.orderId]) {
+          console.log(`---Reducer: Updating status to 'Cancelled' for order ID ${action.payload.orderId}`);
+          draft.orders.byId[action.payload.orderId].status = "Cancelled";
         }
         break;
 

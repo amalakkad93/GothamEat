@@ -48,13 +48,19 @@ export default function RestaurantDetail() {
     (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] || {},
     shallowEqual
   );
-  const menuItemsForRestaurant = menuItemsByRestaurant?.[restaurantId] ?? [];
+  const menuItemsForRestaurant = useSelector(
+    (state) => state.menuItems?.menuItemsByRestaurant?.[restaurantId] ?? [],
+    shallowEqual
+  );
+
+  // const menuItemsForRestaurant = menuItemsByRestaurant?.[restaurantId] ?? [];
   const menuItemImages = useSelector(
     (state) => state.menuItems?.menuItemImages || {},
     shallowEqual
   );
   const noMenuItems =
-    !menuItemsForRestaurant || menuItemsForRestaurant.length === 0;
+    !menuItemsForRestaurant.allIds ||
+    menuItemsForRestaurant.allIds.length === 0;
 
   const reviewImages = useSelector(
     (state) => state.reviews?.reviewImages || {},
@@ -116,9 +122,11 @@ export default function RestaurantDetail() {
   // **************************************************************************************
 
   // Fetch restaurant details and menu items
+  // Clearing the filter for the new restaurant
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      dispatch(clearFilteredMenuItems());
       await dispatch(thunkGetRestaurantDetails(restaurantId));
       await dispatch(thunkGetMenuItemsByRestaurantId(restaurantId));
       if (isMountedRef.current) {
@@ -175,8 +183,10 @@ export default function RestaurantDetail() {
   // **************************************************************************************
   // Render
   // **************************************************************************************
-  if (!restaurant) return <p>Restaurant not found.</p>;
+  if (!restaurant) return null;
   if (menuItemsByRestaurant === undefined) return null;
+  if(!menuItemsTypes) return null;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="restaurant-detail-container">
@@ -237,18 +247,58 @@ export default function RestaurantDetail() {
       </div>
 
       <div className="restaurant-detail-body">
-        <div className="restaurant-detail-sidebar">
-          <MenuFilter
-            onFilterChange={handleFilterChange}
-            onFilterReset={handleFilterReset}
-            menuTypes={menuItemsTypes}
-          />
-        </div>
+        {!noMenuItems && (
+          <div className="restaurant-detail-sidebar">
+            <MenuFilter
+              onFilterChange={handleFilterChange}
+              onFilterReset={handleFilterReset}
+              menuTypes={menuItemsTypes}
+            />
+          </div>
+        )}
+        {/* <div className="restaurant-detail-sidebar">
+            <MenuFilter
+              onFilterChange={handleFilterChange}
+              onFilterReset={handleFilterReset}
+              menuTypes={menuItemsTypes}
+            />
+            </div> */}
 
         <div className="restaurant-detail-main-content">
+
+
           {/* {(noMenuItems && !currentUser) && <p>No menu items available.</p>} */}
 
-          {/* {!noMenuItems && ( */}
+
+          {/* <div className="menu-items-container">
+            {isFilterApplied
+              ? Object.entries(groupedFilteredItems).map(([type, items]) => (
+                  <MenuSection
+                    key={type}
+                    type={type}
+                    items={items}
+                    menuItemImages={menuItemImages}
+                    setReloadPage={setReloadPage}
+                    restaurantId={restaurantId}
+                  />
+                ))
+              : Object.entries(menuItemsTypes ?? {}).map(([type, itemIds]) => {
+                  const itemsOfType = itemIds
+                    .map((id) => menuItemsByRestaurant?.byId?.[id])
+                    .filter(Boolean);
+                  return (
+                    <MenuSection
+                      key={type}
+                      type={type}
+                      items={itemsOfType}
+                      menuItemImages={menuItemImages}
+                      setReloadPage={setReloadPage}
+                      restaurantId={restaurantId}
+                    />
+                  );
+                })}
+          </div> */}
+      
           <div className="menu-items-container">
             {isFilterApplied
               ? Object.entries(groupedFilteredItems).map(([type, items]) => (
@@ -262,7 +312,7 @@ export default function RestaurantDetail() {
                   />
                 ))
               : Object.entries(menuItemsTypes ?? {}).map(([type, itemIds]) => {
-                const itemsOfType = itemIds
+                  const itemsOfType = itemIds
                     .map((id) => menuItemsByRestaurant?.byId?.[id])
                     .filter(Boolean);
                   return (
@@ -277,7 +327,7 @@ export default function RestaurantDetail() {
                   );
                 })}
           </div>
-          {/* )} */}
+
           {/* Reviews */}
           <div className="reviews-section">
             <h2 className="avgRating-numofReviews">
@@ -320,6 +370,7 @@ export default function RestaurantDetail() {
             {/* )} */}
           </div>
         </div>
+
       </div>
     </div>
   );
