@@ -72,6 +72,9 @@ npm install js-cookie
 ✨ Install Font Awesome Icons:
 npm install @fortawesome/free-regular-svg-icons
 
+npm install --save @fortawesome/free-solid-svg-icons
+
+
 === Image Magnification Feature ===
 ✨ Add Image Magnifier:
 npm install react-image-magnify --legacy-peer-deps

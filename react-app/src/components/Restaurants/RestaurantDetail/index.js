@@ -256,49 +256,9 @@ export default function RestaurantDetail() {
             />
           </div>
         )}
-        {/* <div className="restaurant-detail-sidebar">
-            <MenuFilter
-              onFilterChange={handleFilterChange}
-              onFilterReset={handleFilterReset}
-              menuTypes={menuItemsTypes}
-            />
-            </div> */}
 
         <div className="restaurant-detail-main-content">
 
-
-          {/* {(noMenuItems && !currentUser) && <p>No menu items available.</p>} */}
-
-
-          {/* <div className="menu-items-container">
-            {isFilterApplied
-              ? Object.entries(groupedFilteredItems).map(([type, items]) => (
-                  <MenuSection
-                    key={type}
-                    type={type}
-                    items={items}
-                    menuItemImages={menuItemImages}
-                    setReloadPage={setReloadPage}
-                    restaurantId={restaurantId}
-                  />
-                ))
-              : Object.entries(menuItemsTypes ?? {}).map(([type, itemIds]) => {
-                  const itemsOfType = itemIds
-                    .map((id) => menuItemsByRestaurant?.byId?.[id])
-                    .filter(Boolean);
-                  return (
-                    <MenuSection
-                      key={type}
-                      type={type}
-                      items={itemsOfType}
-                      menuItemImages={menuItemImages}
-                      setReloadPage={setReloadPage}
-                      restaurantId={restaurantId}
-                    />
-                  );
-                })}
-          </div> */}
-      
           <div className="menu-items-container">
             {isFilterApplied
               ? Object.entries(groupedFilteredItems).map(([type, items]) => (

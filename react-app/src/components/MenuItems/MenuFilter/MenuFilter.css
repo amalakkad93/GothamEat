@@ -83,6 +83,7 @@
   .menu-filter-form {
     padding: 15px;
     font-size: 0.8rem;
+
   }
 
   .type-filters label {
@@ -97,7 +98,7 @@
 
   .apply-filter-btn, .reset-filter-btn {
     margin-top: 10px;
-    padding: 6px 10px;
-    font-size: 0.7rem;
+    padding: 8px 16px;
+    font-size: 14px;
   }
 }
