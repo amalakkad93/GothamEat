@@ -104,6 +104,19 @@
 }
 /* Media query for mobile views */
 @media screen and (max-width: 600px) {
+
+  .magnify-container {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .magnify-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
   .menu-item-overview-content {
     width: 100%;
     height: auto;
@@ -111,7 +124,7 @@
   }
 
   .menuItemOverview-h1-tag {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .menuItemOverview-p-tag {

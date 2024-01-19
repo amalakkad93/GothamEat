@@ -131,13 +131,13 @@ select {
   }
 
   .cart-item, .shopping-cart-summary, .shopping-cart-total {
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: start;
   }
 
   .cart-item-name, .cart-item-details {
-    flex-direction: column;
-    align-items: start;
+    /* flex-direction: column; */
+    /* align-items: start; */
   }
 
   .cart-item img {

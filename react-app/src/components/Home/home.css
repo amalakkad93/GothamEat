@@ -124,12 +124,33 @@
 }
 
 @media (max-width: 768px) {
+  .home-container {
+    height: 67vh;
+  }
     .Search-bar-title {
-        font-size: 2em;
+      font-size: 1.6em;
     }
 
     .search-input {
         max-width: 80%;
+        font-size: 1em;
+        padding: 10px 20px;
+
+    }
+    .search-input-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+    .search-input-icon {
+      left: 48px;
+    }
+    .view-all-restaurants-btn {
+      font-size: 1em;
+      padding: 10px 20px;
+
     }
 }
 
@@ -142,6 +163,13 @@
         max-width: 90%;
         padding: 12px 20px;
         font-size: 1.2em;
+    }
+    .search-input-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      font-size: 0.9em;
     }
 
     .use-my-location-btn {

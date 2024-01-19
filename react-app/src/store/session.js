@@ -68,12 +68,12 @@ export const logout = () => async (dispatch) => {
   }
 };
 
-export const signUp = (first_name, last_name, username, email, password) => async (dispatch) => {
+export const signUp =
+  (first_name, last_name, username, email, password) => async (dispatch) => {
     const response = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-
       },
       body: JSON.stringify({
         first_name,
@@ -97,53 +97,9 @@ export const signUp = (first_name, last_name, username, email, password) => asyn
       return ["An error occurred. Please try again."];
     }
   };
-// export const signUp =
-//   (first_name, last_name, username, email, password) => async (dispatch) => {
-//     const csrfInputElement = document.querySelector('input[name="csrf_token"]');
-//     const csrfToken = csrfInputElement ? csrfInputElement.value : null;
-//     if (!csrfToken) {
-//       console.error("CSRF token not found!");
-//       // Handle this situation appropriately
-//       return;
-//     }
-
-//     const response = await fetch("/api/auth/signup", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "X-CSRFToken": csrfToken,
-//       },
-//       body: JSON.stringify({
-//         first_name,
-//         last_name,
-//         username,
-//         email,
-//         password,
-//       }),
-//     });
-
-//     if (response.ok) {
-//       const data = await response.json();
-
-//       // Update the CSRF token on the client side
-//       const newCsrfToken = data.csrf_token;
-//       document.querySelector('input[name="csrf_token"]').value = newCsrfToken;
-
-//       dispatch(setUser(data));
-//       return null;
-//     } else if (response.status < 500) {
-//       const data = await response.json();
-//       if (data.errors) {
-//         return data.errors;
-//       }
-//     } else {
-//       return ["An error occurred. Please try again."];
-//     }
-//   };
 
 export const loginWithGoogle = (token) => async (dispatch) => {
   const response = await fetch("/api/auth/google-login", {
-
     method: "POST",
     headers: {
       "Content-Type": "application/json",

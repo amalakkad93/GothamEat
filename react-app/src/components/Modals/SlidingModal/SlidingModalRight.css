@@ -40,7 +40,35 @@
 }
 
 
+@media (max-width: 760px) {
+  .modal-sidebar-content {
+    width: 100%;
+  }
+  .nav-links {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    background: #333;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    transform: translateX(100%);
+    padding-top: 60px;
+  }
 
+  .nav-links.nav-active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    opacity: 0;
+  }
+
+  .burger {
+    display: block;
+  }
+}
 
 
 

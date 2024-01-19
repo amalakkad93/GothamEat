@@ -1,35 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from "react-router-dom";
-import { useSelector, shallowEqual } from "react-redux";
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import ProfileButton from "./ProfileButton";
 import SlidingModalRight from "../Modals/SlidingModal/SlidingModalRight";
 import ShoppingCart from "../ShoppingCarts/GetShoppingCarts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import { authenticate } from '../../store/session';
 import logo from "../../assets/logo.png";
 import "./Navigation.css";
 
 function Navigation({ isLoaded }) {
-  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const sessionUser = useSelector((state) => state.session.user, shallowEqual);
+  const [isLoading, setIsLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(true);
   const [cartVisible, setCartVisible] = useState(false);
 
-  const handleModalVisibilityChange = (isVisible) => {
-    setNavVisible(!isVisible);
-  };
+  useEffect(() => {
+    dispatch(authenticate()).then(() => setIsLoading(false));
+  }, [dispatch]);
 
-  const toggleCartModal = () => {
-    setCartVisible(!cartVisible);
-  };
-
+  if (isLoading) return null;
   return (
     <div className="navBar-inner-container">
       <div className="profile-btn-logo-container">
       {isLoaded && (
         <ProfileButton
           user={sessionUser}
-          onModalVisibilityChange={handleModalVisibilityChange}
+          onModalVisibilityChange={ (isVisible) => setNavVisible(!isVisible)}
         />
       )}
 
@@ -47,12 +47,12 @@ function Navigation({ isLoaded }) {
       <div className="navBar-spacer"></div>
 
       <div className="navBar-right">
-        {sessionUser ? (
+        {sessionUser && sessionUser ? (
           <>
             <button
               className="cart-btn"
               type="button"
-              onClick={toggleCartModal}
+              onClick={() => setCartVisible(!cartVisible)}
             >
               <FontAwesomeIcon
                 icon={faShoppingCart}
@@ -61,8 +61,8 @@ function Navigation({ isLoaded }) {
               Cart
             </button>
             {/* Sliding Modal for Shopping Cart */}
-            <SlidingModalRight isVisible={cartVisible} onClose={toggleCartModal}>
-              <ShoppingCart onClose={toggleCartModal} />
+            <SlidingModalRight isVisible={cartVisible} onClose={() => setCartVisible(!cartVisible)}>
+              <ShoppingCart onClose={() => setCartVisible(!cartVisible)} />
             </SlidingModalRight>
           </>
         ) : (

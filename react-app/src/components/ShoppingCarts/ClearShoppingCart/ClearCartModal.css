@@ -59,8 +59,8 @@
 /* Media query for mobile views */
 @media (max-width: 600px) {
   .modal-content {
-    width: 90%;
-    margin-left: -45%;
+    /* width: 90%; */
+    /* margin-left: -45%; */
   }
 
   .btn-clear-cart, .btn-add-items {
@@ -68,6 +68,6 @@
   }
 
   .fas .fa-trash-alt, .fas .fa-plus {
-    font-size: 1em; 
+    font-size: 1em;
   }
 }
